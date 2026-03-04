@@ -14,6 +14,7 @@ NODE_IMAGE       := node:22-slim
 # --- Python ---
 python-test:
 	$(CONTAINER_RUNTIME) run --rm \
+		-e UV_LINK_MODE=copy \
 		-v "$$(pwd):/workspace" \
 		-v "beval-uv-cache:/root/.cache/uv" \
 		-w /workspace/python \
@@ -22,6 +23,7 @@ python-test:
 
 python-lint:
 	$(CONTAINER_RUNTIME) run --rm \
+		-e UV_LINK_MODE=copy \
 		-v "$$(pwd):/workspace" \
 		-v "beval-uv-cache:/root/.cache/uv" \
 		-w /workspace/python \
@@ -30,6 +32,7 @@ python-lint:
 
 python-typecheck:
 	$(CONTAINER_RUNTIME) run --rm \
+		-e UV_LINK_MODE=copy \
 		-v "$$(pwd):/workspace" \
 		-v "beval-uv-cache:/root/.cache/uv" \
 		-w /workspace/python \
@@ -91,6 +94,7 @@ ts-lint:
 # --- Conformance Build ---
 conformance-build-python:
 	$(CONTAINER_RUNTIME) run --rm \
+		-e UV_LINK_MODE=copy \
 		-v "$$(pwd):/workspace" \
 		-v "beval-uv-cache:/root/.cache/uv" \
 		-w /workspace/python \

@@ -1,7 +1,7 @@
 using System.CommandLine;
 
 const string Version = "0.1.0";
-const string SpecVersion = "0.2.0";
+const string SpecVersion = "0.1.0";
 
 var rootCommand = new RootCommand("Behavioral evaluation framework for AI agents and LLM-powered systems.")
 {

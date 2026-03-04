@@ -7,7 +7,7 @@
 
 TypeScript implementation of the beval behavioral evaluation framework.
 
-See the root [SPEC.md](../SPEC.md) for the full specification (v0.2.0).
+See the root [SPEC.md](../SPEC.md) for the full specification (v0.1.0).
 
 ## Prerequisites
 

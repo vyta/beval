@@ -75,5 +75,5 @@ All commands use containerized environments with `nerdctl` (or `docker` with `CO
 
 ## Specification conformance
 
-This implementation targets [beval spec v0.2.0](../SPEC.md). Cross-language
+This implementation targets [beval spec v0.1.0](../SPEC.md). Cross-language
 conformance fixtures live in [`../conformance/`](../conformance/).

@@ -12,7 +12,7 @@ import (
 )
 
 const version = "0.1.0"
-const specVersion = "0.2.0"
+const specVersion = "0.1.0"
 
 // Run is the main CLI entrypoint. It parses os.Args and dispatches
 // to the appropriate subcommand.

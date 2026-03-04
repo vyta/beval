@@ -21,7 +21,7 @@ iteration through full validation.
 
 ## Specification
 
-The complete framework specification lives in [SPEC.md](SPEC.md) (v0.2.0).
+The complete framework specification lives in [SPEC.md](SPEC.md) (v0.1.0).
 
 ## Repository Structure
 

@@ -68,5 +68,5 @@ test/
 
 ## Specification conformance
 
-This implementation targets [beval spec v0.2.0](../SPEC.md). Cross-language
+This implementation targets [beval spec v0.1.0](../SPEC.md). Cross-language
 conformance is validated using shared fixtures in [`../conformance/`](../conformance/).

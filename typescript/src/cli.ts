@@ -10,7 +10,7 @@
 import { Command } from "commander";
 
 const VERSION = "0.1.0";
-const SPEC_VERSION = "0.2.0";
+const SPEC_VERSION = "0.1.0";
 
 function buildProgram(): Command {
   const program = new Command();

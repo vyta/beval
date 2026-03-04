@@ -16,7 +16,7 @@ from typing import Any
 
 import yaml
 
-_SPEC_VERSION = "0.2.0"
+_SPEC_VERSION = "0.1.0"
 
 # Exit codes per SPEC §7.4
 EXIT_PASS = 0

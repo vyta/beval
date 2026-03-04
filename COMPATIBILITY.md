@@ -12,11 +12,11 @@ the conformance test suite for the corresponding spec version.
 
 | Spec Version | Python | TypeScript | Go  | C#  |
 |--------------|--------|------------|-----|-----|
-| v0.2.0       | 0.1.0  | —          | —   | —   |
+| v0.1.0       | 0.1.0  | —          | —   | —   |
 
 ## Implementation Status
 
-All implementations target spec v0.2.0 and ship as version 0.1.0. Python is the
+All implementations target spec v0.1.0 and ship as version 0.1.0. Python is the
 only implementation with a functional evaluation pipeline. The remaining three
 have foundational scaffolding (types, DSL, grader registry, CLI argument
 parsing) but cannot execute evaluations end-to-end.

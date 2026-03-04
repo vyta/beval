@@ -1,0 +1,20 @@
+cases:
+  - name: Mixed score aggregation
+    id: mixed_score_aggregation
+    category: search
+    given:
+      query: "What is quantum computing?"
+    when: "the system answers the question"
+    grades:
+      - criterion: "answer mentions quantum"
+        score: 1.0
+        metric: relevance
+        layer: deterministic
+        passed: true
+        detail: "keyword found"
+      - criterion: "answer provides examples"
+        score: 0.0
+        metric: correctness
+        layer: deterministic
+        passed: false
+        detail: "no examples found"

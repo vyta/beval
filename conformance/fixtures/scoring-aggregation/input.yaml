@@ -1,0 +1,32 @@
+cases:
+  - name: Multi-metric scoring
+    id: multi_metric_scoring
+    category: analysis
+    given:
+      query: "Summarize recent climate policy changes."
+    when: "the system researches and summarizes"
+    grades:
+      - criterion: "answer covers climate topic"
+        score: 1.0
+        metric: relevance
+        layer: deterministic
+        passed: true
+        detail: "topic covered"
+      - criterion: "answer covers policy topic"
+        score: 0.8
+        metric: relevance
+        layer: deterministic
+        passed: true
+        detail: "partial coverage"
+      - criterion: "response time acceptable"
+        score: 0.6
+        metric: latency
+        layer: deterministic
+        passed: true
+        detail: "within threshold"
+      - criterion: "sufficient citations"
+        score: 1.0
+        metric: coverage
+        layer: deterministic
+        passed: true
+        detail: "citation count met"

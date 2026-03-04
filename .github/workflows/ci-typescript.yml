@@ -1,0 +1,51 @@
+name: CI - TypeScript
+
+on:
+  push:
+    paths: ["typescript/**", "spec/**", "conformance/**"]
+  pull_request:
+    paths: ["typescript/**", "spec/**", "conformance/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - run: cd typescript && npm ci
+      - run: cd typescript && npx eslint src/
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - run: cd typescript && npm ci
+      - run: cd typescript && npx tsc --noEmit
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - run: cd typescript && npm ci
+      - run: cd typescript && npx vitest run
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - run: cd typescript && npm ci
+      - run: cd typescript && npm audit

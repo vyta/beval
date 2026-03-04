@@ -1,0 +1,3 @@
+metric_weights:
+  relevance: 3.0
+  latency: 1.0

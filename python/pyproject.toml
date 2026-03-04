@@ -1,0 +1,78 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "beval"
+version = "0.1.0"
+description = "Behavioral evaluation framework for AI agents and LLM-powered systems."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+keywords = ["evaluation", "testing", "ai", "llm", "behavioral"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "pyyaml>=6.0.1",
+]
+
+[project.scripts]
+beval = "beval.__main__:console_main"
+
+[project.urls]
+Homepage = "https://github.com/microsoft/beval"
+Repository = "https://github.com/microsoft/beval"
+Documentation = "https://github.com/microsoft/beval#readme"
+Issues = "https://github.com/microsoft/beval/issues"
+
+[project.optional-dependencies]
+validate = ["jsonschema>=4.20.0"]
+tracing = [
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+]
+all = ["beval[validate,tracing]"]
+dev = [
+    "beval[all]",
+    "pytest>=8.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "types-PyYAML>=6.0",
+    "types-jsonschema>=4.20",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/beval"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"../spec/schemas" = "beval/schemas"
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "S", "B", "UP", "PIE"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["opentelemetry.*"]
+ignore_missing_imports = true

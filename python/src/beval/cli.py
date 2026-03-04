@@ -1,0 +1,801 @@
+"""CLI implementation for the beval framework.
+
+Maps the cli.spec.yaml interface contract to argparse subcommands.
+See SPEC.md §7 (Runner), §7.4 (Exit codes), and spec/cli.spec.yaml.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+_SPEC_VERSION = "0.2.0"
+
+# Exit codes per SPEC §7.4
+EXIT_PASS = 0
+EXIT_FAIL = 1
+EXIT_INPUT_ERROR = 2
+EXIT_INFRA_ERROR = 3
+EXIT_INTERNAL_ERROR = 4
+
+
+def _get_version() -> str:
+    """Get package version from metadata, falling back for dev installs."""
+    from importlib.metadata import PackageNotFoundError, version
+
+    try:
+        return version("beval")
+    except PackageNotFoundError:
+        return "0.1.0-dev"
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    """Build the argparse parser matching cli.spec.yaml."""
+    parser = argparse.ArgumentParser(
+        prog="beval",
+        description=(
+            "Behavioral evaluation framework for AI agents and LLM-powered systems."
+        ),
+    )
+
+    # Global flags
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        default=None,
+        help="Path to eval.config.yaml configuration file.",
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", default=False, help="Enable verbose output."
+    )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="Suppress non-essential output.",
+    )
+    parser.add_argument(
+        "--no-color", action="store_true", default=False, help="Disable colored output."
+    )
+    parser.add_argument(
+        "--json", action="store_true", default=False, help="Output results as JSON."
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Available commands.")
+
+    # --- run ---
+    run_parser = subparsers.add_parser(
+        "run", help="Execute evaluation cases."
+    )
+    run_parser.add_argument(
+        "-m",
+        "--mode",
+        type=str,
+        choices=["dev", "dev+process", "validation", "monitoring"],
+        default="dev",
+        help="Evaluation mode.",
+    )
+    run_parser.add_argument(
+        "-l", "--label", type=str, default=None, help="Run label for traceability."
+    )
+    run_parser.add_argument(
+        "--cases",
+        type=str,
+        default=None,
+        help="Path to case YAML file or directory of case files.",
+    )
+    run_parser.add_argument(
+        "--subject",
+        type=str,
+        default=None,
+        help=(
+            "Path to a JSON file containing canned system output (Subject). "
+            "When provided, the runner uses this instead of invoking the live system."
+        ),
+    )
+    run_parser.add_argument("--case", type=str, default=None, help="Filter by case ID.")
+    run_parser.add_argument(
+        "--category", type=str, default=None, help="Filter by category."
+    )
+    run_parser.add_argument(
+        "-t",
+        "--tag",
+        type=str,
+        nargs="*",
+        default=None,
+        help="Include only matching tags.",
+    )
+    run_parser.add_argument(
+        "--exclude-tag",
+        type=str,
+        nargs="*",
+        default=None,
+        help="Exclude matching tags.",
+    )
+    run_parser.add_argument(
+        "--trials", type=int, default=1, help="Number of trial executions per case."
+    )
+    run_parser.add_argument(
+        "--trial-aggregation",
+        type=str,
+        choices=["mean", "median", "worst", "pass_at_k", "pass_all"],
+        default="mean",
+        help="Trial score aggregation strategy.",
+    )
+    run_parser.add_argument(
+        "-o", "--output", type=str, default=None, help="Results output path."
+    )
+    run_parser.add_argument(
+        "--format",
+        type=str,
+        choices=["json", "jsonl"],
+        default="json",
+        help="Results output format.",
+    )
+    run_parser.add_argument(
+        "--use-cache",
+        action="store_true",
+        default=False,
+        help="Use cached outputs.",
+    )
+    run_parser.add_argument(
+        "--score-only",
+        action="store_true",
+        default=False,
+        help="Re-score cached outputs.",
+    )
+    run_parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        default=False,
+        help="Disable caching for this run.",
+    )
+    run_parser.add_argument(
+        "--save-baseline",
+        action="store_true",
+        default=False,
+        help="Save results as baseline after run.",
+    )
+    run_parser.add_argument(
+        "--compare-baseline",
+        action="store_true",
+        default=False,
+        help="Compare results against baseline.",
+    )
+    run_parser.add_argument(
+        "--regression-threshold",
+        type=float,
+        default=0.05,
+        help="Fail if any metric drops more than this value from baseline.",
+    )
+    run_parser.add_argument(
+        "--scrub",
+        action="store_true",
+        default=True,
+        help="Scrub sensitive values from output (default).",
+    )
+    run_parser.add_argument(
+        "--no-scrub",
+        action="store_false",
+        dest="scrub",
+        help="Disable sensitive-value scrubbing.",
+    )
+    run_parser.add_argument(
+        "--skip-mode",
+        type=str,
+        choices=["exclude", "optimistic", "strict"],
+        default=None,
+        help="Skip-grade aggregation mode.",
+    )
+    run_parser.add_argument(
+        "--judge-model",
+        type=str,
+        default=None,
+        help="LLM judge model identifier (overrides config/env).",
+    )
+
+    # --- validate ---
+    validate_parser = subparsers.add_parser(
+        "validate", help="Validate case files, configuration, and schemas."
+    )
+    validate_parser.add_argument(
+        "--cases", type=str, default=None, help="Path to case files or directory."
+    )
+    validate_parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        dest="validate_config",
+        help="Path to config file.",
+    )
+    validate_parser.add_argument(
+        "--schema", type=str, default=None, help="Path to schema file."
+    )
+
+    # --- compare ---
+    compare_parser = subparsers.add_parser(
+        "compare", help="Compare results across runs."
+    )
+    compare_parser.add_argument(
+        "--results", type=str, nargs="*", default=None, help="Paths to result files."
+    )
+    compare_parser.add_argument(
+        "-o", "--output", type=str, default=None, help="Path for comparison output."
+    )
+    compare_parser.add_argument(
+        "--format",
+        type=str,
+        choices=["json", "table"],
+        default="table",
+        help="Output format.",
+    )
+
+    # --- baseline ---
+    baseline_parser = subparsers.add_parser(
+        "baseline", help="Manage baseline snapshots."
+    )
+    baseline_sub = baseline_parser.add_subparsers(
+        dest="baseline_command", help="Baseline subcommands."
+    )
+    baseline_sub.add_parser("save", help="Save the most recent results as baseline.")
+    baseline_sub.add_parser("show", help="Display the current baseline.")
+    baseline_sub.add_parser("clear", help="Remove the saved baseline.")
+
+    # --- cache ---
+    cache_parser = subparsers.add_parser("cache", help="Manage the response cache.")
+    cache_sub = cache_parser.add_subparsers(
+        dest="cache_command", help="Cache subcommands."
+    )
+    cache_sub.add_parser("show", help="Display cache statistics.")
+    cache_sub.add_parser("clear", help="Clear all cached responses.")
+
+    # --- init ---
+    init_parser = subparsers.add_parser("init", help="Initialize a new beval project.")
+    init_parser.add_argument("--dir", type=str, default=".", help="Target directory.")
+
+    # --- version ---
+    subparsers.add_parser("version", help="Print version and build information.")
+
+    return parser
+
+
+def _load_config_file(path: str | None) -> dict[str, Any]:
+    """Load an eval.config.yaml file. Returns empty dict if path is None.
+
+    Supports two formats:
+    - Nested (config.schema.json compliant): top-level ``eval`` key
+    - Flat (legacy): settings at top level
+    """
+    if path is None:
+        return {}
+    config_path = Path(path)
+    if not config_path.is_file():
+        msg = f"Configuration file not found: {path}"
+        raise FileNotFoundError(msg)
+    with open(config_path, encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    if not isinstance(data, dict):
+        msg = f"Expected a mapping in config file {path}, got {type(data).__name__}"
+        raise ValueError(msg)
+    # Nested format: extract eval block (config.schema.json §9.2)
+    if "eval" in data and isinstance(data["eval"], dict):
+        return data["eval"]
+    # Flat format: backward compatibility
+    return data
+
+
+def _handle_env_overrides(args: argparse.Namespace) -> None:
+    """Apply BEVAL_* environment variable overrides. See SPEC §9.3."""
+    env_map = {
+        "BEVAL_MODE": "mode",
+        "BEVAL_OUTPUT_DIR": "output",
+        "BEVAL_TRIALS": "trials",
+        "BEVAL_CASES_DIR": "cases",
+        "BEVAL_SUBJECT": "subject",
+        "BEVAL_LLM_JUDGE_MODEL": "judge_model",
+    }
+    for env_var, attr in env_map.items():
+        val = os.environ.get(env_var)
+        if val is not None and getattr(args, attr, None) is None:
+            if attr == "trials":
+                setattr(args, attr, int(val))
+            else:
+                setattr(args, attr, val)
+
+    # NO_COLOR support (clig.dev standard)
+    if os.environ.get("NO_COLOR") is not None:
+        args.no_color = True
+
+
+def _cmd_version() -> int:
+    """Handle the version command."""
+    print(f"beval v{_get_version()} (spec v{_SPEC_VERSION})")
+    return EXIT_PASS
+
+
+def _cmd_run(args: argparse.Namespace) -> int:
+    """Handle the run command. See SPEC §7."""
+    from beval.loader import load_cases
+    from beval.reporter import to_json, to_jsonl, write_json, write_jsonl
+    from beval.runner import Runner
+    from beval.types import (
+        EvaluationMode,
+        RunConfig,
+        SkipMode,
+        Subject,
+        TrialAggregation,
+    )
+
+    # Validate required input
+    if args.cases is None:
+        print("Error: --cases is required", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+    cases_path = Path(args.cases)
+    if not cases_path.exists():
+        print(f"Error: cases path not found: {args.cases}", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+    # Load cases from YAML
+    try:
+        case_defs = load_cases(args.cases)
+    except (yaml.YAMLError, ValueError) as exc:
+        print(f"Error: invalid case file: {exc}", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+    if not case_defs:
+        print("Error: no cases found", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+    # Load canned subject if provided
+    subject_data: dict[str, Any] | None = None
+    if args.subject:
+        subject_path = Path(args.subject)
+        if not subject_path.is_file():
+            print(f"Error: subject file not found: {args.subject}", file=sys.stderr)
+            return EXIT_INPUT_ERROR
+        with open(subject_path, encoding="utf-8") as f:
+            subject_data = json.load(f)
+
+    # Build handler from subject file (for conformance / replay)
+    handler = None
+    if subject_data is not None:
+        def _subject_handler(**kwargs: Any) -> Subject:
+            return Subject(
+                input=subject_data.get("input", ""),
+                output=subject_data.get("output", ""),
+                completion_time=float(subject_data.get("completion_time", 0.0)),
+                tool_calls=subject_data.get("tool_calls", []),
+                spans=subject_data.get("spans", []),
+                metadata=subject_data.get("metadata", {}),
+            )
+        handler = _subject_handler
+
+    # Build config (CLI flags > config file > defaults)
+    file_config = _load_config_file(args.config)
+
+    # Thresholds: support nested format (config.schema.json) and flat keys (legacy)
+    thresholds = file_config.get("thresholds", {})
+    grade_pass_threshold = (
+        thresholds.get("grade_pass")
+        or file_config.get("grade_pass_threshold", 0.5)
+    )
+    case_pass_threshold = (
+        thresholds.get("case_pass")
+        or file_config.get("case_pass_threshold", 0.7)
+    )
+
+    # Skip mode: CLI > config file > default
+    skip_mode = SkipMode.EXCLUDE
+    if args.skip_mode:
+        skip_mode = SkipMode(args.skip_mode)
+    elif "skip_mode" in file_config:
+        skip_mode = SkipMode(file_config["skip_mode"])
+
+    # Metric weights
+    metric_weights: dict[str, float] = file_config.get("metric_weights", {})
+
+    config = RunConfig(
+        grade_pass_threshold=float(grade_pass_threshold),
+        case_pass_threshold=float(case_pass_threshold),
+        skip_mode=skip_mode,
+        metric_weights=metric_weights,
+    )
+
+    # Mode: CLI > config file > default
+    mode_str = args.mode
+    if mode_str == "dev" and "mode" in file_config:
+        mode_str = file_config["mode"]
+    mode = EvaluationMode(mode_str)
+
+    # Trials: CLI > config file > default
+    trials = args.trials
+    if trials == 1 and "trials" in file_config:
+        trials = int(file_config["trials"])
+
+    # Trial aggregation: CLI > config file > default
+    trial_agg_str = args.trial_aggregation
+    if trial_agg_str == "mean" and "trial_aggregation" in file_config:
+        trial_agg_str = file_config["trial_aggregation"]
+    trial_agg = TrialAggregation(trial_agg_str)
+
+    # Output config from file (CLI --output still overrides)
+    output_config = file_config.get("output", {})
+    if not args.output and "dir" in output_config:
+        args.output = output_config["dir"]
+    if args.format == "json" and "format" in output_config:
+        args.format = output_config["format"]
+
+    runner = Runner(
+        mode=mode,
+        config=config,
+        handler=handler,
+        trials=trials,
+        trial_aggregation=trial_agg,
+        use_cache=getattr(args, "use_cache", False),
+        score_only=getattr(args, "score_only", False),
+        no_cache=getattr(args, "no_cache", False),
+    )
+
+    # Verbose pre-execution diagnostics
+    if args.verbose:
+        print(f"Mode: {mode.value}", file=sys.stderr)
+        print(f"Cases: {len(case_defs)} definitions", file=sys.stderr)
+        print(f"Trials: {trials}", file=sys.stderr)
+        print(f"Config: grade_pass={config.grade_pass_threshold}, "
+              f"case_pass={config.case_pass_threshold}", file=sys.stderr)
+
+    start_time = time.monotonic()
+
+    # Execute
+    try:
+        result = runner.run(
+            case_defs,
+            label=args.label,
+            case_id=args.case,
+            category=args.category,
+            tags=args.tag,
+            exclude_tags=getattr(args, "exclude_tag", None),
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"Error: {exc}", file=sys.stderr)
+        return EXIT_INTERNAL_ERROR
+
+    # Verbose post-execution diagnostics
+    if args.verbose:
+        elapsed = time.monotonic() - start_time
+        print(f"Completed in {elapsed:.2f}s", file=sys.stderr)
+        print(f"Results: {result.summary.total} cases, "
+              f"{result.summary.passed} passed", file=sys.stderr)
+
+    # Output results
+    scrub = getattr(args, "scrub", True)
+    if args.output:
+        output_path = Path(args.output)
+        if output_path.is_dir():
+            output_path = output_path / f"results.{args.format}"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        if args.format == "jsonl":
+            write_jsonl(result, str(output_path), scrub=scrub)
+        else:
+            write_json(result, str(output_path), scrub=scrub)
+        if not args.quiet:
+            print(f"Results written to {output_path}")
+    elif args.format == "jsonl":
+        print(to_jsonl(result, scrub=scrub))
+    elif args.json or not sys.stdout.isatty():
+        print(to_json(result, scrub=scrub))
+    else:
+        _print_summary(result)
+
+    # Baseline support
+    from beval.baseline import compare_baseline, load_baseline, save_baseline
+    from beval.reporter import _prepare
+
+    result_data = _prepare(result, scrub=scrub)
+
+    if getattr(args, "save_baseline", False):
+        bl_path = save_baseline(result_data)
+        if not args.quiet:
+            print(f"Baseline saved to {bl_path}")
+
+    if getattr(args, "compare_baseline", False):
+        bl = load_baseline()
+        if bl is None:
+            print("Warning: no baseline found to compare against", file=sys.stderr)
+        else:
+            threshold = getattr(args, "regression_threshold", 0.05)
+            comparison = compare_baseline(result_data, bl, threshold=threshold)
+            if comparison["regressed"]:
+                if not args.quiet:
+                    for r in comparison["regressions"]:
+                        print(
+                            f"Regression: {r['metric']} "
+                            f"{r['baseline']:.3f} -> {r['current']:.3f} "
+                            f"(delta: {r['delta']:+.3f})",
+                            file=sys.stderr,
+                        )
+                return EXIT_FAIL
+
+    # Determine exit code (§7.4): highest applicable code
+    exit_code = EXIT_PASS
+    for c in result.cases:
+        if c.error is not None:
+            exit_code = max(exit_code, EXIT_INFRA_ERROR)
+        elif not c.passed:
+            exit_code = max(exit_code, EXIT_FAIL)
+
+    return exit_code
+
+
+def _print_summary(result: Any) -> None:
+    """Print a human-readable summary to stdout."""
+    s = result.summary
+    print(f"Score: {s.overall_score:.2f}  "
+          f"Passed: {s.passed}  Failed: {s.failed}  "
+          f"Errored: {s.errored}  Total: {s.total}")
+
+
+def _cmd_validate(args: argparse.Namespace) -> int:
+    """Handle the validate command. Validates case files and config."""
+    from beval.schema import validate
+
+    errors: list[str] = []
+
+    # Validate case files
+    cases_path = getattr(args, "cases", None)
+    if cases_path:
+        import yaml as _yaml
+
+        p = Path(cases_path)
+        files = list(p.glob("*.yaml")) + list(p.glob("*.yml")) if p.is_dir() else [p]
+        for f in files:
+            if not f.is_file():
+                errors.append(f"File not found: {f}")
+                continue
+            with open(f, encoding="utf-8") as fh:
+                try:
+                    data = _yaml.safe_load(fh)
+                except _yaml.YAMLError as exc:
+                    errors.append(f"YAML parse error in {f}: {exc}")
+                    continue
+            case_errors = validate(data, "case.schema.json")
+            for e in case_errors:
+                errors.append(f"{f}: {e}")
+
+    # Validate config file
+    config_path = getattr(args, "validate_config", None)
+    if config_path:
+        try:
+            data = _load_config_file(config_path)
+            config_errors = validate(data, "config.schema.json")
+            for e in config_errors:
+                errors.append(f"config: {e}")
+        except (FileNotFoundError, ValueError) as exc:
+            errors.append(str(exc))
+
+    if not cases_path and not config_path:
+        print("Error: provide --cases or --config to validate", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+    if errors:
+        for e in errors:
+            print(f"  {e}", file=sys.stderr)
+        return EXIT_FAIL
+    print("Validation passed.")
+    return EXIT_PASS
+
+
+def _cmd_compare(args: argparse.Namespace) -> int:
+    """Handle the compare command. Compare results across runs."""
+    results_paths = getattr(args, "results", None)
+    if not results_paths or len(results_paths) < 2:
+        print("Error: provide at least two --results paths", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+    datasets: list[dict[str, Any]] = []
+    for rp in results_paths:
+        p = Path(rp)
+        if not p.is_file():
+            print(f"Error: results file not found: {rp}", file=sys.stderr)
+            return EXIT_INPUT_ERROR
+        with open(p, encoding="utf-8") as f:
+            datasets.append(json.load(f))
+
+    # Build per-metric comparison table
+    all_metrics: set[str] = set()
+    for ds in datasets:
+        all_metrics.update(ds.get("summary", {}).get("metrics", {}).keys())
+
+    rows: list[dict[str, Any]] = []
+    for i, ds in enumerate(datasets):
+        summary = ds.get("summary", {})
+        row: dict[str, Any] = {
+            "run": results_paths[i],
+            "overall_score": summary.get("overall_score", 0.0),
+        }
+        for m in sorted(all_metrics):
+            row[m] = summary.get("metrics", {}).get(m, None)
+        rows.append(row)
+
+    fmt = getattr(args, "format", "table")
+    output_path = getattr(args, "output", None)
+
+    if fmt == "json":
+        output = json.dumps(rows, indent=2)
+    else:
+        # Simple table format
+        cols = ["run", "overall_score", *sorted(all_metrics)]
+        widths = {c: max(len(c), 8) for c in cols}
+        for row in rows:
+            for c in cols:
+                widths[c] = max(widths[c], len(str(row.get(c, ""))))
+        header = "  ".join(c.ljust(widths[c]) for c in cols)
+        sep = "  ".join("-" * widths[c] for c in cols)
+        lines = [header, sep]
+        for row in rows:
+            line = "  ".join(str(row.get(c, "")).ljust(widths[c]) for c in cols)
+            lines.append(line)
+        output = "\n".join(lines)
+
+    if output_path:
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(output)
+    else:
+        print(output)
+
+    return EXIT_PASS
+
+
+def _cmd_baseline(args: argparse.Namespace) -> int:
+    """Handle the baseline command."""
+    from beval.baseline import clear_baseline, load_baseline
+
+    sub = getattr(args, "baseline_command", None)
+    if sub is None:
+        print("Error: provide a subcommand: save, show, or clear", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+    if sub == "show":
+        bl = load_baseline()
+        if bl is None:
+            print("No baseline saved.")
+        else:
+            print(json.dumps(bl, indent=2))
+        return EXIT_PASS
+    elif sub == "clear":
+        removed = clear_baseline()
+        if removed:
+            print("Baseline cleared.")
+        else:
+            print("No baseline to clear.")
+        return EXIT_PASS
+    elif sub == "save":
+        print(
+            "Error: use 'beval run --save-baseline' to save results as baseline",
+            file=sys.stderr,
+        )
+        return EXIT_INPUT_ERROR
+    else:
+        print(f"Error: unknown baseline subcommand: {sub}", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+
+def _cmd_cache(args: argparse.Namespace) -> int:
+    """Handle the cache command."""
+    from beval.cache import cache_clear, cache_stats
+
+    sub = getattr(args, "cache_command", None)
+    if sub is None:
+        print("Error: provide a subcommand: show or clear", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+    if sub == "show":
+        stats = cache_stats()
+        print(f"Cache directory: {stats['directory']}")
+        print(f"Entries: {stats['entries']}")
+        size_kb = stats["size_bytes"] / 1024
+        print(f"Size: {size_kb:.1f} KB")
+        return EXIT_PASS
+    elif sub == "clear":
+        count = cache_clear()
+        print(f"Cleared {count} cache entries.")
+        return EXIT_PASS
+    else:
+        print(f"Error: unknown cache subcommand: {sub}", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+
+
+def _cmd_init(args: argparse.Namespace) -> int:
+    """Handle the init command. Scaffold a new beval project."""
+    target = Path(getattr(args, "dir", "."))
+    target.mkdir(parents=True, exist_ok=True)
+
+    # Create eval.config.yaml
+    config_path = target / "eval.config.yaml"
+    if not config_path.exists():
+        config_path.write_text(
+            "# beval configuration\n"
+            "# See SPEC.md §9 for configuration options.\n"
+            "mode: dev\n"
+            "grade_pass_threshold: 0.5\n"
+            "case_pass_threshold: 0.7\n",
+            encoding="utf-8",
+        )
+
+    # Create cases directory with example
+    cases_dir = target / "cases"
+    cases_dir.mkdir(exist_ok=True)
+    example_path = cases_dir / "example.yaml"
+    if not example_path.exists():
+        example_path.write_text(
+            "# Example evaluation case\n"
+            "# See SPEC.md §3 for DSL syntax.\n"
+            "cases:\n"
+            "  - id: example_case\n"
+            "    name: Example evaluation case\n"
+            "    category: general\n"
+            "    given:\n"
+            '      query: "What is behavioral evaluation?"\n'
+            "    grades:\n"
+            "      - criterion: answer is relevant\n"
+            "        score: 1.0\n"
+            "        metric: relevance\n"
+            "        layer: deterministic\n"
+            "        passed: true\n"
+            '        detail: "example grade"\n'
+            "        skipped: false\n",
+            encoding="utf-8",
+        )
+
+    print(f"Initialized beval project in {target.resolve()}")
+    return EXIT_PASS
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI entrypoint for beval."""
+    parser = _build_parser()
+    args = parser.parse_args(argv)
+    _handle_env_overrides(args)
+
+    handlers = {
+        "run": _cmd_run,
+        "validate": _cmd_validate,
+        "compare": _cmd_compare,
+        "baseline": _cmd_baseline,
+        "cache": _cmd_cache,
+        "init": _cmd_init,
+        "version": lambda _: _cmd_version(),
+    }
+
+    if args.command is None:
+        parser.print_help()
+        return EXIT_INPUT_ERROR
+
+    handler = handlers.get(args.command)
+    if handler is None:
+        parser.print_help()
+        return EXIT_INPUT_ERROR
+
+    try:
+        return handler(args)  # type: ignore[no-untyped-call]
+    except NotImplementedError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+    except Exception as exc:  # noqa: BLE001
+        print(f"Internal error: {exc}", file=sys.stderr)
+        return EXIT_INTERNAL_ERROR
+
+
+if __name__ == "__main__":
+    sys.exit(main())

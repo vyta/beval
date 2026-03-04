@@ -1,0 +1,146 @@
+{
+  "label": "conformance",
+  "mode": "dev",
+  "config": {
+    "grade_pass_threshold": 0.5,
+    "case_pass_threshold": 0.7
+  },
+  "summary": {
+    "overall_score": 0.75,
+    "passed": 1,
+    "failed": 1,
+    "errored": 1,
+    "total": 3,
+    "metrics": {
+      "relevance": 1.0,
+      "latency": 1.0,
+      "correctness": 0.0
+    }
+  },
+  "cases": [
+    {
+      "id": "all_pass",
+      "name": "All grades pass",
+      "category": "search",
+      "overall_score": 1.0,
+      "passed": true,
+      "metric_scores": {
+        "relevance": 1.0,
+        "latency": 1.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "answer is relevant",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "relevant",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "response time ok",
+          "score": 1.0,
+          "metric": "latency",
+          "passed": true,
+          "detail": "fast",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ]
+    },
+    {
+      "id": "mixed_pass_fail",
+      "name": "Mixed pass and fail",
+      "category": "search",
+      "overall_score": 0.5,
+      "passed": false,
+      "metric_scores": {
+        "relevance": 1.0,
+        "correctness": 0.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "mentions entanglement",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "keyword found",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "provides examples",
+          "score": 0.0,
+          "metric": "correctness",
+          "passed": false,
+          "detail": "no examples",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ]
+    },
+    {
+      "id": "errored_case",
+      "name": "Errored multi-stage case",
+      "category": "research",
+      "overall_score": 0.5,
+      "passed": false,
+      "metric_scores": {
+        "relevance": 1.0,
+        "quality": 0.0
+      },
+      "error": "Stage 2 failed: upstream timeout",
+      "grades": [
+        {
+          "criterion": "search relevant",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "good results",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent searches"
+        },
+        {
+          "criterion": "summary quality",
+          "score": 0.0,
+          "metric": "quality",
+          "passed": false,
+          "detail": "did not execute",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent summarizes"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent searches",
+          "score": 1.0,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent summarizes",
+          "score": 0.0,
+          "passed": false,
+          "grade_count": 1
+        }
+      ]
+    }
+  ]
+}

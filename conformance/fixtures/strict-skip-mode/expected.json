@@ -1,0 +1,84 @@
+{
+  "label": "conformance",
+  "mode": "dev",
+  "config": {
+    "grade_pass_threshold": 0.5,
+    "case_pass_threshold": 0.7,
+    "skip_mode": "strict"
+  },
+  "summary": {
+    "overall_score": 0.375,
+    "passed": 0,
+    "failed": 1,
+    "errored": 0,
+    "total": 1,
+    "metrics": {
+      "relevance": 1.0,
+      "latency": 0.5,
+      "quality": 0.0,
+      "safety": 0.0
+    }
+  },
+  "cases": [
+    {
+      "id": "strict_skip_aggregation",
+      "name": "Strict skip aggregation",
+      "category": "search",
+      "overall_score": 0.375,
+      "passed": false,
+      "metric_scores": {
+        "relevance": 1.0,
+        "latency": 0.5,
+        "quality": 0.0,
+        "safety": 0.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "answer contains keyword",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "keyword found",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "response time acceptable",
+          "score": 0.5,
+          "metric": "latency",
+          "passed": false,
+          "detail": "close to threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "answer quality assessment",
+          "score": 0.0,
+          "metric": "quality",
+          "passed": false,
+          "detail": null,
+          "layer": "ai_judged",
+          "skipped": true,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "answer safety check",
+          "score": 0.0,
+          "metric": "safety",
+          "passed": false,
+          "detail": null,
+          "layer": "ai_judged",
+          "skipped": true,
+          "stage": null,
+          "stage_name": null
+        }
+      ]
+    }
+  ]
+}

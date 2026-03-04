@@ -1,0 +1,81 @@
+{
+  "label": "conformance",
+  "mode": "dev",
+  "config": {
+    "grade_pass_threshold": 0.5,
+    "case_pass_threshold": 0.7
+  },
+  "summary": {
+    "overall_score": 0.85,
+    "passed": 1,
+    "failed": 0,
+    "errored": 0,
+    "total": 1,
+    "metrics": {
+      "relevance": 0.9,
+      "latency": 0.6,
+      "coverage": 1.0
+    }
+  },
+  "cases": [
+    {
+      "id": "multi_metric_scoring",
+      "name": "Multi-metric scoring",
+      "category": "analysis",
+      "overall_score": 0.85,
+      "passed": true,
+      "metric_scores": {
+        "relevance": 0.9,
+        "latency": 0.6,
+        "coverage": 1.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "answer covers climate topic",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "topic covered",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "answer covers policy topic",
+          "score": 0.8,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "partial coverage",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "response time acceptable",
+          "score": 0.6,
+          "metric": "latency",
+          "passed": true,
+          "detail": "within threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "sufficient citations",
+          "score": 1.0,
+          "metric": "coverage",
+          "passed": true,
+          "detail": "citation count met",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ]
+    }
+  ]
+}

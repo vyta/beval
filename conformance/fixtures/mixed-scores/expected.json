@@ -1,0 +1,57 @@
+{
+  "label": "conformance",
+  "mode": "dev",
+  "config": {
+    "grade_pass_threshold": 0.5,
+    "case_pass_threshold": 0.7
+  },
+  "summary": {
+    "overall_score": 0.5,
+    "passed": 0,
+    "failed": 1,
+    "errored": 0,
+    "total": 1,
+    "metrics": {
+      "relevance": 1.0,
+      "correctness": 0.0
+    }
+  },
+  "cases": [
+    {
+      "id": "mixed_score_aggregation",
+      "name": "Mixed score aggregation",
+      "category": "search",
+      "overall_score": 0.5,
+      "passed": false,
+      "metric_scores": {
+        "relevance": 1.0,
+        "correctness": 0.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "answer mentions quantum",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "keyword found",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "answer provides examples",
+          "score": 0.0,
+          "metric": "correctness",
+          "passed": false,
+          "detail": "no examples found",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ]
+    }
+  ]
+}

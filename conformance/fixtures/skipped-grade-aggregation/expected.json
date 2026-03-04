@@ -1,0 +1,68 @@
+{
+  "label": "conformance",
+  "mode": "dev",
+  "config": {
+    "grade_pass_threshold": 0.5,
+    "case_pass_threshold": 0.7
+  },
+  "summary": {
+    "overall_score": 1.0,
+    "passed": 1,
+    "failed": 0,
+    "errored": 0,
+    "total": 1,
+    "metrics": {
+      "relevance": 1.0,
+      "latency": 1.0
+    }
+  },
+  "cases": [
+    {
+      "id": "skip_aggregation_dev",
+      "name": "Skip aggregation in dev mode",
+      "category": "search",
+      "overall_score": 1.0,
+      "passed": true,
+      "metric_scores": {
+        "relevance": 1.0,
+        "latency": 1.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "answer contains keyword",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "keyword found",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "response time acceptable",
+          "score": 1.0,
+          "metric": "latency",
+          "passed": true,
+          "detail": "within threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "answer quality assessment",
+          "score": 0.0,
+          "metric": "quality",
+          "passed": false,
+          "detail": null,
+          "layer": "ai_judged",
+          "skipped": true,
+          "stage": null,
+          "stage_name": null
+        }
+      ]
+    }
+  ]
+}

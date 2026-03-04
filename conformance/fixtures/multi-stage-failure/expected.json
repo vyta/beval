@@ -1,0 +1,92 @@
+{
+  "label": "conformance",
+  "mode": "dev",
+  "config": {
+    "grade_pass_threshold": 0.5,
+    "case_pass_threshold": 0.7
+  },
+  "summary": {
+    "overall_score": 0.0,
+    "passed": 0,
+    "failed": 0,
+    "errored": 1,
+    "total": 1,
+    "metrics": {}
+  },
+  "cases": [
+    {
+      "id": "multi_stage_failure",
+      "name": "Multi-stage pipeline with failure",
+      "category": "research",
+      "overall_score": 0.5,
+      "passed": false,
+      "metric_scores": {
+        "relevance": 0.5,
+        "latency": 0.5
+      },
+      "error": "Stage 2 failed: Stage execution failed: upstream service timeout",
+      "grades": [
+        {
+          "criterion": "search results relevant",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "relevant results",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent searches for papers"
+        },
+        {
+          "criterion": "search completed in time",
+          "score": 1.0,
+          "metric": "latency",
+          "passed": true,
+          "detail": "within threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent searches for papers"
+        },
+        {
+          "criterion": "summary contains conclusion",
+          "score": 0.0,
+          "metric": "relevance",
+          "passed": false,
+          "detail": "Stage 2 did not execute: stage execution failed",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent summarizes the findings"
+        },
+        {
+          "criterion": "summary completed in time",
+          "score": 0.0,
+          "metric": "latency",
+          "passed": false,
+          "detail": "Stage 2 did not execute: stage execution failed",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent summarizes the findings"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent searches for papers",
+          "score": 1.0,
+          "passed": true,
+          "grade_count": 2
+        },
+        {
+          "stage": 2,
+          "name": "the agent summarizes the findings",
+          "score": 0.0,
+          "passed": false,
+          "grade_count": 2
+        }
+      ]
+    }
+  ]
+}

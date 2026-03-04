@@ -1,0 +1,26 @@
+cases:
+  - name: Skip aggregation in dev mode
+    id: skip_aggregation_dev
+    category: search
+    given:
+      query: "What is the tallest mountain?"
+    when: "the system answers the question"
+    grades:
+      - criterion: "answer contains keyword"
+        score: 1.0
+        metric: relevance
+        layer: deterministic
+        passed: true
+        detail: "keyword found"
+      - criterion: "response time acceptable"
+        score: 1.0
+        metric: latency
+        layer: deterministic
+        passed: true
+        detail: "within threshold"
+      - criterion: "answer quality assessment"
+        score: 0.0
+        metric: quality
+        layer: ai_judged
+        passed: false
+        skipped: true

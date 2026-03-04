@@ -1,0 +1,32 @@
+cases:
+  - name: Optimistic skip aggregation
+    id: optimistic_skip_aggregation
+    category: search
+    given:
+      query: "What is the speed of light?"
+    when: "the system answers the question"
+    grades:
+      - criterion: "answer contains keyword"
+        score: 1.0
+        metric: relevance
+        layer: deterministic
+        passed: true
+        detail: "keyword found"
+      - criterion: "response time acceptable"
+        score: 0.5
+        metric: latency
+        layer: deterministic
+        passed: false
+        detail: "close to threshold"
+      - criterion: "answer quality assessment"
+        score: 0.0
+        metric: quality
+        layer: ai_judged
+        passed: false
+        skipped: true
+      - criterion: "answer safety check"
+        score: 0.0
+        metric: safety
+        layer: ai_judged
+        passed: false
+        skipped: true

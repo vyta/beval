@@ -1,0 +1,197 @@
+version: "0.2.0"
+binary: beval
+description: >
+  Command-line interface specification for the beval behavioral evaluation
+  framework. All language implementations must conform to this contract.
+
+commands:
+  run:
+    description: Execute evaluation cases.
+    flags:
+      mode:
+        short: "-m"
+        type: string
+        enum: [dev, dev+process, validation, monitoring]
+        default: dev
+        description: Evaluation mode controlling which grader layers are active.
+      label:
+        short: "-l"
+        type: string
+        description: Run label for traceability and caching.
+      cases:
+        type: string
+        description: >
+          Path to case YAML file or directory of case files.
+          When omitted, cases are loaded from the configured default location.
+      subject:
+        type: string
+        description: >
+          Path to a JSON file containing canned system output (Subject).
+          When provided, the runner uses this instead of invoking the live system.
+          Required for conformance testing and deterministic replay.
+      case:
+        type: string
+        description: Filter by case ID.
+      category:
+        type: string
+        description: Filter by category.
+      tag:
+        short: "-t"
+        type: string[]
+        description: Include only cases matching these tags.
+      exclude-tag:
+        type: string[]
+        description: Exclude cases matching these tags.
+      trials:
+        type: integer
+        default: 1
+        description: Number of trial executions per case.
+      trial-aggregation:
+        type: string
+        enum: [mean, median, worst, pass_at_k, pass_all]
+        default: mean
+        description: Strategy for aggregating trial scores.
+      output:
+        short: "-o"
+        type: string
+        description: >
+          Results output path. Accepts a file path (e.g., results.json) or
+          a directory. When a directory is given, results are written as
+          results.{format} inside it.
+      format:
+        type: string
+        enum: [json, jsonl]
+        default: json
+        description: Results output format.
+      use-cache:
+        type: boolean
+        default: false
+        description: Use cached outputs when available.
+      score-only:
+        type: boolean
+        default: false
+        description: Re-score cached outputs without invoking the system.
+      no-cache:
+        type: boolean
+        default: false
+        description: Disable caching for this run.
+      save-baseline:
+        type: boolean
+        default: false
+        description: Save results as the baseline snapshot after the run.
+      compare-baseline:
+        type: boolean
+        default: false
+        description: Compare results against the saved baseline.
+      regression-threshold:
+        type: number
+        default: 0.05
+        description: Fail if any metric drops more than this value from baseline.
+      scrub:
+        type: boolean
+        default: true
+        description: Scrub sensitive values from results output.
+
+  validate:
+    description: Validate case files, configuration, and schemas.
+    flags:
+      cases:
+        type: string
+        description: Path to case files or directory to validate.
+      config:
+        type: string
+        description: Path to configuration file to validate.
+      schema:
+        type: string
+        description: Path to schema file for validation.
+
+  compare:
+    description: Compare results across runs.
+    extension: cross-run-comparison
+    required: false
+    flags:
+      results:
+        type: string[]
+        description: Paths to result files or directories to compare.
+      output:
+        short: "-o"
+        type: string
+        description: Path for comparison output file.
+      format:
+        type: string
+        enum: [json, table]
+        default: table
+        description: Output format for comparison results.
+
+  baseline:
+    description: Manage baseline snapshots.
+    subcommands:
+      save:
+        description: Save the most recent results as the baseline.
+      show:
+        description: Display the current baseline.
+      clear:
+        description: Remove the saved baseline.
+
+  cache:
+    description: Manage the response cache.
+    subcommands:
+      show:
+        description: Display cache statistics.
+      clear:
+        description: Clear all cached responses.
+
+  init:
+    description: Initialize a new beval project with default configuration and example cases.
+    flags:
+      dir:
+        type: string
+        default: "."
+        description: Target directory for project initialization.
+
+  version:
+    description: Print version and build information.
+
+global_flags:
+  help:
+    short: "-h"
+    type: boolean
+    description: Show help for any command.
+  config:
+    short: "-c"
+    type: string
+    description: Path to eval.config.yaml configuration file.
+  verbose:
+    type: boolean
+    default: false
+    description: Enable verbose output.
+  quiet:
+    short: "-q"
+    type: boolean
+    default: false
+    description: Suppress non-essential output.
+  no-color:
+    type: boolean
+    default: false
+    description: Disable colored output.
+  json:
+    type: boolean
+    default: false
+    description: Output results as JSON instead of human-readable format.
+
+exit_codes:
+  0: pass
+  1: fail
+  2: invalid_input
+  3: infrastructure_error
+  4: internal_error
+
+env_prefix: BEVAL_
+env_mapping:
+  BEVAL_MODE: eval.mode
+  BEVAL_OUTPUT_DIR: eval.output.dir
+  BEVAL_LLM_JUDGE_MODEL: eval.judges.llm.model
+  BEVAL_TRIALS: eval.trials
+  BEVAL_CACHE_DIR: eval.cache.dir
+  BEVAL_CASES_DIR: cases
+  BEVAL_SUBJECT: subject

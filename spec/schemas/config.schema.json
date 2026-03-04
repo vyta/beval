@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config.schema.json",
+  "title": "beval Configuration",
+  "description": "Schema for beval eval.config.yaml configuration file per SPEC §13.",
+  "type": "object",
+  "required": ["eval"],
+  "additionalProperties": false,
+  "properties": {
+    "eval": {
+      "$ref": "#/$defs/EvalConfig",
+      "description": "Top-level evaluation configuration."
+    }
+  },
+  "$defs": {
+    "EvaluationMode": {
+      "type": "string",
+      "enum": ["dev", "dev+process", "validation", "monitoring"],
+      "description": "Evaluation mode controlling which grader layers are active."
+    },
+    "Score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "A normalized score in the range 0.0 to 1.0."
+    },
+    "EvalConfig": {
+      "type": "object",
+      "description": "Root evaluation configuration block.",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/EvaluationMode",
+          "description": "Default evaluation mode."
+        },
+        "thresholds": {
+          "$ref": "#/$defs/Thresholds",
+          "description": "Pass/fail threshold configuration."
+        },
+        "metrics": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MetricDefinition" },
+          "description": "Metric category definitions with display metadata."
+        },
+        "metric_weights": {
+          "type": "object",
+          "description": "Optional per-metric weights for weighted scoring. Unspecified metrics default to 1.0.",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "output": {
+          "$ref": "#/$defs/OutputConfig",
+          "description": "Results output configuration."
+        },
+        "judges": {
+          "$ref": "#/$defs/JudgesConfig",
+          "description": "Judge provider configuration."
+        },
+        "tracing": {
+          "$ref": "#/$defs/TracingConfig",
+          "description": "OpenTelemetry tracing configuration."
+        },
+        "trials": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Number of trial executions per case."
+        },
+        "trial_aggregation": {
+          "type": "string",
+          "enum": ["mean", "median", "pass_at_k", "pass_all_k", "min"],
+          "default": "mean",
+          "description": "Strategy for aggregating scores across trials."
+        },
+        "cache": {
+          "$ref": "#/$defs/CacheConfig",
+          "description": "Response caching configuration."
+        }
+      }
+    },
+    "Thresholds": {
+      "type": "object",
+      "description": "Score thresholds for pass/fail derivation.",
+      "additionalProperties": false,
+      "properties": {
+        "grade_pass": {
+          "$ref": "#/$defs/Score",
+          "default": 0.5,
+          "description": "A grade passes when its score exceeds this value."
+        },
+        "case_pass": {
+          "$ref": "#/$defs/Score",
+          "default": 0.7,
+          "description": "A case passes when its overall score meets or exceeds this value."
+        }
+      }
+    },
+    "MetricDefinition": {
+      "type": "object",
+      "description": "Definition of a metric category with display metadata.",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Metric category name (e.g., latency, quality)."
+        },
+        "icon": {
+          "type": "string",
+          "description": "Display icon or emoji for this metric."
+        }
+      }
+    },
+    "OutputConfig": {
+      "type": "object",
+      "description": "Configuration for results output.",
+      "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string",
+          "default": "eval_results",
+          "description": "Directory for results output files."
+        },
+        "format": {
+          "type": "string",
+          "enum": ["json", "jsonl"],
+          "default": "json",
+          "description": "Output file format."
+        },
+        "console": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to print results to console."
+        }
+      }
+    },
+    "JudgesConfig": {
+      "type": "object",
+      "description": "Configuration for judge providers.",
+      "additionalProperties": false,
+      "properties": {
+        "llm": {
+          "$ref": "#/$defs/LLMJudgeConfig",
+          "description": "Built-in LLM judge configuration."
+        },
+        "external": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ExternalJudgeConfig" },
+          "description": "External judge provider configurations."
+        }
+      }
+    },
+    "LLMJudgeConfig": {
+      "type": "object",
+      "description": "Configuration for the built-in LLM judge.",
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Model identifier for the LLM judge."
+        },
+        "max_answer_chars": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum characters of the answer to include in the judge prompt."
+        }
+      }
+    },
+    "ExternalJudgeConfig": {
+      "type": "object",
+      "description": "Configuration for an external judge provider.",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique name for this external judge."
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this external judge is enabled."
+        },
+        "config": {
+          "type": "object",
+          "description": "Provider-specific configuration. Values may reference environment variables via ${VAR_NAME} syntax.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "TracingConfig": {
+      "type": "object",
+      "description": "OpenTelemetry tracing configuration.",
+      "additionalProperties": false,
+      "properties": {
+        "in_memory": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable in-memory span exporter for process graders. Always true for offline evaluation."
+        },
+        "cloud": {
+          "$ref": "#/$defs/CloudTracingConfig",
+          "description": "Cloud trace export configuration."
+        }
+      }
+    },
+    "CloudTracingConfig": {
+      "type": "object",
+      "description": "Configuration for exporting traces to a cloud backend.",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether cloud trace export is enabled."
+        },
+        "connection_string": {
+          "type": "string",
+          "description": "Connection string for the cloud trace backend. Typically resolved from an environment variable."
+        }
+      }
+    },
+    "CacheConfig": {
+      "type": "object",
+      "description": "Response caching configuration for system and judge outputs.",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether response caching is enabled."
+        },
+        "dir": {
+          "type": "string",
+          "default": ".eval_cache",
+          "description": "Directory for cache storage."
+        }
+      }
+    }
+  }
+}

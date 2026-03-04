@@ -1,0 +1,53 @@
+name: CI - Python
+
+on:
+  push:
+    paths: ["python/**", "spec/**", "conformance/**"]
+  pull_request:
+    paths: ["python/**", "spec/**", "conformance/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e "./python[dev]"
+      - run: cd python && ruff check src/ tests/
+      - run: cd python && ruff format --check src/ tests/
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e "./python[dev]"
+      - run: cd python && mypy src/beval/
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e "./python[dev]"
+      - run: cd python && pytest tests/
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit
+      - run: pip install -e "./python"
+      - run: cd python && pip-audit

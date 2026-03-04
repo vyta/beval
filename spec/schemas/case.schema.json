@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "case.schema.json",
+  "title": "beval Case Definition",
+  "description": "Schema for beval YAML case file definitions per SPEC §4.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "background": {
+      "$ref": "#/$defs/Background",
+      "description": "Shared context applied to all cases in this file."
+    },
+    "cases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Case" },
+      "description": "Array of evaluation case definitions."
+    }
+  },
+  "$defs": {
+    "Case": {
+      "type": "object",
+      "description": "A single evaluation case with Given/When/Then clauses or pre-resolved grades.",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique case identifier. Derived from name if omitted."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable case name."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category grouping for filtering and reporting."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Additional labels for flexible filtering."
+        },
+        "given": {
+          "type": "object",
+          "description": "Preconditions and input data for the case.",
+          "additionalProperties": true
+        },
+        "when": {
+          "type": "string",
+          "description": "Action description triggering the system. Used for single-stage cases."
+        },
+        "then": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ThenClause" },
+          "description": "Grading criteria for single-stage cases."
+        },
+        "grades": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GradeInput" },
+          "description": "Pre-resolved grades bypassing grader matching. See SPEC §3.6."
+        },
+        "stages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Stage" },
+          "description": "Ordered stages for multi-stage pipeline cases. Replaces when/then for multi-stage."
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "description": "Parameterization table; each entry generates a case instance with template variables."
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["when", "then"],
+          "properties": {
+            "stages": false,
+            "grades": false
+          }
+        },
+        {
+          "required": ["when", "grades"],
+          "properties": {
+            "stages": false,
+            "then": false
+          }
+        },
+        {
+          "required": ["stages"],
+          "properties": {
+            "when": false,
+            "then": false,
+            "grades": false
+          }
+        }
+      ]
+    },
+    "ThenClause": {
+      "type": "object",
+      "description": "A single grading criterion. Keys are grader pattern strings; values are the expected arguments.",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": true
+    },
+    "GradeInput": {
+      "type": "object",
+      "description": "A pre-resolved grade supplied directly in the case definition. Bypasses grader pattern matching. See SPEC §3.6.",
+      "required": ["criterion", "score", "metric", "layer", "passed"],
+      "additionalProperties": false,
+      "properties": {
+        "criterion": {
+          "type": "string",
+          "description": "Criterion text for this grade."
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Pre-determined score in 0.0..1.0."
+        },
+        "metric": {
+          "type": "string",
+          "description": "Metric category for this grade."
+        },
+        "layer": {
+          "type": "string",
+          "enum": ["deterministic", "process", "ai_judged"],
+          "description": "Grader layer classification."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether this grade passed."
+        },
+        "detail": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Diagnostic detail text."
+        },
+        "skipped": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this grade was skipped due to inactive layer."
+        }
+      }
+    },
+    "Stage": {
+      "type": "object",
+      "description": "A single stage within a multi-stage pipeline case.",
+      "required": ["when"],
+      "additionalProperties": false,
+      "properties": {
+        "when": {
+          "type": "string",
+          "description": "Action description for this stage."
+        },
+        "then": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ThenClause" },
+          "description": "Grading criteria for this stage."
+        },
+        "grades": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GradeInput" },
+          "description": "Pre-resolved grades for this stage. See SPEC §3.6."
+        },
+        "error": {
+          "type": "string",
+          "description": "Simulated stage execution error for conformance testing."
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["then"],
+          "properties": { "grades": false }
+        },
+        {
+          "required": ["grades"],
+          "properties": { "then": false }
+        }
+      ]
+    },
+    "Background": {
+      "type": "object",
+      "description": "Shared preconditions applied to all cases in the file.",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Category scope for this background block."
+        },
+        "given": {
+          "type": "object",
+          "description": "Shared given values merged into each case.",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

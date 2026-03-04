@@ -1,0 +1,21 @@
+.copilot-tracking/
+.tmp/
+
+# Spec-defined directories
+.eval_cache/
+eval_results/
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*

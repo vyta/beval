@@ -1,0 +1,20 @@
+# Unsafe YAML constructs for conformance testing.
+# All beval implementations MUST reject this file with an error.
+# Do NOT use yaml.unsafe_load or equivalent unsafe loaders.
+
+# Python-specific: !!python/object/apply tag attempts arbitrary code execution
+malicious_object: !!python/object/apply:os.system
+  args: ["echo pwned"]
+
+# Billion-laughs entity expansion (XML-style, adapted for YAML anchors)
+a: &a ["lol","lol","lol","lol","lol","lol","lol","lol","lol"]
+b: &b [*a,*a,*a,*a,*a,*a,*a,*a,*a]
+c: &c [*b,*b,*b,*b,*b,*b,*b,*b,*b]
+d: &d [*c,*c,*c,*c,*c,*c,*c,*c,*c]
+
+# Ruby-specific: !!ruby/object tag
+ruby_exploit: !!ruby/object:Gem::Installer
+  i: x
+
+# Generic unsafe tag
+unsafe_tag: !!python/name:os.system

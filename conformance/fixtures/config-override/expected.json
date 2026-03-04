@@ -1,0 +1,57 @@
+{
+  "label": "conformance",
+  "mode": "dev",
+  "config": {
+    "grade_pass_threshold": 0.5,
+    "case_pass_threshold": 0.4
+  },
+  "summary": {
+    "overall_score": 0.5,
+    "passed": 1,
+    "failed": 0,
+    "errored": 0,
+    "total": 1,
+    "metrics": {
+      "relevance": 1.0,
+      "correctness": 0.0
+    }
+  },
+  "cases": [
+    {
+      "id": "threshold_override",
+      "name": "Threshold override test",
+      "category": "search",
+      "overall_score": 0.5,
+      "passed": true,
+      "metric_scores": {
+        "relevance": 1.0,
+        "correctness": 0.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "answer is relevant",
+          "score": 1.0,
+          "metric": "relevance",
+          "passed": true,
+          "detail": "relevant",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "answer provides depth",
+          "score": 0.0,
+          "metric": "correctness",
+          "passed": false,
+          "detail": "shallow answer",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ]
+    }
+  ]
+}

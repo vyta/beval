@@ -1,0 +1,20 @@
+cases:
+  - name: Weighted score aggregation
+    id: weighted_score_aggregation
+    category: search
+    given:
+      query: "What is machine learning?"
+    when: "the system answers the question"
+    grades:
+      - criterion: "answer is relevant"
+        score: 1.0
+        metric: relevance
+        layer: deterministic
+        passed: true
+        detail: "relevant answer"
+      - criterion: "response time acceptable"
+        score: 0.5
+        metric: latency
+        layer: deterministic
+        passed: true
+        detail: "within threshold"

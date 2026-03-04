@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comparison.schema.json",
+  "title": "beval Comparison Result",
+  "description": "Schema for cross-SUT comparison output per SPEC Appendix B.",
+  "type": "object",
+  "required": ["comparison"],
+  "additionalProperties": false,
+  "properties": {
+    "comparison": {
+      "$ref": "#/$defs/ComparisonData",
+      "description": "Cross-SUT comparison data."
+    }
+  },
+  "$defs": {
+    "Score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "A normalized score in the range 0.0 to 1.0."
+    },
+    "RankingEntry": {
+      "type": "object",
+      "description": "A single SUT entry in the comparison ranking.",
+      "required": ["sut", "overall_score"],
+      "additionalProperties": false,
+      "properties": {
+        "sut": {
+          "type": "string",
+          "description": "System under test identifier."
+        },
+        "overall_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Overall score for this SUT across all cases."
+        }
+      }
+    },
+    "ComparisonData": {
+      "type": "object",
+      "description": "Comparison summary across multiple SUTs.",
+      "required": ["timestamp", "suts", "cases_count", "ranking", "metrics"],
+      "additionalProperties": false,
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of when the comparison was generated."
+        },
+        "suts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of SUT identifiers included in the comparison."
+        },
+        "cases_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of cases evaluated across all SUTs."
+        },
+        "ranking": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RankingEntry" },
+          "description": "SUTs ranked by overall score, descending."
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Per-metric scores keyed by metric name, with per-SUT scores as values.",
+          "additionalProperties": {
+            "type": "object",
+            "description": "Per-SUT scores for this metric.",
+            "additionalProperties": {
+              "$ref": "#/$defs/Score"
+            }
+          }
+        }
+      }
+    }
+  }
+}

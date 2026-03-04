@@ -1,0 +1,36 @@
+cases:
+  - name: Multi-stage pipeline with failure
+    id: multi_stage_failure
+    category: research
+    given:
+      query: "Find recent AI safety research papers."
+    stages:
+      - when: "the agent searches for papers"
+        grades:
+          - criterion: "search results relevant"
+            score: 1.0
+            metric: relevance
+            layer: deterministic
+            passed: true
+            detail: "relevant results"
+          - criterion: "search completed in time"
+            score: 1.0
+            metric: latency
+            layer: deterministic
+            passed: true
+            detail: "within threshold"
+      - when: "the agent summarizes the findings"
+        error: "Stage execution failed: upstream service timeout"
+        grades:
+          - criterion: "summary contains conclusion"
+            score: 0.0
+            metric: relevance
+            layer: deterministic
+            passed: false
+            detail: "Stage 2 did not execute: stage execution failed"
+          - criterion: "summary completed in time"
+            score: 0.0
+            metric: latency
+            layer: deterministic
+            passed: false
+            detail: "Stage 2 did not execute: stage execution failed"

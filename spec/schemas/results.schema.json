@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "results.schema.json",
+  "title": "beval Run Result",
+  "description": "Schema for beval evaluation run results output per SPEC §12.",
+  "type": "object",
+  "required": ["mode", "config", "summary", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "Optional identifier for the run."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the run completed."
+    },
+    "mode": {
+      "$ref": "#/$defs/EvaluationMode",
+      "description": "Evaluation mode used for this run."
+    },
+    "config": {
+      "$ref": "#/$defs/RunConfig",
+      "description": "Non-sensitive configuration values used for this run."
+    },
+    "summary": {
+      "$ref": "#/$defs/RunSummary",
+      "description": "Aggregate summary of all case results."
+    },
+    "cases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CaseResult" },
+      "description": "Per-case evaluation results."
+    }
+  },
+  "$defs": {
+    "EvaluationMode": {
+      "type": "string",
+      "enum": ["dev", "dev+process", "validation", "monitoring"],
+      "description": "Evaluation mode controlling which grader layers are active."
+    },
+    "Score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "A normalized score in the range 0.0 to 1.0."
+    },
+    "MetricCategory": {
+      "type": "string",
+      "enum": ["latency", "coverage", "relevance", "groundedness", "correctness", "quality", "safety", "cost"],
+      "description": "Named quality dimension for score grouping."
+    },
+    "GraderLayer": {
+      "type": "string",
+      "enum": ["deterministic", "process", "ai_judged"],
+      "description": "The grader layer that produced this grade."
+    },
+    "RunConfig": {
+      "type": "object",
+      "description": "Non-sensitive configuration snapshot for the run.",
+      "required": ["grade_pass_threshold", "case_pass_threshold"],
+      "additionalProperties": false,
+      "properties": {
+        "grade_pass_threshold": {
+          "$ref": "#/$defs/Score",
+          "description": "Threshold above which a grade passes."
+        },
+        "case_pass_threshold": {
+          "$ref": "#/$defs/Score",
+          "description": "Threshold at or above which a case passes."
+        },
+        "skip_mode": {
+          "type": "string",
+          "enum": ["exclude", "optimistic", "strict"],
+          "description": "How skipped grades affect aggregation."
+        },
+        "metric_weights": {
+          "type": "object",
+          "description": "Per-metric weights for weighted score aggregation.",
+          "additionalProperties": { "type": "number", "minimum": 0 }
+        },
+        "active_layers": {
+          "type": ["array", "null"],
+          "items": { "type": "string" },
+          "description": "Explicitly active grader layers; null to use mode defaults."
+        }
+      }
+    },
+    "RunSummary": {
+      "type": "object",
+      "description": "Aggregate summary across all cases in the run.",
+      "required": ["overall_score", "passed", "failed", "errored", "total", "metrics"],
+      "additionalProperties": false,
+      "properties": {
+        "overall_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Mean of all case overall scores (excluding errored cases)."
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of cases that passed."
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of cases that failed."
+        },
+        "errored": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of cases that errored during execution."
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of cases evaluated."
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Per-metric average scores across all cases.",
+          "additionalProperties": {
+            "$ref": "#/$defs/Score"
+          }
+        }
+      }
+    },
+    "Grade": {
+      "type": "object",
+      "description": "Result of executing one grader against a case.",
+      "required": ["criterion", "score", "metric", "passed", "detail", "layer", "skipped"],
+      "additionalProperties": false,
+      "properties": {
+        "criterion": {
+          "type": "string",
+          "description": "The then-clause text that triggered this grader."
+        },
+        "score": {
+          "$ref": "#/$defs/Score",
+          "description": "Grader score for this criterion."
+        },
+        "metric": {
+          "type": "string",
+          "description": "Metric category for this grade (e.g., latency, quality)."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether the score exceeded the grade pass threshold."
+        },
+        "detail": {
+          "type": ["string", "null"],
+          "description": "Human-readable detail about the grading result."
+        },
+        "layer": {
+          "$ref": "#/$defs/GraderLayer",
+          "description": "Which grader layer produced this grade."
+        },
+        "skipped": {
+          "type": "boolean",
+          "description": "Whether the grader was skipped due to evaluation mode."
+        },
+        "stage": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "description": "One-based stage index for multi-stage cases; null for single-stage."
+        },
+        "stage_name": {
+          "type": ["string", "null"],
+          "description": "When-clause text for this stage; null for single-stage cases."
+        }
+      }
+    },
+    "StageResult": {
+      "type": "object",
+      "description": "Per-stage summary for multi-stage cases.",
+      "required": ["stage", "name", "score", "passed", "grade_count"],
+      "additionalProperties": false,
+      "properties": {
+        "stage": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "One-based stage index."
+        },
+        "name": {
+          "type": "string",
+          "description": "When-clause text for this stage."
+        },
+        "score": {
+          "$ref": "#/$defs/Score",
+          "description": "Mean of grade scores within this stage."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether all grades in this stage passed."
+        },
+        "grade_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of grades in this stage."
+        }
+      }
+    },
+    "TrialResult": {
+      "type": "object",
+      "description": "Result of a single trial execution.",
+      "required": ["trial", "overall_score", "passed"],
+      "additionalProperties": false,
+      "properties": {
+        "trial": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "One-based trial number."
+        },
+        "overall_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Overall score for this trial."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether this trial passed."
+        }
+      }
+    },
+    "CaseResult": {
+      "type": "object",
+      "description": "Aggregated evaluation result for a single case.",
+      "required": ["id", "name", "category", "overall_score", "passed", "time_seconds", "metric_scores", "error", "grades"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique case identifier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable case name."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category grouping for filtering and reporting."
+        },
+        "overall_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Arithmetic mean of all grade scores in this case."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether the overall score met the case pass threshold."
+        },
+        "time_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Wall-clock execution time in seconds."
+        },
+        "metric_scores": {
+          "type": "object",
+          "description": "Per-metric average scores within this case.",
+          "additionalProperties": {
+            "$ref": "#/$defs/Score"
+          }
+        },
+        "error": {
+          "type": ["string", "null"],
+          "description": "Error message if the case errored during execution; null otherwise."
+        },
+        "grades": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Grade" },
+          "description": "Individual grade results from each grader."
+        },
+        "stages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/StageResult" },
+          "description": "Per-stage summaries; present only for multi-stage cases."
+        },
+        "trials": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of trials executed for this case."
+        },
+        "score_stddev": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Standard deviation of overall scores across trials; null for single-trial runs."
+        },
+        "score_min": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1.0,
+          "description": "Minimum overall score across trials; null for single-trial runs."
+        },
+        "score_max": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1.0,
+          "description": "Maximum overall score across trials; null for single-trial runs."
+        },
+        "pass_rate": {
+          "type": ["string", "null"],
+          "description": "Fraction of trials that passed (e.g., '4/5'); null for single-trial runs."
+        },
+        "per_trial": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TrialResult" },
+          "description": "Per-trial results; present only when trials > 1."
+        }
+      }
+    }
+  }
+}

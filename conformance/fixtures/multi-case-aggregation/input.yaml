@@ -1,0 +1,64 @@
+cases:
+  - name: All grades pass
+    id: all_pass
+    category: search
+    given:
+      query: "What is the capital of France?"
+    when: "the system answers"
+    grades:
+      - criterion: "answer is relevant"
+        score: 1.0
+        metric: relevance
+        layer: deterministic
+        passed: true
+        detail: "relevant"
+      - criterion: "response time ok"
+        score: 1.0
+        metric: latency
+        layer: deterministic
+        passed: true
+        detail: "fast"
+
+  - name: Mixed pass and fail
+    id: mixed_pass_fail
+    category: search
+    given:
+      query: "Explain quantum entanglement"
+    when: "the system answers"
+    grades:
+      - criterion: "mentions entanglement"
+        score: 1.0
+        metric: relevance
+        layer: deterministic
+        passed: true
+        detail: "keyword found"
+      - criterion: "provides examples"
+        score: 0.0
+        metric: correctness
+        layer: deterministic
+        passed: false
+        detail: "no examples"
+
+  - name: Errored multi-stage case
+    id: errored_case
+    category: research
+    given:
+      query: "Find recent papers"
+    stages:
+      - when: "the agent searches"
+        grades:
+          - criterion: "search relevant"
+            score: 1.0
+            metric: relevance
+            layer: deterministic
+            passed: true
+            detail: "good results"
+      - when: "the agent summarizes"
+        error: "upstream timeout"
+        grades:
+          - criterion: "summary quality"
+            score: 0.0
+            metric: quality
+            layer: deterministic
+            passed: false
+            detail: "did not execute"

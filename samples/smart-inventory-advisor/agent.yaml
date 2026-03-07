@@ -1,0 +1,36 @@
+# Smart Inventory Advisor — ACP agent definition
+#
+# This agent is a GitHub Copilot custom agent ("Material Substitution")
+# that investigates material substitutions in an industrial inventory
+# knowledge graph. It communicates over the Agent Client Protocol (ACP).
+#
+# Capabilities (owned by the agent, opaque to this framework):
+#   - RDF Explorer MCP  — SPARQL queries against a knowledge graph
+#   - Databricks MCP    — SQL queries for operational/financial data
+#   - PDF Reader MCP    — technical specification extraction
+#   - VS Code tools     — file read/write/search
+#
+# Usage:
+#   beval run --cases cases/ --agent agent.yaml
+#   beval run --cases cases/ --agent agent.yaml -m validation --judge-model gpt-4o
+
+name: smart-inventory-advisor
+description: >
+  Copilot custom agent that investigates material substitutions in an
+  industrial inventory knowledge graph using MCP-based tools.
+protocol: acp
+
+connection:
+  transport: stdio
+  command: ["copilot", "--acp", "--stdio", "--agent", "material-substitution", "--allow-all"]
+  cwd: ${AGENT_REPO_ROOT}    # Path to the repo containing .github/agents/material-substitution.agent.md
+
+timeout: 120
+
+retry:
+  max_attempts: 2
+  backoff: 5.0
+
+metadata:
+  domain: industrial-inventory
+  version: "1.0"

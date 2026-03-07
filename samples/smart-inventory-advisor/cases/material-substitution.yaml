@@ -1,0 +1,78 @@
+# Smart Inventory Advisor — evaluation cases
+#
+# These cases evaluate the agent's ability to answer questions about
+# material substitution, inventory status, and material compatibility
+# in an industrial knowledge graph context.
+#
+# Grading approach:
+#   - Deterministic layer (dev mode): keyword presence, response length,
+#     completion time — fast, no external dependencies.
+#   - AI-judged layer (validation mode): LLM judge assesses answer quality
+#     against domain-specific criteria — requires --judge-model.
+#
+# Run:
+#   beval run --cases cases/ --agent ../agent.yaml
+#   beval run --cases cases/ --agent ../agent.yaml -m validation
+
+background:
+  category: material-substitution
+  given:
+    domain: industrial-inventory
+
+cases:
+  # ── Case 1: Material Substitution Query ──────────────────────────
+  - id: material_substitution_query
+    name: Identify substitute materials for O-ring 10001
+    tags: [substitution, core]
+    given:
+      query: "What materials can substitute for O-ring 10001?"
+    stages:
+      - when: the agent researches substitute materials
+        then:
+          - completion time should be under: 120
+      - when: the agent synthesizes the results
+        then:
+          - response should contain: "substitute"
+          - response should contain: "O-ring"
+          - response length should be: [100, 10000]
+          - the answer should be: >
+              lists valid substitute materials with confidence scores
+              and explains context-dependent constraints
+
+  # ── Case 2: Slow-Moving Inventory Query ──────────────────────────
+  - id: slow_moving_inventory
+    name: Retrieve slow-moving inventory items
+    tags: [inventory, core]
+    given:
+      query: "List all slow-moving inventory items."
+    stages:
+      - when: the agent researches inventory status
+        then:
+          - completion time should be under: 120
+      - when: the agent synthesizes the results
+        then:
+          - response should contain: "slow-moving"
+          - response length should be: [80, 10000]
+          - the answer should be: >
+              returns a structured list of materials flagged as
+              slow-moving with on-hand quantities
+
+  # ── Case 3: Material Compatibility Query ─────────────────────────
+  - id: material_compatibility
+    name: Assess NBR vs Viton compatibility in WIX filter
+    tags: [compatibility, core]
+    given:
+      query: >
+        Can I use material 10003 (NBR) instead of 10001 (Viton)
+        in the WIX 51515 filter?
+    stages:
+      - when: the agent researches material compatibility
+        then:
+          - completion time should be under: 120
+      - when: the agent synthesizes the results
+        then:
+          - response should contain: "substitut"
+          - response length should be: [150, 10000]
+          - the answer should be: >
+              addresses material compatibility with specific reasoning,
+              mentions temperature or operating constraints if applicable

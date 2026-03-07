@@ -102,6 +102,16 @@ def _build_parser() -> argparse.ArgumentParser:
             "When provided, the runner uses this instead of invoking the live system."
         ),
     )
+    run_parser.add_argument(
+        "-a",
+        "--agent",
+        type=str,
+        default=None,
+        help=(
+            "Agent to evaluate. Accepts a path to an agent YAML file or a name "
+            "defined in the configuration file's agents section. See SPEC §13."
+        ),
+    )
     run_parser.add_argument("--case", type=str, default=None, help="Filter by case ID.")
     run_parser.add_argument(
         "--category", type=str, default=None, help="Filter by category."
@@ -301,6 +311,7 @@ def _handle_env_overrides(args: argparse.Namespace) -> None:
         "BEVAL_TRIALS": "trials",
         "BEVAL_CASES_DIR": "cases",
         "BEVAL_SUBJECT": "subject",
+        "BEVAL_AGENT": "agent",
         "BEVAL_LLM_JUDGE_MODEL": "judge_model",
     }
     for env_var, attr in env_map.items():
@@ -368,6 +379,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     # Build handler from subject file (for conformance / replay)
     handler = None
+    adapter = None
     if subject_data is not None:
         def _subject_handler(**kwargs: Any) -> Subject:
             return Subject(
@@ -404,11 +416,46 @@ def _cmd_run(args: argparse.Namespace) -> int:
     # Metric weights
     metric_weights: dict[str, float] = file_config.get("metric_weights", {})
 
+    # Resolve agent adapter (§13.5): CLI > config default > none
+    agent_info: dict[str, str] | None = None
+    if handler is None:
+        agent_ref = getattr(args, "agent", None)
+        config_agents = file_config.get("agents")
+
+        # Fallback to config default agent if no CLI flag
+        if agent_ref is None and config_agents:
+            agent_ref = config_agents.get("default")
+
+        if agent_ref is not None:
+            from beval.adapters import (
+                adapter_as_handler,
+                create_adapter,
+                load_agent as _load_agent,
+            )
+
+            try:
+                agent_def = _load_agent(agent_ref, config_agents=config_agents)
+                adapter = create_adapter(agent_def)
+                handler = adapter_as_handler(adapter)
+                agent_info = {
+                    "name": agent_def["name"],
+                    "protocol": agent_def["protocol"],
+                }
+            except SystemExit:
+                raise
+            except ImportError as exc:
+                print(f"Error: {exc}", file=sys.stderr)
+                return EXIT_INPUT_ERROR
+            except Exception as exc:  # noqa: BLE001
+                print(f"Error loading agent: {exc}", file=sys.stderr)
+                return EXIT_INFRA_ERROR
+
     config = RunConfig(
         grade_pass_threshold=float(grade_pass_threshold),
         case_pass_threshold=float(case_pass_threshold),
         skip_mode=skip_mode,
         metric_weights=metric_weights,
+        agent=agent_info,
     )
 
     # Mode: CLI > config file > default
@@ -456,7 +503,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     start_time = time.monotonic()
 
-    # Execute
+    # Execute (with adapter cleanup in finally)
     try:
         result = runner.run(
             case_defs,
@@ -469,6 +516,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
     except Exception as exc:  # noqa: BLE001
         print(f"Error: {exc}", file=sys.stderr)
         return EXIT_INTERNAL_ERROR
+    finally:
+        if adapter is not None:
+            adapter.close()
 
     # Verbose post-execution diagnostics
     if args.verbose:

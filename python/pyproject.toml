@@ -40,7 +40,9 @@ tracing = [
     "opentelemetry-api>=1.20.0",
     "opentelemetry-sdk>=1.20.0",
 ]
-all = ["beval[validate,tracing]"]
+acp = ["agent-client-protocol>=0.1.0"]
+a2a = ["a2a-sdk>=0.3.0"]
+all = ["beval[validate,tracing,acp,a2a]"]
 dev = [
     "beval[all]",
     "pytest>=8.0",
@@ -76,3 +78,18 @@ check_untyped_defs = true
 [[tool.mypy.overrides]]
 module = ["opentelemetry.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["acp.*", "acp", "a2a.*", "a2a"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["httpx.*", "httpx"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["beval.adapters.acp", "beval.adapters.a2a"]
+disallow_untyped_defs = false
+check_untyped_defs = false
+warn_return_any = false
+disable_error_code = ["misc", "attr-defined", "call-arg", "assignment", "unused-ignore", "no-any-return"]

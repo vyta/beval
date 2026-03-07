@@ -3,6 +3,7 @@
 See SPEC.md §3 for core concepts.
 """
 
+from beval.adapters import AdapterInterface, load_agent
 from beval.dsl import CaseBuilder, case, clear_case_registry, examples
 from beval.graders import clear_grader_registry, register_grader
 from beval.runner import Runner
@@ -25,6 +26,8 @@ from beval.types import (
 )
 
 __all__ = [
+    "AdapterInterface",
+    "load_agent",
     "case",
     "clear_case_registry",
     "clear_grader_registry",

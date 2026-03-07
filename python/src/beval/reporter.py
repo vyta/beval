@@ -34,6 +34,7 @@ _CONFIG_DEFAULTS: dict[str, Any] = {
     "metric_weights": {},
     "active_layers": None,
     "pass_at_k": 1,
+    "agent": None,
 }
 
 # Patterns identifying sensitive keys for scrubbing (§10.1).

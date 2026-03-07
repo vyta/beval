@@ -190,6 +190,7 @@ class RunConfig:
     metric_weights: dict[str, float] = field(default_factory=dict)
     active_layers: frozenset[str] | None = None
     pass_at_k: int = 1
+    agent: dict[str, str] | None = None
 
 
 @dataclass

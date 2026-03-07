@@ -77,6 +77,85 @@
         "cache": {
           "$ref": "#/$defs/CacheConfig",
           "description": "Response caching configuration."
+        },
+        "agents": {
+          "$ref": "#/$defs/AgentsConfig",
+          "description": "Agent definition and selection configuration. See SPEC §13."
+        }
+      }
+    },
+    "AgentsConfig": {
+      "type": "object",
+      "description": "Agent configuration for connecting to systems under test.",
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "type": "string",
+          "description": "Name of the default agent from the definitions array."
+        },
+        "definitions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AgentDefinition" },
+          "description": "Agent definitions available for this project."
+        }
+      }
+    },
+    "AgentDefinition": {
+      "type": "object",
+      "description": "Inline agent definition. Same schema as standalone agent YAML files.",
+      "required": ["name", "protocol", "connection"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique agent identifier."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["acp", "a2a", "custom"],
+          "description": "Connection protocol type."
+        },
+        "connection": {
+          "type": "object",
+          "description": "Protocol-specific connection parameters.",
+          "additionalProperties": true
+        },
+        "timeout": {
+          "type": "number",
+          "minimum": 0,
+          "default": 30,
+          "description": "Request timeout in seconds."
+        },
+        "retry": {
+          "type": "object",
+          "description": "Retry policy.",
+          "additionalProperties": false,
+          "properties": {
+            "max_attempts": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "backoff": {
+              "type": "number",
+              "minimum": 0,
+              "default": 1.0
+            }
+          }
+        },
+        "env": {
+          "type": "object",
+          "description": "Environment variable bindings using ${VAR_NAME} syntax.",
+          "additionalProperties": { "type": "string" }
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Open-ended key-value pairs surfaced in results.",
+          "additionalProperties": true
         }
       }
     },

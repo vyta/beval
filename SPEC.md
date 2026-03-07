@@ -23,6 +23,7 @@ Version: 0.1.0
 10. Security and Safety Requirements
 11. Non-determinism and Multi-trial Evaluation
 12. Extension Points
+13. Agent Adapters
 
 See [GUIDE.md](GUIDE.md) for informative companion material including
 recommended vocabularies, implementation guidance, and optional advanced
@@ -609,5 +610,18 @@ Implementations may extend the framework through:
 * Custom reporters for CI and dashboards
 * Custom subject normalizers
 * Case loaders from YAML, CSV, JSON, or production samples
+* Agent adapters for custom connection protocols (§13)
 
 Cross-SUT comparison is an external workflow built from multiple result artifacts, not a required core runner feature.
+
+## 13. Agent Adapters
+
+See [spec/agent-adapters.spec.md](spec/agent-adapters.spec.md) for the full
+agent adapter specification, covering:
+
+* Agent definition schema (YAML)
+* Adapter interface contract
+* Built-in adapters: ACP (Agent Client Protocol), A2A (Agent2Agent), Custom
+* Agent resolution precedence (CLI → config → handler → stub)
+* CLI and configuration changes
+* Error handling and security requirements

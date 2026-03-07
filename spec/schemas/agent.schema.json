@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent.schema.json",
+  "title": "beval Agent Definition",
+  "description": "Schema for beval agent YAML definition files per SPEC §13.",
+  "type": "object",
+  "required": ["name", "protocol", "connection"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique agent identifier within a project."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the agent."
+    },
+    "protocol": {
+      "$ref": "#/$defs/AgentProtocol",
+      "description": "Connection protocol type."
+    },
+    "connection": {
+      "description": "Protocol-specific connection parameters."
+    },
+    "timeout": {
+      "type": "number",
+      "minimum": 0,
+      "default": 30,
+      "description": "Request timeout in seconds."
+    },
+    "retry": {
+      "$ref": "#/$defs/RetryConfig",
+      "description": "Retry policy for transient failures."
+    },
+    "env": {
+      "type": "object",
+      "description": "Environment variable bindings using ${VAR_NAME} syntax. Resolved from the process environment at load time.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Open-ended key-value pairs surfaced in results output.",
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "protocol": { "const": "acp" } }
+      },
+      "then": {
+        "properties": {
+          "connection": { "$ref": "#/$defs/ACPConnection" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "protocol": { "const": "a2a" } }
+      },
+      "then": {
+        "properties": {
+          "connection": { "$ref": "#/$defs/A2AConnection" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "protocol": { "const": "custom" } }
+      },
+      "then": {
+        "properties": {
+          "connection": { "$ref": "#/$defs/CustomConnection" }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "AgentProtocol": {
+      "type": "string",
+      "enum": ["acp", "a2a", "custom"],
+      "description": "Supported agent connection protocols."
+    },
+    "RetryConfig": {
+      "type": "object",
+      "description": "Retry policy configuration.",
+      "additionalProperties": false,
+      "properties": {
+        "max_attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Maximum number of retry attempts."
+        },
+        "backoff": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1.0,
+          "description": "Initial backoff duration in seconds for exponential retry."
+        }
+      }
+    },
+    "ACPConnection": {
+      "type": "object",
+      "description": "Connection parameters for Agent Client Protocol (stdio or TCP).",
+      "required": ["transport"],
+      "additionalProperties": false,
+      "properties": {
+        "transport": {
+          "type": "string",
+          "enum": ["stdio", "tcp"],
+          "description": "Transport mechanism."
+        },
+        "command": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Command and arguments to spawn the agent subprocess. Required when transport is stdio."
+        },
+        "host": {
+          "type": "string",
+          "description": "Host address. Required when transport is tcp."
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Port number. Required when transport is tcp."
+        },
+        "env": {
+          "type": "object",
+          "description": "Additional environment variables for the subprocess (stdio only).",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "transport": { "const": "stdio" } }
+          },
+          "then": {
+            "required": ["transport", "command"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "transport": { "const": "tcp" } }
+          },
+          "then": {
+            "required": ["transport", "host", "port"]
+          }
+        }
+      ]
+    },
+    "A2AConnection": {
+      "type": "object",
+      "description": "Connection parameters for Agent2Agent protocol.",
+      "required": ["url"],
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Base URL of the A2A agent endpoint."
+        },
+        "agent_card_path": {
+          "type": "string",
+          "default": "/.well-known/agent.json",
+          "description": "Path to the Agent Card relative to the base URL."
+        },
+        "auth": {
+          "$ref": "#/$defs/A2AAuth",
+          "description": "Authentication configuration."
+        },
+        "streaming": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use SSE streaming for task updates. When false, the adapter polls for completion."
+        }
+      }
+    },
+    "A2AAuth": {
+      "type": "object",
+      "description": "Authentication configuration for A2A connections.",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["api_key", "oauth2", "none"],
+          "default": "none",
+          "description": "Authentication method."
+        },
+        "header": {
+          "type": "string",
+          "description": "HTTP header name for API key authentication."
+        },
+        "value": {
+          "type": "string",
+          "description": "Token or API key value. Supports ${VAR_NAME} syntax."
+        },
+        "token_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "OAuth2 token endpoint URL."
+        },
+        "client_id": {
+          "type": "string",
+          "description": "OAuth2 client identifier. Supports ${VAR_NAME} syntax."
+        },
+        "client_secret": {
+          "type": "string",
+          "description": "OAuth2 client secret. Supports ${VAR_NAME} syntax."
+        },
+        "scopes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "OAuth2 scopes to request."
+        }
+      }
+    },
+    "CustomConnection": {
+      "type": "object",
+      "description": "Connection parameters for custom adapters.",
+      "required": ["module", "class"],
+      "additionalProperties": false,
+      "properties": {
+        "module": {
+          "type": "string",
+          "description": "Python module path containing the adapter class."
+        },
+        "class": {
+          "type": "string",
+          "description": "Class name implementing the AdapterInterface."
+        },
+        "config": {
+          "type": "object",
+          "description": "Arbitrary configuration passed to the adapter constructor.",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

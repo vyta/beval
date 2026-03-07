@@ -87,6 +87,12 @@ commands:
         type: number
         default: 0.05
         description: Fail if any metric drops more than this value from baseline.
+      agent:
+        short: "-a"
+        type: string
+        description: >
+          Agent to evaluate. Accepts a path to an agent YAML file or a name
+          defined in the configuration file's agents section. See §13.
       scrub:
         type: boolean
         default: true
@@ -195,3 +201,4 @@ env_mapping:
   BEVAL_CACHE_DIR: eval.cache.dir
   BEVAL_CASES_DIR: cases
   BEVAL_SUBJECT: subject
+  BEVAL_AGENT: eval.agents.default

@@ -84,6 +84,27 @@
           "type": ["array", "null"],
           "items": { "type": "string" },
           "description": "Explicitly active grader layers; null to use mode defaults."
+        },
+        "agent": {
+          "$ref": "#/$defs/AgentInfo",
+          "description": "Agent identity when an agent adapter was used. See SPEC §13.9."
+        }
+      }
+    },
+    "AgentInfo": {
+      "type": "object",
+      "description": "Non-sensitive agent identity included in results when an adapter is active.",
+      "required": ["name", "protocol"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Agent identifier."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["acp", "a2a", "custom"],
+          "description": "Connection protocol used."
         }
       }
     },

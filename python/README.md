@@ -95,10 +95,15 @@ uv run mypy src/beval/
 
 ## Integrating With Your Agent
 
-beval evaluates the **outputs** of your AI agent or LLM-powered system. The
-framework does not run your agent directly — you connect the two by writing a
-thin adapter that invokes your system and normalizes its output into a
-`Subject`.
+beval evaluates the **outputs** of your AI agent or LLM-powered system. There
+are two ways to connect beval to your agent:
+
+1. **Agent YAML (declarative)** — define a YAML file describing how to reach
+   your agent (protocol, connection, auth). The CLI uses this to connect
+   automatically. Best for CI and team workflows.
+2. **Programmatic handler (library)** — write a Python callable that invokes
+   your agent and returns a `Subject`. Best for custom orchestration or when
+   embedding beval in your own test harness.
 
 ### Integration pattern
 
@@ -106,16 +111,18 @@ The general flow is:
 
 1. **Define cases** — describe what your agent should do and the quality criteria
 2. **Register graders** — map criterion patterns to scoring functions
-3. **Write a subject adapter** — call your agent, capture the response, wrap it in a `Subject`
-4. **Run the evaluation** — the runner executes cases, feeds subjects to graders, and aggregates scores
+3. **Define the agent** — declare an agent YAML file *or* write a programmatic handler
+4. **Run the evaluation** — the runner connects to the agent, executes cases, feeds subjects to graders, and aggregates scores
 
 ```text
 ┌──────────────┐     ┌────────────┐     ┌──────────────┐     ┌──────────┐
-│  Case YAML   │────▶│   Runner   │────▶│ Your Agent   │────▶│  Subject │
-│  or @case()  │     │            │◀────│  (adapter)   │◀────│  output  │
+│  Case YAML   │────▶│            │────▶│ Your Agent   │────▶│  Subject │
+│  or @case()  │     │   Runner   │◀────│  (adapter)   │◀────│  output  │
 └──────────────┘     │            │     └──────────────┘     └──────────┘
-                     │            │────▶ Graders ────▶ Grades ────▶ Report
-                     └────────────┘
+┌──────────────┐     │            │────▶ Graders ────▶ Grades ────▶ Report
+│  Agent YAML  │────▶│            │
+│  or handler  │     └────────────┘
+└──────────────┘
 ```
 
 ### Step 1 — Define evaluation cases
@@ -181,10 +188,63 @@ register_grader(
 )
 ```
 
-### Step 3 — Write a subject adapter
+### Step 3 — Connect your agent
 
-The adapter is where you connect your actual agent. It takes the `given`
-context from a case, calls your system, and returns a normalized `Subject`.
+#### Agent YAML (declarative)
+
+Define an agent YAML file that tells beval how to reach your system. The
+runner handles connection, invocation, and Subject construction automatically.
+
+**ACP over stdio** (`agents/my-agent.yaml`):
+
+```yaml
+name: my-agent
+protocol: acp
+connection:
+  transport: stdio
+  command: ["python", "-m", "my_agent"]
+timeout: 30
+env:
+  OPENAI_API_KEY: ${OPENAI_API_KEY}
+metadata:
+  version: "1.0"
+```
+
+**A2A (Agent2Agent) over HTTP** (`agents/remote-agent.yaml`):
+
+```yaml
+name: remote-agent
+protocol: a2a
+connection:
+  url: "https://agent.example.com"
+  auth:
+    type: api_key
+    header: "Authorization"
+    value: ${A2A_API_KEY}
+  streaming: true
+timeout: 60
+```
+
+**Custom adapter** (`agents/custom-agent.yaml`):
+
+```yaml
+name: custom-agent
+protocol: custom
+connection:
+  module: "my_package.adapters"
+  class: "MyAdapter"
+  config:
+    endpoint: "https://custom.api"
+    api_key: ${CUSTOM_KEY}
+```
+
+See the [Agent Adapters Specification](../spec/agent-adapters.spec.md) for the
+full schema and protocol details.
+
+#### Programmatic handler (library usage)
+
+When using beval as a library, write a callable that takes the `given` context
+from a case, calls your system, and returns a normalized `Subject`.
 
 **Direct function call:**
 
@@ -265,7 +325,14 @@ def load_subject(path: str) -> Subject:
 
 ### Step 4 — Run the evaluation
 
-Wire the adapter into the Runner and execute:
+**CLI with an agent YAML file** (recommended):
+
+```bash
+uv run beval run --agent agents/my-agent.yaml --mode dev
+uv run beval run --agent agents/my-agent.yaml --mode validation --trials 3 --format json
+```
+
+**Programmatic** (library usage):
 
 ```python
 from beval import Runner, EvaluationMode, RunConfig
@@ -327,8 +394,8 @@ the cases.
 
 ```bash
 # Run evaluations
-uv run beval run --mode dev
-uv run beval run --mode validation --trials 3 --format json
+uv run beval run --agent agents/my-agent.yaml --mode dev
+uv run beval run --agent remote-agent --mode validation --trials 3 --format json
 
 # Validate case files and schemas
 uv run beval validate --cases ./cases/
@@ -362,6 +429,7 @@ uv run python -m beval version
 
 | Variable          | Overrides     | Example             |
 |-------------------|---------------|---------------------|
+| `BEVAL_AGENT`     | `--agent`     | `BEVAL_AGENT=my-agent` |
 | `BEVAL_MODE`      | `--mode`      | `BEVAL_MODE=dev`    |
 | `BEVAL_OUTPUT_DIR`| `--output`    | `BEVAL_OUTPUT_DIR=./results` |
 | `BEVAL_TRIALS`    | `--trials`    | `BEVAL_TRIALS=5`    |

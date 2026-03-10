@@ -509,6 +509,23 @@ def _cmd_run(args: argparse.Namespace) -> int:
         if show_console:
             _print_case_result(idx, total, case_def, cr, verbose)
 
+    # Build evaluators (judge)
+    evaluators: dict[str, Any] = {}
+    judge_model = getattr(args, "judge_model", None)
+    if judge_model is None:
+        judge_model = file_config.get("judge_model")
+    if judge_model:
+        from beval.judge import LLMJudge
+
+        try:
+            evaluators["judge"] = LLMJudge(
+                judge_model,
+                grade_pass_threshold=config.grade_pass_threshold,
+            )
+        except ImportError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return EXIT_INPUT_ERROR
+
     runner = Runner(
         mode=mode,
         config=config,
@@ -518,6 +535,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         use_cache=getattr(args, "use_cache", False),
         score_only=getattr(args, "score_only", False),
         no_cache=getattr(args, "no_cache", False),
+        evaluators=evaluators,
         on_case_start=_on_case_start,
         on_case_complete=_on_case_complete,
     )

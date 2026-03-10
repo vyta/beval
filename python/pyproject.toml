@@ -42,7 +42,8 @@ tracing = [
 ]
 acp = ["agent-client-protocol>=0.1.0"]
 a2a = ["a2a-sdk>=0.3.0"]
-all = ["beval[validate,tracing,acp,a2a]"]
+judge = ["openai>=1.0.0", "azure-identity>=1.15.0"]
+all = ["beval[validate,tracing,acp,a2a,judge]"]
 dev = [
     "beval[all]",
     "pytest>=8.0",
@@ -85,6 +86,14 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["httpx.*", "httpx"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["openai.*", "openai"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["azure.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

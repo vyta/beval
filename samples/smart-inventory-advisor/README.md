@@ -60,7 +60,7 @@ uv run beval --verbose run --cases ../samples/smart-inventory-advisor/cases/ \
   --output results.json
 ```
 
-If beval is installed (`pip install beval[acp]`), run directly:
+If beval is installed (`pip install beval[acp,judge]`), run directly:
 
 ### With standalone agent file
 
@@ -108,6 +108,40 @@ beval run --cases cases/ --agent agent-tcp.yaml
 beval run --cases cases/ -c eval.config.yaml --agent smart-inventory-advisor-tcp
 ```
 
+### With LLM judge (validation mode)
+
+Validation mode activates the `ai_judged` grading layer, which uses an LLM
+to assess answer quality against the `the answer should be` criteria in each
+case. This requires the `--judge-model` flag and an OpenAI-compatible endpoint.
+
+**Azure OpenAI (Entra ID auth):**
+
+```bash
+export AZURE_OPENAI_ENDPOINT=https://YOUR-RESOURCE.openai.azure.com
+
+beval --verbose run --cases cases/ --agent agent-tcp.yaml \
+  -m validation --judge-model gpt-4.1 --output results.json
+```
+
+**Azure OpenAI (API key auth):**
+
+```bash
+export AZURE_OPENAI_ENDPOINT=https://YOUR-RESOURCE.openai.azure.com
+export AZURE_OPENAI_API_KEY=your-key
+
+beval --verbose run --cases cases/ --agent agent-tcp.yaml \
+  -m validation --judge-model gpt-4.1 --output results.json
+```
+
+**Standard OpenAI:**
+
+```bash
+export OPENAI_API_KEY=sk-...
+
+beval --verbose run --cases cases/ --agent agent-tcp.yaml \
+  -m validation --judge-model gpt-4o --output results.json
+```
+
 ### With config file
 
 ```bash
@@ -137,10 +171,12 @@ beval run --cases cases/
 
 - **Deterministic** (`dev` mode): keyword presence, response length, completion time
 - **AI-judged** (`validation` mode): LLM judge evaluates answer quality against
-  domain-specific criteria specified in the `the answer should be` then-clauses
+  domain-specific criteria specified in the `the answer should be` then-clauses.
+  Supports Azure OpenAI (Entra ID or API key) and standard OpenAI endpoints.
+  Requires `pip install beval[judge]` and `--judge-model`.
 
 ## TODO
 
 1. ~~Test copilot agent with TCP connection~~ ✓
-2. Test with LLM judge
+2. ~~Test with LLM judge~~ ✓
 3. Test an agent with A2A

@@ -26,6 +26,20 @@ eval:
         metadata:
           domain: industrial-inventory
 
+      - name: smart-inventory-advisor-tcp
+        protocol: acp
+        connection:
+          transport: tcp
+          host: ${AGENT_HOST:-127.0.0.1}
+          port: ${AGENT_PORT:-3000}
+          cwd: ${AGENT_REPO_ROOT}
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+        metadata:
+          domain: industrial-inventory
+
   output:
     dir: results
     format: json

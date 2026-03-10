@@ -176,6 +176,51 @@ class TestLoadAgent:
             load_agent(str(p))
         assert exc_info.value.code == 2
 
+    def test_env_var_default_used(self, tmp_path: Path) -> None:
+        """${VAR:-default} uses default when VAR is unset."""
+        p = tmp_path / "env.yaml"
+        p.write_text(
+            yaml.dump(
+                {
+                    "name": "env-agent",
+                    "protocol": "custom",
+                    "connection": {
+                        "module": "mod",
+                        "class": "Cls",
+                        "host": "${BEVAL_TEST_HOST:-127.0.0.1}",
+                        "port": "${BEVAL_TEST_PORT:-3000}",
+                    },
+                }
+            )
+        )
+        os.environ.pop("BEVAL_TEST_HOST", None)
+        os.environ.pop("BEVAL_TEST_PORT", None)
+        result = load_agent(str(p))
+        assert result["connection"]["host"] == "127.0.0.1"
+        assert result["connection"]["port"] == "3000"
+
+    def test_env_var_default_overridden(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """${VAR:-default} uses env value when VAR is set."""
+        monkeypatch.setenv("BEVAL_TEST_HOST", "10.0.0.1")
+        p = tmp_path / "env.yaml"
+        p.write_text(
+            yaml.dump(
+                {
+                    "name": "env-agent",
+                    "protocol": "custom",
+                    "connection": {
+                        "module": "mod",
+                        "class": "Cls",
+                        "host": "${BEVAL_TEST_HOST:-127.0.0.1}",
+                    },
+                }
+            )
+        )
+        result = load_agent(str(p))
+        assert result["connection"]["host"] == "10.0.0.1"
+
     def test_bare_name_lookup(self) -> None:
         config_agents = {
             "definitions": [

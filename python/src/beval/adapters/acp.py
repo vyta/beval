@@ -197,7 +197,7 @@ class ACPAdapter(AdapterInterface):
                 )
             elif self._transport == "tcp":
                 host = self._connection.get("host", "127.0.0.1")
-                port = self._connection.get("port", 3000)
+                port = int(self._connection.get("port", 3000))
                 reader, writer = await asyncio.open_connection(
                     host, port,
                 )

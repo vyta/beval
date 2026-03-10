@@ -13,8 +13,9 @@ and communicates over the Agent Client Protocol (ACP).
 ## Files
 
 ```
-├── agent.yaml                   # Standalone agent definition
-├── eval.config.yaml             # Config file (with inline agent definition)
+├── agent.yaml                   # Standalone agent definition (stdio transport)
+├── agent-tcp.yaml               # Standalone agent definition (TCP transport)
+├── eval.config.yaml             # Config file (with both agent definitions)
 ├── cases/
 │   └── material-substitution.yaml   # 3 evaluation cases
 └── README.md
@@ -82,6 +83,31 @@ beval run --cases cases/ --agent agent.yaml -m validation --judge-model gpt-4o
 beval run --cases cases/ --agent agent.yaml -t core
 ```
 
+### With TCP transport
+
+Start the copilot agent as a TCP server first. The `--acp --port` flags
+tell copilot to listen for ACP connections on the given port:
+
+```bash
+cd $AGENT_REPO_ROOT
+copilot --acp --port 3000 --agent material-substitution --allow-all
+```
+
+Then in another terminal, run the evaluation:
+
+```bash
+# Using standalone agent-tcp.yaml (defaults to 127.0.0.1:3000)
+beval run --cases cases/ --agent agent-tcp.yaml
+
+# Override host/port via environment variables
+export AGENT_HOST=192.168.1.100
+export AGENT_PORT=4000
+beval run --cases cases/ --agent agent-tcp.yaml
+
+# Using the TCP agent from config file
+beval run --cases cases/ -c eval.config.yaml --agent smart-inventory-advisor-tcp
+```
+
 ### With config file
 
 ```bash
@@ -115,6 +141,6 @@ beval run --cases cases/
 
 ## TODO
 
-1. Test copilot agent with TCP connection
+1. ~~Test copilot agent with TCP connection~~ ✓
 2. Test with LLM judge
 3. Test an agent with A2A

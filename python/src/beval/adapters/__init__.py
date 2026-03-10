@@ -42,21 +42,29 @@ class AdapterInterface(ABC):
         """Release resources held by this adapter."""
 
 
-# Pattern for ${VAR} references in agent YAML.
+# Pattern for ${VAR} or ${VAR:-default} references in agent YAML.
 _ENV_REF_RE = re.compile(r"\$\{([^}]+)\}")
 
 
 def _resolve_env_vars(value: Any) -> Any:
     """Recursively resolve ${VAR} references from the process environment.
 
-    Raises ``SystemExit(2)`` if a referenced variable is not set (§13.2).
+    Supports ``${VAR:-default}`` syntax for fallback values.
+    Raises ``SystemExit(2)`` if a referenced variable is not set
+    and no default is provided (§13.2).
     """
     if isinstance(value, str):
 
         def _replace(m: re.Match[str]) -> str:
-            var_name = m.group(1)
+            expr = m.group(1)
+            if ":-" in expr:
+                var_name, default = expr.split(":-", 1)
+            else:
+                var_name, default = expr, None
             val = os.environ.get(var_name)
             if val is None:
+                if default is not None:
+                    return default
                 raise SystemExit(2)
             return val
 

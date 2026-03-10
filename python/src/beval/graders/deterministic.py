@@ -9,10 +9,15 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from beval.graders import register_grader
+from beval.graders import grader
 from beval.types import EvalContext, Grade, GraderLayer, Subject
 
 
+@grader(
+    "completion time should be under",
+    layer=GraderLayer.DETERMINISTIC,
+    metric="latency",
+)
 def _completion_time_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
@@ -31,6 +36,7 @@ def _completion_time_grader(
     )
 
 
+@grader("response should contain", layer=GraderLayer.DETERMINISTIC)
 def _response_contains_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
@@ -47,6 +53,7 @@ def _response_contains_grader(
     )
 
 
+@grader("response should not contain", layer=GraderLayer.DETERMINISTIC)
 def _response_not_contains_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
@@ -63,6 +70,7 @@ def _response_not_contains_grader(
     )
 
 
+@grader("response length should be", layer=GraderLayer.DETERMINISTIC)
 def _response_length_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
@@ -87,6 +95,7 @@ def _response_length_grader(
     )
 
 
+@grader("response should match", layer=GraderLayer.DETERMINISTIC)
 def _response_matches_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
@@ -100,38 +109,4 @@ def _response_matches_grader(
         passed=matched,
         detail=f"pattern '{pattern}' {'matched' if matched else 'not matched'}",
         layer=GraderLayer.DETERMINISTIC,
-    )
-
-
-def register_deterministic_graders() -> None:
-    """Register all deterministic built-in graders."""
-    register_grader(
-        "completion time should be under",
-        _completion_time_grader,
-        layer=GraderLayer.DETERMINISTIC,
-        metric="latency",
-    )
-    register_grader(
-        "response should contain",
-        _response_contains_grader,
-        layer=GraderLayer.DETERMINISTIC,
-        metric="quality",
-    )
-    register_grader(
-        "response should not contain",
-        _response_not_contains_grader,
-        layer=GraderLayer.DETERMINISTIC,
-        metric="quality",
-    )
-    register_grader(
-        "response length should be",
-        _response_length_grader,
-        layer=GraderLayer.DETERMINISTIC,
-        metric="quality",
-    )
-    register_grader(
-        "response should match",
-        _response_matches_grader,
-        layer=GraderLayer.DETERMINISTIC,
-        metric="quality",
     )

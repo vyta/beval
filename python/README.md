@@ -18,6 +18,12 @@ uv sync
 With optional extras:
 
 ```bash
+# ACP agent adapter (Agent Client Protocol)
+uv sync --extra acp
+
+# A2A agent adapter (Agent-to-Agent)
+uv sync --extra a2a
+
 # JSON Schema validation
 uv sync --extra validate
 
@@ -164,6 +170,27 @@ cases:
 
 Graders score a `Subject` against a criterion. Register them by pattern prefix — the
 runner matches each `then` clause to the grader with the longest matching prefix.
+
+**Using the `@grader` decorator** (recommended):
+
+```python
+from beval import grader, Grade, GraderLayer, Subject
+
+@grader("the answer should mention", layer=GraderLayer.DETERMINISTIC, metric="relevance")
+def keyword_grader(criterion: str, args: list, subject: Subject, context) -> Grade:
+    keyword = args[0] if args else ""
+    found = keyword.lower() in subject.answer.lower()
+    return Grade(
+        criterion=criterion,
+        score=1.0 if found else 0.0,
+        metric="relevance",
+        passed=found,
+        detail=f"Keyword '{keyword}' {'found' if found else 'not found'}",
+        layer=GraderLayer.DETERMINISTIC,
+    )
+```
+
+**Using `register_grader` directly:**
 
 ```python
 from beval import register_grader, Grade, GraderLayer, Subject
@@ -381,6 +408,7 @@ Modes control which grader layers are active:
 | `dev` | deterministic | Fast local iteration |
 | `dev+process` | deterministic + process | Include trace/span checks |
 | `validation` | deterministic + process + ai_judged | Full evaluation with LLM judges |
+| `monitoring` | deterministic + process + ai_judged | Production monitoring |
 
 Graders for inactive layers emit skipped grades (excluded from scoring by
 default). Cases remain identical across modes — you change the mode, not
@@ -388,14 +416,19 @@ the cases.
 
 ## CLI Usage
 
-> [!NOTE]
-> In version 0.1.0, only `beval version` is implemented. The remaining
-> commands listed below are planned for future releases.
-
 ```bash
 # Run evaluations
-uv run beval run --agent agents/my-agent.yaml --mode dev
-uv run beval run --agent remote-agent --mode validation --trials 3 --format json
+uv run beval run --cases ./cases/ --agent agents/my-agent.yaml --mode dev
+uv run beval run --cases ./cases/ --agent agents/my-agent.yaml --mode validation --trials 3 --format json
+
+# Verbose output (prints truncated agent responses to stderr)
+uv run beval --verbose run --cases ./cases/ --agent agents/my-agent.yaml
+
+# Save results to file
+uv run beval run --cases ./cases/ --agent agents/my-agent.yaml --output results.json
+
+# Verbose + output to file (full responses in file, truncated previews on stderr)
+uv run beval --verbose run --cases ./cases/ --agent agents/my-agent.yaml --output results.json
 
 # Validate case files and schemas
 uv run beval validate --cases ./cases/
@@ -425,6 +458,12 @@ Run as a module:
 uv run python -m beval version
 ```
 
+### Global flags
+
+| Flag | Description |
+|------|-------------|
+| `--verbose` | Print truncated agent responses to stderr; include full responses in output file |
+
 ### Environment variables
 
 | Variable          | Overrides     | Example             |
@@ -446,7 +485,16 @@ python/
 │       ├── cli.py           # CLI (argparse)
 │       ├── types.py         # Core type definitions (frozen dataclasses)
 │       ├── dsl.py           # DSL (@case decorator, Given/When/Then)
+│       ├── adapters/        # Agent adapters (ACP, A2A, custom)
+│       │   ├── __init__.py  # Interface, loader, factory
+│       │   ├── acp.py       # ACP adapter (optional: beval[acp])
+│       │   ├── a2a.py       # A2A adapter (optional: beval[a2a])
+│       │   └── custom.py    # Custom adapter (dynamic class loading)
 │       ├── graders/         # Grader registry and built-ins
+│       │   ├── __init__.py  # Registry, @grader decorator
+│       │   ├── deterministic.py  # Built-in deterministic graders
+│       │   ├── process.py        # Built-in process graders
+│       │   └── ai_judged.py      # AI-judged grader (LLM judge)
 │       ├── judge.py         # LLM judge interface
 │       ├── runner.py        # Runner orchestration
 │       ├── subject.py       # Subject normalization
@@ -459,6 +507,8 @@ python/
     ├── conftest.py          # Shared fixtures + registry isolation
     ├── test_types.py        # Core type tests
     ├── test_loader.py       # YAML loader tests
+    ├── test_adapters.py     # Agent adapter tests
+    ├── test_graders.py      # Grader tests
     ├── test_cli.py          # CLI tests
     └── test_conformance.py  # Cross-language conformance tests
 ```

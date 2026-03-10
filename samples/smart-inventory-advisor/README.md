@@ -20,32 +20,66 @@ and communicates over the Agent Client Protocol (ACP).
 └── README.md
 ```
 
+## Prerequisites
+
+The agent definition references `${AGENT_REPO_ROOT}` — the path to the
+repository containing `.github/agents/material-substitution.agent.md`.
+Export it before running:
+
+```bash
+export AGENT_REPO_ROOT=/path/to/your/agent/repo
+```
+
+You also need the `copilot` CLI installed and authenticated.
+
 ## Running
 
 All commands below assume you are in the `samples/smart-inventory-advisor/`
 directory. For development, use `uv run` from the `python/` directory:
 
 ```bash
-cd python && uv sync --extra dev
+cd python && uv sync --extra dev --extra acp
+
+# Basic run (dev mode, deterministic graders only)
 uv run beval run --cases ../samples/smart-inventory-advisor/cases/ \
   --agent ../samples/smart-inventory-advisor/agent.yaml
+
+# Verbose output (prints truncated agent responses to stderr)
+uv run beval --verbose run --cases ../samples/smart-inventory-advisor/cases/ \
+  --agent ../samples/smart-inventory-advisor/agent.yaml
+
+# Save results to file
+uv run beval run --cases ../samples/smart-inventory-advisor/cases/ \
+  --agent ../samples/smart-inventory-advisor/agent.yaml \
+  --output results.json
+
+# Verbose + output to file (full responses in file, previews on stderr)
+uv run beval --verbose run --cases ../samples/smart-inventory-advisor/cases/ \
+  --agent ../samples/smart-inventory-advisor/agent.yaml \
+  --output results.json
 ```
 
-If beval is installed (`pip install beval[acp]`), you can run directly:
+If beval is installed (`pip install beval[acp]`), run directly:
 
 ### With standalone agent file
 
 ```bash
 beval run --cases cases/ --agent agent.yaml
 
+# Verbose output
+beval --verbose run --cases cases/ --agent agent.yaml
+
+# Save results to file
+beval run --cases cases/ --agent agent.yaml --output results.json
+
+# Verbose + output to file
+beval --verbose run --cases cases/ --agent agent.yaml --output results.json
+
 # All grader layers including AI judge
 beval run --cases cases/ --agent agent.yaml -m validation --judge-model gpt-4o
 
 # Run only core cases
 beval run --cases cases/ --agent agent.yaml -t core
-
-# Save results as baseline
-beval run --cases cases/ --agent agent.yaml --save-baseline
 ```
 
 ### With config file

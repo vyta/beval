@@ -7,10 +7,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from beval.graders import register_grader
+from beval.graders import grader
 from beval.types import EvalContext, Grade, GraderLayer, Subject
 
 
+@grader("should have span", layer=GraderLayer.PROCESS, metric="process")
 def _has_span_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
@@ -30,6 +31,7 @@ def _has_span_grader(
     )
 
 
+@grader("should call tool", layer=GraderLayer.PROCESS, metric="process")
 def _calls_tool_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
@@ -49,6 +51,7 @@ def _calls_tool_grader(
     )
 
 
+@grader("tool call count should be", layer=GraderLayer.PROCESS, metric="process")
 def _tool_call_count_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
@@ -64,26 +67,4 @@ def _tool_call_count_grader(
         passed=passed,
         detail=f"{actual} tool calls (expected {expected})",
         layer=GraderLayer.PROCESS,
-    )
-
-
-def register_process_graders() -> None:
-    """Register all process built-in graders."""
-    register_grader(
-        "should have span",
-        _has_span_grader,
-        layer=GraderLayer.PROCESS,
-        metric="process",
-    )
-    register_grader(
-        "should call tool",
-        _calls_tool_grader,
-        layer=GraderLayer.PROCESS,
-        metric="process",
-    )
-    register_grader(
-        "tool call count should be",
-        _tool_call_count_grader,
-        layer=GraderLayer.PROCESS,
-        metric="process",
     )

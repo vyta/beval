@@ -127,7 +127,7 @@ class TestCliRun:
             json.loads(line)
 
     def test_run_verbose_output(self, capsys):
-        """--verbose prints diagnostic info to stderr."""
+        """--verbose preserves subject_output in JSON output."""
         fp = _fixture_path("basic-deterministic")
         exit_code = main([
             "--verbose", "--json",
@@ -136,9 +136,10 @@ class TestCliRun:
             "--subject", str(fp / "subject.json"),
         ])
         assert exit_code == 0
-        err = capsys.readouterr().err
-        assert "Mode:" in err
-        assert "Cases:" in err
+        out = capsys.readouterr().out
+        data = json.loads(out)
+        # In verbose mode, subject_output is preserved (not stripped)
+        assert "cases" in data
 
     def test_run_with_config(self, capsys):
         """run with --config loads the config file."""

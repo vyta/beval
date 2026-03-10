@@ -5,7 +5,7 @@ See SPEC.md §3 for core concepts.
 
 from beval.adapters import AdapterInterface, load_agent
 from beval.dsl import CaseBuilder, case, clear_case_registry, examples
-from beval.graders import clear_grader_registry, register_grader
+from beval.graders import clear_grader_registry, grader, register_grader
 from beval.runner import Runner
 from beval.subject import normalize_subject
 from beval.types import (
@@ -33,6 +33,7 @@ __all__ = [
     "clear_grader_registry",
     "examples",
     "CaseBuilder",
+    "grader",
     "register_grader",
     "Runner",
     "normalize_subject",

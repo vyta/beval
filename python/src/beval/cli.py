@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -482,6 +483,32 @@ def _cmd_run(args: argparse.Namespace) -> int:
     if args.format == "json" and "format" in output_config:
         args.format = output_config["format"]
 
+    # Console output: always show header + per-case progress (unless quiet/json)
+    show_console = not args.quiet and not args.json
+    verbose = args.verbose
+
+    if show_console:
+        _print_header(agent_info, len(case_defs), mode.value)
+
+    spinner: _Spinner | None = None
+
+    def _on_case_start(idx: int, total: int, case_def: Any) -> None:
+        nonlocal spinner
+        if show_console:
+            _print_case_start(idx, total, case_def, verbose)
+            spinner = _Spinner("Waiting for agent")
+            spinner.start()
+
+    def _on_case_complete(
+        idx: int, total: int, case_def: Any, cr: Any
+    ) -> None:
+        nonlocal spinner
+        if spinner:
+            spinner.stop()
+            spinner = None
+        if show_console:
+            _print_case_result(idx, total, case_def, cr, verbose)
+
     runner = Runner(
         mode=mode,
         config=config,
@@ -491,15 +518,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
         use_cache=getattr(args, "use_cache", False),
         score_only=getattr(args, "score_only", False),
         no_cache=getattr(args, "no_cache", False),
+        on_case_start=_on_case_start,
+        on_case_complete=_on_case_complete,
     )
-
-    # Verbose pre-execution diagnostics
-    if args.verbose:
-        print(f"Mode: {mode.value}", file=sys.stderr)
-        print(f"Cases: {len(case_defs)} definitions", file=sys.stderr)
-        print(f"Trials: {trials}", file=sys.stderr)
-        print(f"Config: grade_pass={config.grade_pass_threshold}, "
-              f"case_pass={config.case_pass_threshold}", file=sys.stderr)
 
     start_time = time.monotonic()
 
@@ -520,12 +541,16 @@ def _cmd_run(args: argparse.Namespace) -> int:
         if adapter is not None:
             adapter.close()
 
-    # Verbose post-execution diagnostics
-    if args.verbose:
-        elapsed = time.monotonic() - start_time
-        print(f"Completed in {elapsed:.2f}s", file=sys.stderr)
-        print(f"Results: {result.summary.total} cases, "
-              f"{result.summary.passed} passed", file=sys.stderr)
+    elapsed = time.monotonic() - start_time
+
+    # Print scorecard
+    if show_console:
+        _print_scorecard(result)
+
+    # Strip subject_output from non-verbose results
+    if not verbose:
+        for cr in result.cases:
+            cr.subject_output = None
 
     # Output results
     scrub = getattr(args, "scrub", True)
@@ -538,7 +563,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
             write_jsonl(result, str(output_path), scrub=scrub)
         else:
             write_json(result, str(output_path), scrub=scrub)
-        if not args.quiet:
+        if show_console:
+            print(f"\n  Results saved to: {output_path}", file=sys.stderr)
+        elif not args.quiet:
             print(f"Results written to {output_path}")
     elif args.format == "jsonl":
         print(to_jsonl(result, scrub=scrub))
@@ -584,7 +611,191 @@ def _cmd_run(args: argparse.Namespace) -> int:
         elif not c.passed:
             exit_code = max(exit_code, EXIT_FAIL)
 
+    if show_console:
+        status = "Evaluation complete" if exit_code == EXIT_PASS else "Evaluation failed"
+        print(f"\n  {status} ({elapsed:.1f}s)\n", file=sys.stderr)
+
     return exit_code
+
+
+class _Spinner:
+    """Simple elapsed-time spinner for stderr."""
+
+    _FRAMES = ["|", "/", "-", "\\"]
+
+    def __init__(self, message: str) -> None:
+        self._message = message
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+        self._start_time = 0.0
+
+    def start(self) -> None:
+        self._start_time = time.monotonic()
+        self._stop.clear()
+        self._thread = threading.Thread(target=self._spin, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+        if self._thread:
+            self._thread.join()
+            self._thread = None
+        # Clear the spinner line
+        sys.stderr.write("\r\033[K")
+        sys.stderr.flush()
+
+    def _spin(self) -> None:
+        idx = 0
+        while not self._stop.wait(0.3):
+            elapsed = time.monotonic() - self._start_time
+            frame = self._FRAMES[idx % len(self._FRAMES)]
+            sys.stderr.write(
+                f"\r    {frame} {self._message} ({elapsed:.0f}s)"
+            )
+            sys.stderr.flush()
+            idx += 1
+
+
+def _score_bar(score: float, width: int = 10) -> str:
+    """Render a score as a block bar like [########--]."""
+    filled = round(score * width)
+    return "[" + "#" * filled + "-" * (width - filled) + "]"
+
+
+def _truncate(text: str, max_len: int = 60) -> str:
+    """Truncate text with ellipsis."""
+    if len(text) <= max_len:
+        return text
+    return text[: max_len - 3] + "..."
+
+
+def _print_header(
+    agent_info: dict[str, str] | None, total_cases: int, mode: str
+) -> None:
+    """Print the run header banner."""
+    line = "=" * 70
+    print(line, file=sys.stderr)
+    if agent_info:
+        name = agent_info.get("name", "unknown")
+        protocol = agent_info.get("protocol", "unknown").upper()
+        print(f"  {protocol} Agent ({name})", file=sys.stderr)
+    else:
+        print("  beval", file=sys.stderr)
+    print(line, file=sys.stderr)
+    print(f"  Cases: {total_cases}  |  Mode: {mode}", file=sys.stderr)
+    print(file=sys.stderr)
+
+
+def _print_case_start(
+    idx: int, total: int, case_def: Any, verbose: bool
+) -> None:
+    """Print case start line."""
+    name = _truncate(case_def.name, 65)
+    print(f"  [{idx + 1}/{total}] {name}", file=sys.stderr)
+    if verbose:
+        query = ""
+        if hasattr(case_def, "func") and case_def.func is not None:
+            # For func-based cases we don't know the query yet
+            pass
+        elif hasattr(case_def, "grades") and case_def.grades is not None:
+            pass
+        # Try to extract query from givens stored in the case definition
+        givens = getattr(case_def, "_givens", None)
+        if givens:
+            query = givens.get("query", givens.get("a query", ""))
+        if query:
+            print(f"    Query: {_truncate(query, 75)}", file=sys.stderr)
+
+
+def _print_case_result(
+    idx: int, total: int, case_def: Any, cr: Any, verbose: bool
+) -> None:
+    """Print case result with grades."""
+    status = "+" if cr.passed else "FAIL"
+    name = _truncate(case_def.name, 40)
+    print(
+        f"    {status} {name} -- score: {cr.overall_score:.2f} "
+        f"({cr.time_seconds:.1f}s)",
+        file=sys.stderr,
+    )
+
+    if verbose:
+        # Group grades by stage
+        current_stage: str | None = None
+        for g in cr.grades:
+            stage_label = g.stage_name or ""
+            if stage_label != current_stage:
+                current_stage = stage_label
+                if stage_label:
+                    print(f"      -- {stage_label} --", file=sys.stderr)
+            mark = "+" if g.passed else "x"
+            if g.skipped:
+                mark = "-"
+            metric_tag = f"[{g.metric}]"
+            detail = ""
+            if g.detail:
+                detail = f" -- {g.detail}"
+            skipped_note = " (Skipped)" if g.skipped else ""
+            print(
+                f"      {mark} {g.score:.1f}  {metric_tag:<16s}"
+                f"{g.criterion}{detail}{skipped_note}",
+                file=sys.stderr,
+            )
+
+        # Print answer preview
+        if cr.subject_output:
+            print("      -- answer --", file=sys.stderr)
+            preview = cr.subject_output.replace("\n", " ").strip()
+            if len(preview) > 200:
+                preview = preview[:200] + "..."
+            print(f"      {preview}", file=sys.stderr)
+
+    print(file=sys.stderr)
+
+
+def _print_scorecard(result: Any) -> None:
+    """Print the final scorecard."""
+    s = result.summary
+    line = "=" * 70
+    print(line, file=sys.stderr)
+    print("  SCORECARD", file=sys.stderr)
+    print(line, file=sys.stderr)
+    print(
+        f"  Overall: {s.overall_score:.2f}  "
+        f"({s.passed}/{s.total} cases passed)",
+        file=sys.stderr,
+    )
+    print(file=sys.stderr)
+
+    # Metrics table
+    if s.metrics:
+        print(f"  {'Metric':<20s} {'Score':>6s}  Bar", file=sys.stderr)
+        print(f"  {'-' * 20} {'-' * 6}  {'-' * 12}", file=sys.stderr)
+        for metric, score in sorted(s.metrics.items()):
+            bar = _score_bar(score)
+            print(f"  {metric:<20s} {score:>5.2f}  {bar}", file=sys.stderr)
+        print(file=sys.stderr)
+
+    # Cases table
+    print(
+        f"  {'Case':<40s} {'Score':>6s}  Status",
+        file=sys.stderr,
+    )
+    print(f"  {'-' * 40} {'-' * 6}  {'-' * 6}", file=sys.stderr)
+    for cr in result.cases:
+        name = _truncate(cr.name, 40)
+        status = "+ PASS" if cr.passed else "x FAIL"
+        if cr.error:
+            status = "! ERR"
+        print(f"  {name:<40s} {cr.overall_score:>5.2f}  {status}", file=sys.stderr)
+
+    # Avg time
+    if result.cases:
+        avg_time = sum(c.time_seconds for c in result.cases) / len(result.cases)
+        print(file=sys.stderr)
+        print(f"  Avg time: {avg_time:.1f}s", file=sys.stderr)
+
+    print(line, file=sys.stderr)
 
 
 def _print_summary(result: Any) -> None:

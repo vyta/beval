@@ -145,6 +145,8 @@ class Runner:
         no_cache: bool = False,
         background_givens: dict[str, Any] | None = None,
         evaluators: dict[str, Any] | None = None,
+        on_case_start: Any | None = None,
+        on_case_complete: Any | None = None,
     ) -> None:
         self.mode = mode
         self.config = config or RunConfig()
@@ -156,6 +158,8 @@ class Runner:
         self.no_cache = no_cache
         self.background_givens: dict[str, Any] = background_givens or {}
         self.evaluators: dict[str, Any] = evaluators or {}
+        self.on_case_start = on_case_start
+        self.on_case_complete = on_case_complete
 
     def run(
         self,
@@ -187,12 +191,17 @@ class Runner:
         )
         case_results: list[CaseResult] = []
 
-        for case_def in case_defs:
+        total = len(case_defs)
+        for idx, case_def in enumerate(case_defs):
+            if self.on_case_start:
+                self.on_case_start(idx, total, case_def)
             if self.trials > 1:
                 result = self._run_trials(case_def, context)
             else:
                 result = self._run_case(case_def, context)
             case_results.append(result)
+            if self.on_case_complete:
+                self.on_case_complete(idx, total, case_def, result)
 
         summary = self._build_summary(case_results)
 
@@ -468,14 +477,29 @@ class Runner:
                 continue
 
             try:
-                subject = self._invoke_system(
-                    case_def,
-                    builder,
-                    context,
-                    stage=stage_num,
-                    stage_name=when_text,
-                    prior_subject=prior_subject,
-                )
+                if prior_subject is None:
+                    # Stage 1: invoke the agent
+                    subject = self._invoke_system(
+                        case_def,
+                        builder,
+                        context,
+                        stage=stage_num,
+                        stage_name=when_text,
+                        prior_subject=prior_subject,
+                    )
+                else:
+                    # Subsequent stages: reuse prior output, just update stage metadata
+                    subject = Subject(
+                        input=prior_subject.input,
+                        output=prior_subject.output,
+                        completion_time=prior_subject.completion_time,
+                        tool_calls=prior_subject.tool_calls,
+                        spans=prior_subject.spans,
+                        metadata=prior_subject.metadata,
+                        stage=stage_num,
+                        stage_name=when_text,
+                        prior_subject=prior_subject,
+                    )
             except Exception as exc:  # noqa: BLE001
                 error = str(exc)
                 for criterion, _args in thens:
@@ -556,6 +580,9 @@ class Runner:
             error=error,
             grades=all_grades,
             stages=stage_results,
+            subject_output=(
+                prior_subject.answer if prior_subject else None
+            ),
         )
 
     @staticmethod

@@ -456,12 +456,10 @@ def _make_context(mode: EvaluationMode = EvaluationMode.VALIDATION) -> EvalConte
 
 
 def _register_builtins() -> None:
-    """Re-register built-in graders (conftest clears registry each test)."""
-    from beval.graders.deterministic import register_deterministic_graders
-    from beval.graders.process import register_process_graders
+    """Re-register built-in graders after registry clear."""
+    from beval.graders import register_builtin_graders
 
-    register_deterministic_graders()
-    register_process_graders()
+    register_builtin_graders()
 
 
 class TestDeterministicGraders:

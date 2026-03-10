@@ -35,7 +35,7 @@ class _EvalClient:
     ) -> None:
         """Accumulate text from AgentMessageChunk updates."""
         try:
-            from acp import AgentMessageChunk, TextContentBlock  # type: ignore[import-untyped]  # noqa: I001
+            from acp.schema import AgentMessageChunk, TextContentBlock  # type: ignore[import-untyped]  # noqa: I001
         except ImportError:
             return
 
@@ -52,7 +52,7 @@ class _EvalClient:
     ) -> Any:
         """Auto-approve all permission requests during evaluation."""
         try:
-            from acp import AllowedOutcome, RequestPermissionResponse  # type: ignore[import-untyped]  # noqa: I001
+            from acp.schema import AllowedOutcome, RequestPermissionResponse  # type: ignore[import-untyped]  # noqa: I001
         except ImportError:
             return None
 

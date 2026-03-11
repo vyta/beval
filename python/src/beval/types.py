@@ -146,6 +146,7 @@ class CaseResult:
     score_max: float | None = None
     pass_rate: str | None = None
     high_variance: bool = False
+    subject_input: str | None = None
     subject_output: str | None = None
 
 

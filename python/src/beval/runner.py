@@ -574,6 +574,7 @@ class Runner:
             error=error,
             grades=all_grades,
             stages=stage_results,
+            subject_input=(prior_subject.query if prior_subject else None),
             subject_output=(prior_subject.answer if prior_subject else None),
         )
 

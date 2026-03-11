@@ -28,6 +28,7 @@ class CaseDefinition:
     func: Callable[..., None] | None = None
     examples: list[dict[str, Any]] | None = None
     grades: list[Grade] | None = None
+    givens: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

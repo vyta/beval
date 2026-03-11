@@ -23,6 +23,7 @@ _CASE_OPTIONAL = {
     "score_max",
     "pass_rate",
     "high_variance",
+    "subject_input",
     "subject_output",
 }
 

@@ -193,6 +193,7 @@ def parse_cases(data: dict[str, Any]) -> list[CaseDefinition]:
                         tags=tags,
                         func=func,
                         examples=case_examples,
+                        givens=case_givens,
                     )
                 )
 
@@ -207,6 +208,7 @@ def parse_cases(data: dict[str, Any]) -> list[CaseDefinition]:
                     tags=tags,
                     grades=grades,
                     examples=case_examples,
+                    givens=case_givens,
                 )
             )
 
@@ -223,6 +225,7 @@ def parse_cases(data: dict[str, Any]) -> list[CaseDefinition]:
                     tags=tags,
                     func=func,
                     examples=case_examples,
+                    givens=case_givens,
                 )
             )
 
@@ -235,6 +238,7 @@ def parse_cases(data: dict[str, Any]) -> list[CaseDefinition]:
                     category=category,
                     tags=tags,
                     examples=case_examples,
+                    givens=case_givens,
                 )
             )
 

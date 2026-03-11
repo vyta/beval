@@ -563,9 +563,10 @@ def _cmd_run(args: argparse.Namespace) -> int:
     if show_console:
         _print_scorecard(result)
 
-    # Strip subject_output from non-verbose results
+    # Strip subject_input/output from non-verbose results
     if not verbose:
         for cr in result.cases:
+            cr.subject_input = None
             cr.subject_output = None
 
     # Output results
@@ -706,19 +707,10 @@ def _print_case_start(idx: int, total: int, case_def: Any, verbose: bool) -> Non
     """Print case start line."""
     name = _truncate(case_def.name, 65)
     print(f"  [{idx + 1}/{total}] {name}", file=sys.stderr)
-    if verbose:
-        query = ""
-        if hasattr(case_def, "func") and case_def.func is not None:
-            # For func-based cases we don't know the query yet
-            pass
-        elif hasattr(case_def, "grades") and case_def.grades is not None:
-            pass
-        # Try to extract query from givens stored in the case definition
-        givens = getattr(case_def, "_givens", None)
-        if givens:
-            query = givens.get("query", givens.get("a query", ""))
-        if query:
-            print(f"    Query: {_truncate(query, 75)}", file=sys.stderr)
+    givens = getattr(case_def, "givens", None) or {}
+    query = givens.get("query", givens.get("a query", ""))
+    if query:
+        print(f"    Query: {_truncate(query, 75)}", file=sys.stderr)
 
 
 def _print_case_result(

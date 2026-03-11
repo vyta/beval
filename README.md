@@ -104,11 +104,12 @@ across languages.
 
 The [samples/](samples/) directory contains runnable end-to-end examples:
 
+
 | Sample | Protocol | Description |
 |--------|----------|-------------|
 | [klingon-agent](samples/klingon-agent/) | A2A | Remote agent with Azure Entra ID bearer auth |
-| [smart-inventory-advisor](samples/smart-inventory-advisor/) | ACP | Multi-stage cases with deterministic + AI-judged graders |
-| [dt-coach](samples/dt-coach/) | — | Design Thinking coaching agent evaluation |
+| [smart-inventory-advisor](samples/smart-inventory-advisor/) | ACP | GHCP Agent. Multi-stage cases with deterministic + AI-judged graders |
+| [dt-coach](samples/dt-coach/) | ACP | HVE Core Design Thinking coaching agent evaluation |
 
 Each sample includes an `agent.yaml`, case files, and a `README.md` with run instructions.
 

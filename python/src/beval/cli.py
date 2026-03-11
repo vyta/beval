@@ -561,7 +561,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     # Print scorecard
     if show_console:
-        _print_scorecard(result)
+        _print_scorecard(result, verbose)
 
     # Strip subject_input/output from non-verbose results
     if not verbose:
@@ -759,7 +759,7 @@ def _print_case_result(
     print(file=sys.stderr)
 
 
-def _print_scorecard(result: Any) -> None:
+def _print_scorecard(result: Any, verbose: bool = False) -> None:
     """Print the final scorecard."""
     s = result.summary
     line = "=" * 70
@@ -793,6 +793,26 @@ def _print_scorecard(result: Any) -> None:
         if cr.error:
             status = "! ERR"
         print(f"  {name:<40s} {cr.overall_score:>5.2f}  {status}", file=sys.stderr)
+
+        if verbose:
+            # Per-case metric scores
+            if cr.metric_scores:
+                metrics = "  ".join(
+                    f"{m}: {v:.2f}" for m, v in sorted(cr.metric_scores.items())
+                )
+                print(f"    Metrics: {metrics}", file=sys.stderr)
+            # Query
+            if cr.subject_input:
+                preview = cr.subject_input.replace("\n", " ").strip()
+                if len(preview) > 120:
+                    preview = preview[:120] + "..."
+                print(f"    Query: {preview}", file=sys.stderr)
+            # Response
+            if cr.subject_output:
+                preview = cr.subject_output.replace("\n", " ").strip()
+                if len(preview) > 120:
+                    preview = preview[:120] + "..."
+                print(f"    Response: {preview}", file=sys.stderr)
 
     # Avg time
     if result.cases:

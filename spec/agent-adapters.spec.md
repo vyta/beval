@@ -137,9 +137,11 @@ connection:
   url: "https://agent.example.com"                    # Required: base URL
   agent_card_path: "/.well-known/agent.json"           # Optional (default)
   auth:
-    type: api_key | oauth2 | none                      # Default: none
+    type: api_key | oauth2 | bearer | none             # Default: none
     header: "Authorization"                            # Header name (api_key)
     value: ${A2A_API_KEY}                              # Token value (api_key)
+    # Bearer (Azure Entra ID) fields (when type is bearer):
+    scope: ${A2A_AUTH_SCOPE}                           # Token scope (optional, defaults to cognitiveservices)
     # OAuth2 fields (when type is oauth2):
     token_url: "https://auth.example.com/token"
     client_id: ${A2A_CLIENT_ID}

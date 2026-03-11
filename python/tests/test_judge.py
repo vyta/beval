@@ -159,32 +159,16 @@ class TestLLMJudgeAzure:
         },
         clear=False,
     )
+    @patch("openai.AzureOpenAI")
     @patch("openai.OpenAI")
-    def test_azure_api_key_auth(self, mock_openai_cls):
-        mock_openai_cls.return_value = MagicMock()
+    def test_azure_api_key_auth(self, mock_openai_cls, mock_azure_cls):
+        mock_azure_cls.return_value = MagicMock()
         LLMJudge("gpt-4o")
-        mock_openai_cls.assert_called_once_with(
+        mock_azure_cls.assert_called_once_with(
             api_key="test-key",
-            base_url="https://myresource.openai.azure.com/openai/v1",
+            azure_endpoint="https://myresource.openai.azure.com",
         )
-
-    @patch.dict(
-        os.environ,
-        {
-            "AZURE_OPENAI_ENDPOINT": "https://myresource.openai.azure.com/openai/v1",
-            "AZURE_OPENAI_API_KEY": "test-key",
-        },
-        clear=False,
-    )
-    @patch("openai.OpenAI")
-    def test_azure_endpoint_already_has_path(self, mock_openai_cls):
-        """Don't double-append /openai/v1 if endpoint already has it."""
-        mock_openai_cls.return_value = MagicMock()
-        LLMJudge("gpt-4o")
-        mock_openai_cls.assert_called_once_with(
-            api_key="test-key",
-            base_url="https://myresource.openai.azure.com/openai/v1",
-        )
+        mock_openai_cls.assert_not_called()
 
     @patch.dict(
         os.environ,
@@ -193,9 +177,10 @@ class TestLLMJudgeAzure:
         },
         clear=False,
     )
+    @patch("openai.AzureOpenAI")
     @patch("openai.OpenAI")
-    def test_azure_entra_id_auth(self, mock_openai_cls):
-        mock_openai_cls.return_value = MagicMock()
+    def test_azure_entra_id_auth(self, mock_openai_cls, mock_azure_cls):
+        mock_azure_cls.return_value = MagicMock()
         mock_cred = MagicMock()
         mock_provider = MagicMock()
         with patch.dict(os.environ, {"AZURE_OPENAI_API_KEY": ""}, clear=False):
@@ -212,14 +197,16 @@ class TestLLMJudgeAzure:
                     mock_cred,
                     "https://cognitiveservices.azure.com/.default",
                 )
-                mock_openai_cls.assert_called_once_with(
-                    api_key=mock_provider,
-                    base_url="https://myresource.openai.azure.com/openai/v1",
+                mock_azure_cls.assert_called_once_with(
+                    azure_ad_token_provider=mock_provider,
+                    azure_endpoint="https://myresource.openai.azure.com",
                 )
+                mock_openai_cls.assert_not_called()
 
     @patch.dict(os.environ, {}, clear=False)
+    @patch("openai.AzureOpenAI")
     @patch("openai.OpenAI")
-    def test_standard_openai_when_no_azure_env(self, mock_openai_cls):
+    def test_standard_openai_when_no_azure_env(self, mock_openai_cls, mock_azure_cls):
         """Falls back to standard OpenAI() when no AZURE_OPENAI_ENDPOINT."""
         mock_openai_cls.return_value = MagicMock()
         # Ensure no Azure env vars
@@ -228,3 +215,4 @@ class TestLLMJudgeAzure:
         with patch.dict(os.environ, env, clear=True):
             LLMJudge("gpt-4o")
             mock_openai_cls.assert_called_once_with()
+            mock_azure_cls.assert_not_called()

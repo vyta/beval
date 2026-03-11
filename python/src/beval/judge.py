@@ -95,7 +95,7 @@ class LLMJudge(Judge):
         grade_pass_threshold: float = 0.5,
     ) -> None:
         try:
-            from openai import OpenAI  # noqa: I001
+            from openai import AzureOpenAI, OpenAI  # noqa: I001
         except ImportError as exc:
             msg = (
                 "LLM judge requires the 'openai' package. "
@@ -105,10 +105,10 @@ class LLMJudge(Judge):
 
         self._model = model
         self._grade_pass_threshold = grade_pass_threshold
-        self._client = self._create_client(OpenAI)
+        self._client = self._create_client(OpenAI, AzureOpenAI)
 
     @staticmethod
-    def _create_client(openai_cls: type) -> Any:
+    def _create_client(openai_cls: type, azure_openai_cls: type) -> Any:
         """Create OpenAI client with Azure or standard configuration.
 
         Azure OpenAI: set AZURE_OPENAI_ENDPOINT and either
@@ -121,14 +121,11 @@ class LLMJudge(Judge):
         if not endpoint:
             return openai_cls()
 
-        # Azure OpenAI: build base_url from endpoint
-        base_url = endpoint.rstrip("/")
-        if not base_url.endswith("/openai/v1"):
-            base_url += "/openai/v1"
+        azure_endpoint = endpoint.rstrip("/")
 
         api_key = os.environ.get("AZURE_OPENAI_API_KEY")
         if api_key:
-            return openai_cls(api_key=api_key, base_url=base_url)
+            return azure_openai_cls(api_key=api_key, azure_endpoint=azure_endpoint)
 
         # Entra ID auth via azure-identity
         try:
@@ -147,7 +144,10 @@ class LLMJudge(Judge):
             DefaultAzureCredential(),
             "https://cognitiveservices.azure.com/.default",
         )
-        return openai_cls(api_key=token_provider, base_url=base_url)
+        return azure_openai_cls(
+            azure_ad_token_provider=token_provider,
+            azure_endpoint=azure_endpoint,
+        )
 
     def evaluate(
         self,
@@ -222,7 +222,7 @@ class LLMJudge(Judge):
             criterion=criterion,
             score=score,
             metric="quality",
-            passed=score >= self._grade_pass_threshold,
+            passed=score > self._grade_pass_threshold,
             detail=reasoning,
             layer=GraderLayer.AI_JUDGED,
         )

@@ -102,7 +102,7 @@
     },
     "AgentDefinition": {
       "type": "object",
-      "description": "Inline agent definition. Same schema as standalone agent YAML files.",
+      "description": "Inline agent definition. Same schema as standalone agent YAML files (agent.schema.json).",
       "required": ["name", "protocol", "connection"],
       "additionalProperties": false,
       "properties": {
@@ -121,8 +121,7 @@
         },
         "connection": {
           "type": "object",
-          "description": "Protocol-specific connection parameters.",
-          "additionalProperties": true
+          "description": "Protocol-specific connection parameters. Validated per-protocol via allOf conditionals below."
         },
         "timeout": {
           "type": "number",
@@ -157,7 +156,39 @@
           "description": "Open-ended key-value pairs surfaced in results.",
           "additionalProperties": true
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "protocol": { "const": "acp" } }
+          },
+          "then": {
+            "properties": {
+              "connection": { "$ref": "agent.schema.json#/$defs/ACPConnection" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "protocol": { "const": "a2a" } }
+          },
+          "then": {
+            "properties": {
+              "connection": { "$ref": "agent.schema.json#/$defs/A2AConnection" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "protocol": { "const": "custom" } }
+          },
+          "then": {
+            "properties": {
+              "connection": { "$ref": "agent.schema.json#/$defs/CustomConnection" }
+            }
+          }
+        }
+      ]
     },
     "Thresholds": {
       "type": "object",

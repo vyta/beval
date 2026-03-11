@@ -138,7 +138,7 @@ class A2AAdapter(AdapterInterface):
             raise ValueError(msg)
 
         httpx_client = self._build_httpx_client()
-        streaming = self._connection.get("streaming", False)
+        streaming = self._connection.get("streaming", True)
 
         try:
             config = ClientConfig(

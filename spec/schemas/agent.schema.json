@@ -128,6 +128,10 @@
           "maximum": 65535,
           "description": "Port number. Required when transport is tcp."
         },
+        "cwd": {
+          "type": "string",
+          "description": "Working directory for the subprocess (stdio only). Defaults to the current working directory."
+        },
         "env": {
           "type": "object",
           "description": "Additional environment variables for the subprocess (stdio only).",
@@ -189,9 +193,9 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["api_key", "oauth2", "none"],
+          "enum": ["api_key", "oauth2", "bearer", "none"],
           "default": "none",
-          "description": "Authentication method."
+          "description": "Authentication method. Use 'bearer' for Azure Entra ID via DefaultAzureCredential."
         },
         "header": {
           "type": "string",
@@ -200,6 +204,10 @@
         "value": {
           "type": "string",
           "description": "Token or API key value. Supports ${VAR_NAME} syntax."
+        },
+        "scope": {
+          "type": "string",
+          "description": "Token scope for bearer (Azure Entra ID) auth. Defaults to 'https://cognitiveservices.azure.com/.default'."
         },
         "token_url": {
           "type": "string",

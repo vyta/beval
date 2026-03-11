@@ -33,4 +33,7 @@ jobs:
         run: cd python && uv sync
 
       - name: Run conformance tests
+        # TypeScript, Go, and .NET implementations are stubs that do not yet
+        # pass the conformance fixtures. Restrict to Python until they reach
+        # feature parity. See be1fc1a for context.
         run: CONTAINER_RUNTIME=docker ./conformance/runner.sh --languages python

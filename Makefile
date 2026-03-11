@@ -107,7 +107,7 @@ conformance-build-go:
 		-v "beval-go-cache:/go/pkg" \
 		-w /workspace/go \
 		$(GO_IMAGE) \
-		go build -o /workspace/conformance/.output/beval-go ./cmd/beval/
+		go build -buildvcs=false -o /workspace/conformance/.output/beval-go ./cmd/beval/
 
 conformance-build-dotnet:
 	$(CONTAINER_RUNTIME) run --rm \

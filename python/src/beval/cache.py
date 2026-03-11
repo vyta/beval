@@ -49,9 +49,7 @@ def get_cached_subject(case_id: str, subject_input: str | list[Any]) -> Subject 
     )
 
 
-def put_cached_subject(
-    case_id: str, subject: Subject
-) -> None:
+def put_cached_subject(case_id: str, subject: Subject) -> None:
     """Store a Subject in the cache."""
     key = _cache_key(case_id, subject.input)
     cache_dir = _cache_dir()

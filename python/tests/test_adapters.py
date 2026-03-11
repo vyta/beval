@@ -124,17 +124,15 @@ class TestLoadAgent:
 
     def test_unknown_protocol(self, tmp_path: Path) -> None:
         p = tmp_path / "bad.yaml"
-        p.write_text(
-            yaml.dump(
-                {"name": "x", "protocol": "unknown", "connection": {}}
-            )
-        )
+        p.write_text(yaml.dump({"name": "x", "protocol": "unknown", "connection": {}}))
         with pytest.raises(SystemExit) as exc_info:
             load_agent(str(p))
         assert exc_info.value.code == 2
 
     def test_env_var_resolution(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         monkeypatch.setenv("TEST_KEY", "resolved_value")
         p = tmp_path / "env.yaml"
@@ -199,7 +197,9 @@ class TestLoadAgent:
         assert result["connection"]["port"] == "3000"
 
     def test_env_var_default_overridden(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """${VAR:-default} uses env value when VAR is set."""
         monkeypatch.setenv("BEVAL_TEST_HOST", "10.0.0.1")
@@ -419,7 +419,6 @@ class TestACPAdapter:
         mock_session = MagicMock()
         mock_session.id = "sess-1"
 
-
         async def mock_new_session():
             return mock_session
 
@@ -601,20 +600,23 @@ class TestA2AAdapter:
         mock_credential = MagicMock()
         mock_token_provider = MagicMock(return_value="fake-token-xyz")
 
-        with patch(
-            "beval.adapters.a2a.A2AAdapter._build_httpx_client"
-        ):
+        with patch("beval.adapters.a2a.A2AAdapter._build_httpx_client"):
             # Call the real method but with mocked azure deps
             pass
 
         # Test by mocking the azure.identity imports
-        with patch.dict("sys.modules", {
-            "azure": MagicMock(),
-            "azure.identity": MagicMock(
-                DefaultAzureCredential=MagicMock(return_value=mock_credential),
-                get_bearer_token_provider=MagicMock(return_value=mock_token_provider),
-            ),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "azure": MagicMock(),
+                "azure.identity": MagicMock(
+                    DefaultAzureCredential=MagicMock(return_value=mock_credential),
+                    get_bearer_token_provider=MagicMock(
+                        return_value=mock_token_provider
+                    ),
+                ),
+            },
+        ):
             # Call the real _build_httpx_client
             client = A2AAdapter._build_httpx_client(adapter)
             assert client.headers["Authorization"] == "Bearer fake-token-xyz"
@@ -640,8 +642,10 @@ class TestA2AAdapter:
             with pytest.raises(RuntimeError, match="Cannot reach agent"):
                 adapter.invoke(
                     AdapterInput(
-                        query="hello", stage=1,
-                        stage_name="test", givens={},
+                        query="hello",
+                        stage=1,
+                        stage_name="test",
+                        givens={},
                         context=EvalContext(),
                     )
                 )
@@ -778,9 +782,16 @@ class TestCLIAgent:
 
         from beval.cli import _handle_env_overrides
 
-        ns = argparse.Namespace(agent=None, mode="dev", output=None,
-                                trials=1, cases=None, subject=None,
-                                judge_model=None, no_color=False)
+        ns = argparse.Namespace(
+            agent=None,
+            mode="dev",
+            output=None,
+            trials=1,
+            cases=None,
+            subject=None,
+            judge_model=None,
+            no_color=False,
+        )
         monkeypatch.setenv("BEVAL_AGENT", "env-agent")
         _handle_env_overrides(ns)
         assert ns.agent == "env-agent"

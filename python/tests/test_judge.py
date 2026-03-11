@@ -90,9 +90,9 @@ class TestLLMJudge:
 
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = (
-            '```json\n{"score": 0.9, "reasoning": "Great."}\n```'
-        )
+        mock_response.choices[
+            0
+        ].message.content = '```json\n{"score": 0.9, "reasoning": "Great."}\n```'
         mock_client.chat.completions.create.return_value = mock_response
 
         judge = LLMJudge("gpt-4o")
@@ -151,10 +151,14 @@ class TestLLMJudge:
 
 
 class TestLLMJudgeAzure:
-    @patch.dict(os.environ, {
-        "AZURE_OPENAI_ENDPOINT": "https://myresource.openai.azure.com",
-        "AZURE_OPENAI_API_KEY": "test-key",
-    }, clear=False)
+    @patch.dict(
+        os.environ,
+        {
+            "AZURE_OPENAI_ENDPOINT": "https://myresource.openai.azure.com",
+            "AZURE_OPENAI_API_KEY": "test-key",
+        },
+        clear=False,
+    )
     @patch("openai.OpenAI")
     def test_azure_api_key_auth(self, mock_openai_cls):
         mock_openai_cls.return_value = MagicMock()
@@ -164,10 +168,14 @@ class TestLLMJudgeAzure:
             base_url="https://myresource.openai.azure.com/openai/v1",
         )
 
-    @patch.dict(os.environ, {
-        "AZURE_OPENAI_ENDPOINT": "https://myresource.openai.azure.com/openai/v1",
-        "AZURE_OPENAI_API_KEY": "test-key",
-    }, clear=False)
+    @patch.dict(
+        os.environ,
+        {
+            "AZURE_OPENAI_ENDPOINT": "https://myresource.openai.azure.com/openai/v1",
+            "AZURE_OPENAI_API_KEY": "test-key",
+        },
+        clear=False,
+    )
     @patch("openai.OpenAI")
     def test_azure_endpoint_already_has_path(self, mock_openai_cls):
         """Don't double-append /openai/v1 if endpoint already has it."""
@@ -178,9 +186,13 @@ class TestLLMJudgeAzure:
             base_url="https://myresource.openai.azure.com/openai/v1",
         )
 
-    @patch.dict(os.environ, {
-        "AZURE_OPENAI_ENDPOINT": "https://myresource.openai.azure.com",
-    }, clear=False)
+    @patch.dict(
+        os.environ,
+        {
+            "AZURE_OPENAI_ENDPOINT": "https://myresource.openai.azure.com",
+        },
+        clear=False,
+    )
     @patch("openai.OpenAI")
     def test_azure_entra_id_auth(self, mock_openai_cls):
         mock_openai_cls.return_value = MagicMock()
@@ -188,12 +200,13 @@ class TestLLMJudgeAzure:
         mock_provider = MagicMock()
         with patch.dict(os.environ, {"AZURE_OPENAI_API_KEY": ""}, clear=False):
             os.environ.pop("AZURE_OPENAI_API_KEY", None)
-            with patch(
-                "azure.identity.DefaultAzureCredential", return_value=mock_cred
-            ), patch(
-                "azure.identity.get_bearer_token_provider",
-                return_value=mock_provider,
-            ) as mock_get_token:
+            with (
+                patch("azure.identity.DefaultAzureCredential", return_value=mock_cred),
+                patch(
+                    "azure.identity.get_bearer_token_provider",
+                    return_value=mock_provider,
+                ) as mock_get_token,
+            ):
                 LLMJudge("gpt-4o")
                 mock_get_token.assert_called_once_with(
                     mock_cred,

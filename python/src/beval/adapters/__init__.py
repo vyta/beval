@@ -99,9 +99,7 @@ def load_agent(
         Exit code 2 for invalid definitions, missing files, or missing env vars.
     """
     # Determine if path_or_name is a file path or a bare name (§13.5)
-    is_file = "/" in path_or_name or path_or_name.endswith(
-        (".yaml", ".yml")
-    )
+    is_file = "/" in path_or_name or path_or_name.endswith((".yaml", ".yml"))
 
     if is_file:
         agent_path = Path(path_or_name)

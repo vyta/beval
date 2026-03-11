@@ -239,9 +239,7 @@ class TestParseCases:
 
     def test_bare_case_no_func_no_grades(self) -> None:
         """Case with neither grades nor then-clauses gets no func or grades."""
-        data: dict[str, Any] = {
-            "cases": [{"name": "bare", "id": "bare"}]
-        }
+        data: dict[str, Any] = {"cases": [{"name": "bare", "id": "bare"}]}
         defs = parse_cases(data)
         assert defs[0].func is None
         assert defs[0].grades is None

@@ -218,9 +218,7 @@ class Runner:
     # Multi-trial support (§11)
     # ------------------------------------------------------------------
 
-    def _run_trials(
-        self, case_def: CaseDefinition, context: EvalContext
-    ) -> CaseResult:
+    def _run_trials(self, case_def: CaseDefinition, context: EvalContext) -> CaseResult:
         """Execute multiple trials for a case and aggregate. See SPEC §11."""
         trial_results: list[CaseResult] = []
         for _ in range(self.trials):
@@ -365,9 +363,7 @@ class Runner:
             category=case_def.category,
             overall_score=overall,
             passed=(
-                overall >= self.config.case_pass_threshold
-                if error is None
-                else False
+                overall >= self.config.case_pass_threshold if error is None else False
             ),
             time_seconds=elapsed,
             metric_scores=ms,
@@ -571,18 +567,14 @@ class Runner:
             category=case_def.category,
             overall_score=overall,
             passed=(
-                overall >= self.config.case_pass_threshold
-                if error is None
-                else False
+                overall >= self.config.case_pass_threshold if error is None else False
             ),
             time_seconds=elapsed,
             metric_scores=ms,
             error=error,
             grades=all_grades,
             stages=stage_results,
-            subject_output=(
-                prior_subject.answer if prior_subject else None
-            ),
+            subject_output=(prior_subject.answer if prior_subject else None),
         )
 
     @staticmethod
@@ -629,9 +621,7 @@ class Runner:
 
         Respects caching flags: --use-cache, --score-only, --no-cache (§9.4).
         """
-        givens_input = builder._givens.get(
-            "query", builder._givens.get("a query", "")
-        )
+        givens_input = builder._givens.get("query", builder._givens.get("a query", ""))
 
         # Cache lookup when enabled
         if (self.use_cache or self.score_only) and not self.no_cache:

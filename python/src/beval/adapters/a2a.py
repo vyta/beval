@@ -69,10 +69,7 @@ class A2AAdapter(AdapterInterface):
                     time.sleep(backoff * (2**attempt))
 
         exc_detail = repr(last_exc) if last_exc else "unknown error"
-        msg = (
-            f"A2A adapter error after {max_attempts}"
-            f" attempt(s): {exc_detail}"
-        )
+        msg = f"A2A adapter error after {max_attempts} attempt(s): {exc_detail}"
         raise RuntimeError(msg)
 
     def close(self) -> None:
@@ -111,9 +108,7 @@ class A2AAdapter(AdapterInterface):
             scope = auth_config.get(
                 "scope", "https://cognitiveservices.azure.com/.default"
             )
-            token_provider = get_bearer_token_provider(
-                DefaultAzureCredential(), scope
-            )
+            token_provider = get_bearer_token_provider(DefaultAzureCredential(), scope)
             headers = {"Authorization": f"Bearer {token_provider()}"}
             return httpx.AsyncClient(headers=headers, timeout=timeout)
 

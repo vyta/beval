@@ -95,6 +95,7 @@ def _build_yaml_func(
     function would, so the Runner's existing execution path handles it.
     """
     if stages is not None:
+
         def func(builder: CaseBuilder) -> None:
             for k, v in givens.items():
                 builder.given(k, v)
@@ -103,6 +104,7 @@ def _build_yaml_func(
                 for criterion, args in stage["thens"]:
                     builder.then(criterion, *args)
     else:
+
         def func(builder: CaseBuilder) -> None:
             for k, v in givens.items():
                 builder.given(k, v)
@@ -159,9 +161,7 @@ def parse_cases(data: dict[str, Any]) -> list[CaseDefinition]:
                         stage_errors[stage_num] = stage_raw["error"]
                     for g_raw in stage_raw.get("grades", []):
                         grades.append(
-                            _parse_grade(
-                                g_raw, stage=stage_num, stage_name=stage_name
-                            )
+                            _parse_grade(g_raw, stage=stage_num, stage_name=stage_name)
                         )
 
                 defn = CaseDefinition(
@@ -180,16 +180,11 @@ def parse_cases(data: dict[str, Any]) -> list[CaseDefinition]:
                 # Then-clause multi-stage — build synthetic function
                 parsed_stages = []
                 for stage_raw in raw["stages"]:
-                    thens = [
-                        _parse_then_clause(t)
-                        for t in stage_raw.get("then", [])
-                    ]
+                    thens = [_parse_then_clause(t) for t in stage_raw.get("then", [])]
                     parsed_stages.append(
                         {"when": stage_raw.get("when", ""), "thens": thens}
                     )
-                func = _build_yaml_func(
-                    case_givens, None, [], stages=parsed_stages
-                )
+                func = _build_yaml_func(case_givens, None, [], stages=parsed_stages)
                 definitions.append(
                     CaseDefinition(
                         id=case_id,

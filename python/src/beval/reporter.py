@@ -94,9 +94,7 @@ def _scrub_sensitive(obj: Any) -> Any:
     return obj
 
 
-def to_json(
-    result: RunResult, *, indent: int = 2, scrub: bool = False
-) -> str:
+def to_json(result: RunResult, *, indent: int = 2, scrub: bool = False) -> str:
     """Serialize a RunResult to JSON string."""
     return json.dumps(
         _prepare(result, scrub=scrub), indent=indent, default=_json_default
@@ -109,9 +107,7 @@ def write_json(result: RunResult, path: str, *, scrub: bool = False) -> None:
         f.write(to_json(result, scrub=scrub))
 
 
-def to_jsonl(
-    result: RunResult, *, scrub: bool = False
-) -> str:
+def to_jsonl(result: RunResult, *, scrub: bool = False) -> str:
     """Serialize a RunResult to JSONL (one JSON object per line)."""
     prepared = _prepare(result, scrub=scrub)
     lines: list[str] = []

@@ -77,20 +77,25 @@ def compare_baseline(
         delta = cur_val - base_val
         metric_deltas[m] = delta
         if delta < -threshold:
-            regressions.append({
-                "metric": m,
-                "baseline": base_val,
-                "current": cur_val,
-                "delta": delta,
-            })
+            regressions.append(
+                {
+                    "metric": m,
+                    "baseline": base_val,
+                    "current": cur_val,
+                    "delta": delta,
+                }
+            )
 
     if overall_delta < -threshold:
-        regressions.insert(0, {
-            "metric": "overall_score",
-            "baseline": base_summary.get("overall_score", 0.0),
-            "current": cur_summary.get("overall_score", 0.0),
-            "delta": overall_delta,
-        })
+        regressions.insert(
+            0,
+            {
+                "metric": "overall_score",
+                "baseline": base_summary.get("overall_score", 0.0),
+                "current": cur_summary.get("overall_score", 0.0),
+                "delta": overall_delta,
+            },
+        )
 
     return {
         "overall_delta": overall_delta,

@@ -12,24 +12,32 @@ import yaml
 _CONFORMANCE_DIR = Path(__file__).resolve().parents[2] / "conformance" / "fixtures"
 
 # Collect fixture directories that have all three data files
-_FIXTURE_DIRS = sorted(
-    d
-    for d in _CONFORMANCE_DIR.iterdir()
-    if d.is_dir()
-    and (d / "input.yaml").exists()
-    and (d / "expected.json").exists()
-    and (d / "subject.json").exists()
-) if _CONFORMANCE_DIR.is_dir() else []
+_FIXTURE_DIRS = (
+    sorted(
+        d
+        for d in _CONFORMANCE_DIR.iterdir()
+        if d.is_dir()
+        and (d / "input.yaml").exists()
+        and (d / "expected.json").exists()
+        and (d / "subject.json").exists()
+    )
+    if _CONFORMANCE_DIR.is_dir()
+    else []
+)
 
 # Fixtures that also ship a config.yaml
 _CONFIG_FIXTURE_DIRS = [d for d in _FIXTURE_DIRS if (d / "config.yaml").exists()]
 
 # Fixtures that ship an expected-exit-code file
-_EXIT_CODE_FIXTURE_DIRS = sorted(
-    d
-    for d in _CONFORMANCE_DIR.iterdir()
-    if d.is_dir() and (d / "expected-exit-code").exists()
-) if _CONFORMANCE_DIR.is_dir() else []
+_EXIT_CODE_FIXTURE_DIRS = (
+    sorted(
+        d
+        for d in _CONFORMANCE_DIR.iterdir()
+        if d.is_dir() and (d / "expected-exit-code").exists()
+    )
+    if _CONFORMANCE_DIR.is_dir()
+    else []
+)
 
 
 @pytest.mark.parametrize(
@@ -118,9 +126,7 @@ class TestConformanceConfigFormat:
         from beval.cli import _load_config_file
 
         nested = {"eval": {"thresholds": {"grade_pass": 0.8, "case_pass": 0.9}}}
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as tmp:
             yaml.safe_dump(nested, tmp)
             tmp_path = tmp.name
         try:
@@ -136,9 +142,7 @@ class TestConformanceConfigFormat:
         from beval.cli import _load_config_file
 
         flat = {"grade_pass_threshold": 0.6, "skip_mode": "strict"}
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as tmp:
             yaml.safe_dump(flat, tmp)
             tmp_path = tmp.name
         try:
@@ -158,6 +162,7 @@ class TestConformanceConfigFormat:
 # End-to-end conformance: run the Python CLI against each fixture
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.parametrize(
     "fixture_dir",
     _EXIT_CODE_FIXTURE_DIRS,
@@ -169,9 +174,7 @@ class TestConformanceEndToEnd:
     def test_exit_code_matches(self, fixture_dir: Path):
         from beval.cli import main
 
-        expected_code = int(
-            (fixture_dir / "expected-exit-code").read_text().strip()
-        )
+        expected_code = int((fixture_dir / "expected-exit-code").read_text().strip())
 
         argv = ["--json"]
 
@@ -181,8 +184,10 @@ class TestConformanceEndToEnd:
 
         argv += [
             "run",
-            "--cases", str(fixture_dir / "input.yaml"),
-            "--subject", str(fixture_dir / "subject.json"),
+            "--cases",
+            str(fixture_dir / "input.yaml"),
+            "--subject",
+            str(fixture_dir / "subject.json"),
         ]
 
         actual_code = main(argv)

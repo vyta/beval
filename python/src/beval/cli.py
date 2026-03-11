@@ -74,9 +74,7 @@ def _build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", help="Available commands.")
 
     # --- run ---
-    run_parser = subparsers.add_parser(
-        "run", help="Execute evaluation cases."
-    )
+    run_parser = subparsers.add_parser("run", help="Execute evaluation cases.")
     run_parser.add_argument(
         "-m",
         "--mode",
@@ -382,6 +380,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
     handler = None
     adapter = None
     if subject_data is not None:
+
         def _subject_handler(**kwargs: Any) -> Subject:
             return Subject(
                 input=subject_data.get("input", ""),
@@ -391,6 +390,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
                 spans=subject_data.get("spans", []),
                 metadata=subject_data.get("metadata", {}),
             )
+
         handler = _subject_handler
 
     # Build config (CLI flags > config file > defaults)
@@ -398,13 +398,11 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     # Thresholds: support nested format (config.schema.json) and flat keys (legacy)
     thresholds = file_config.get("thresholds", {})
-    grade_pass_threshold = (
-        thresholds.get("grade_pass")
-        or file_config.get("grade_pass_threshold", 0.5)
+    grade_pass_threshold = thresholds.get("grade_pass") or file_config.get(
+        "grade_pass_threshold", 0.5
     )
-    case_pass_threshold = (
-        thresholds.get("case_pass")
-        or file_config.get("case_pass_threshold", 0.7)
+    case_pass_threshold = thresholds.get("case_pass") or file_config.get(
+        "case_pass_threshold", 0.7
     )
 
     # Skip mode: CLI > config file > default
@@ -501,9 +499,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
             spinner = _Spinner("Waiting for agent")
             spinner.start()
 
-    def _on_case_complete(
-        idx: int, total: int, case_def: Any, cr: Any
-    ) -> None:
+    def _on_case_complete(idx: int, total: int, case_def: Any, cr: Any) -> None:
         nonlocal spinner
         if spinner:
             spinner.stop()
@@ -633,9 +629,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     if show_console:
         status = (
-            "Evaluation complete"
-            if exit_code == EXIT_PASS
-            else "Evaluation failed"
+            "Evaluation complete" if exit_code == EXIT_PASS else "Evaluation failed"
         )
         print(f"\n  {status} ({elapsed:.1f}s)\n", file=sys.stderr)
 
@@ -673,9 +667,7 @@ class _Spinner:
         while not self._stop.wait(0.3):
             elapsed = time.monotonic() - self._start_time
             frame = self._FRAMES[idx % len(self._FRAMES)]
-            sys.stderr.write(
-                f"\r    {frame} {self._message} ({elapsed:.0f}s)"
-            )
+            sys.stderr.write(f"\r    {frame} {self._message} ({elapsed:.0f}s)")
             sys.stderr.flush()
             idx += 1
 
@@ -710,9 +702,7 @@ def _print_header(
     print(file=sys.stderr)
 
 
-def _print_case_start(
-    idx: int, total: int, case_def: Any, verbose: bool
-) -> None:
+def _print_case_start(idx: int, total: int, case_def: Any, verbose: bool) -> None:
     """Print case start line."""
     name = _truncate(case_def.name, 65)
     print(f"  [{idx + 1}/{total}] {name}", file=sys.stderr)
@@ -785,8 +775,7 @@ def _print_scorecard(result: Any) -> None:
     print("  SCORECARD", file=sys.stderr)
     print(line, file=sys.stderr)
     print(
-        f"  Overall: {s.overall_score:.2f}  "
-        f"({s.passed}/{s.total} cases passed)",
+        f"  Overall: {s.overall_score:.2f}  ({s.passed}/{s.total} cases passed)",
         file=sys.stderr,
     )
     print(file=sys.stderr)
@@ -825,9 +814,11 @@ def _print_scorecard(result: Any) -> None:
 def _print_summary(result: Any) -> None:
     """Print a human-readable summary to stdout."""
     s = result.summary
-    print(f"Score: {s.overall_score:.2f}  "
-          f"Passed: {s.passed}  Failed: {s.failed}  "
-          f"Errored: {s.errored}  Total: {s.total}")
+    print(
+        f"Score: {s.overall_score:.2f}  "
+        f"Passed: {s.passed}  Failed: {s.failed}  "
+        f"Errored: {s.errored}  Total: {s.total}"
+    )
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:

@@ -64,7 +64,8 @@ class _EvalClient:
 
         return RequestPermissionResponse(
             outcome=AllowedOutcome(
-                outcome="selected", option_id=chosen_id,
+                outcome="selected",
+                option_id=chosen_id,
             ),
         )
 
@@ -131,10 +132,7 @@ class ACPAdapter(AdapterInterface):
                 if attempt < max_attempts - 1:
                     time.sleep(backoff * (2**attempt))
 
-        msg = (
-            f"ACP adapter error after {max_attempts}"
-            f" attempt(s): {last_exc}"
-        )
+        msg = f"ACP adapter error after {max_attempts} attempt(s): {last_exc}"
         raise RuntimeError(msg)
 
     def close(self) -> None:
@@ -161,7 +159,12 @@ class ACPAdapter(AdapterInterface):
     async def _invoke_async(self, query: str) -> str:
         """Async invocation: connect → initialize → new_session → prompt."""
         try:
-            from acp import PROTOCOL_VERSION, connect_to_agent, spawn_agent_process, text_block  # type: ignore[import-untyped]  # noqa: I001, E501
+            from acp import (
+                PROTOCOL_VERSION,
+                connect_to_agent,
+                spawn_agent_process,
+                text_block,
+            )  # type: ignore[import-untyped]  # noqa: I001, E501
         except ImportError as exc:
             msg = (
                 "ACP adapter requires the 'agent-client-protocol' "
@@ -173,10 +176,7 @@ class ACPAdapter(AdapterInterface):
             if self._transport == "stdio":
                 command = self._connection.get("command", [])
                 if not command:
-                    msg = (
-                        "ACP stdio transport requires "
-                        "'command' in connection"
-                    )
+                    msg = "ACP stdio transport requires 'command' in connection"
                     raise ValueError(msg)
                 subprocess_env = dict(os.environ)
                 subprocess_env.update(
@@ -192,17 +192,18 @@ class ACPAdapter(AdapterInterface):
                     cwd=cwd,
                     transport_kwargs={"limit": 10 * 1024 * 1024},
                 )
-                self._conn, self._process = (
-                    await self._ctx_manager.__aenter__()
-                )
+                self._conn, self._process = await self._ctx_manager.__aenter__()
             elif self._transport == "tcp":
                 host = self._connection.get("host", "127.0.0.1")
                 port = int(self._connection.get("port", 3000))
                 reader, writer = await asyncio.open_connection(
-                    host, port,
+                    host,
+                    port,
                 )
                 self._conn = connect_to_agent(
-                    self._client, writer, reader,  # type: ignore[arg-type]
+                    self._client,
+                    writer,
+                    reader,  # type: ignore[arg-type]
                 )
             else:
                 msg = f"Unknown ACP transport: {self._transport}"

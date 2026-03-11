@@ -21,8 +21,7 @@ except ImportError:
     _HAS_OTEL = False
 
 _MISSING_MSG = (
-    "OpenTelemetry is required for tracing. "
-    "Install with: pip install 'beval[tracing]'"
+    "OpenTelemetry is required for tracing. Install with: pip install 'beval[tracing]'"
 )
 
 

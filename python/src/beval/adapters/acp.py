@@ -201,9 +201,9 @@ class ACPAdapter(AdapterInterface):
                     port,
                 )
                 self._conn = connect_to_agent(
-                    self._client,
+                    self._client,  # type: ignore[arg-type]
                     writer,
-                    reader,  # type: ignore[arg-type]
+                    reader,
                 )
             else:
                 msg = f"Unknown ACP transport: {self._transport}"

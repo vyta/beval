@@ -645,7 +645,7 @@ class Runner:
                 raise RuntimeError(msg)
 
         if self.handler is not None:
-            subject = self.handler(
+            subject: Subject = self.handler(
                 case_def=case_def,
                 givens=builder._givens,
                 context=context,

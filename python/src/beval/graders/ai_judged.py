@@ -24,6 +24,6 @@ def _answer_should_be_grader(
     expectation = args[0] if args else criterion
     return judge.evaluate(
         criterion=f"{criterion} {expectation}",
-        subject_answer=subject.output,
+        subject_answer=subject.answer,
         context={"input": subject.input},
     )

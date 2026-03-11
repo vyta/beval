@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import os
-import textwrap
 from pathlib import Path
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -19,7 +17,6 @@ from beval.adapters import (
     load_agent,
 )
 from beval.types import EvalContext, Subject
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -136,7 +133,9 @@ class TestLoadAgent:
             load_agent(str(p))
         assert exc_info.value.code == 2
 
-    def test_env_var_resolution(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_env_var_resolution(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
         monkeypatch.setenv("TEST_KEY", "resolved_value")
         p = tmp_path / "env.yaml"
         p.write_text(
@@ -260,7 +259,7 @@ class TestCreateAdapter:
         }
         with patch("beval.adapters.acp.ACPAdapter") as mock_cls:
             mock_cls.return_value = MagicMock()
-            adapter = create_adapter(agent_def)
+            create_adapter(agent_def)
             mock_cls.assert_called_once_with(agent_def)
 
     def test_dispatches_a2a(self) -> None:
@@ -271,7 +270,7 @@ class TestCreateAdapter:
         }
         with patch("beval.adapters.a2a.A2AAdapter") as mock_cls:
             mock_cls.return_value = MagicMock()
-            adapter = create_adapter(agent_def)
+            create_adapter(agent_def)
             mock_cls.assert_called_once_with(agent_def)
 
     def test_dispatches_custom(self) -> None:
@@ -282,7 +281,7 @@ class TestCreateAdapter:
         }
         with patch("beval.adapters.custom.CustomAdapter") as mock_cls:
             mock_cls.return_value = MagicMock()
-            adapter = create_adapter(agent_def)
+            create_adapter(agent_def)
             mock_cls.assert_called_once_with(agent_def)
 
     def test_unknown_protocol(self) -> None:
@@ -420,7 +419,6 @@ class TestACPAdapter:
         mock_session = MagicMock()
         mock_session.id = "sess-1"
 
-        import asyncio
 
         async def mock_new_session():
             return mock_session
@@ -557,7 +555,7 @@ class TestA2AAdapter:
         client = adapter._build_httpx_client()
         # No Authorization header injected
         assert "Authorization" not in client.headers
-        pass  # AsyncClient uses aclose(); skip in sync test
+        # AsyncClient uses aclose(); skip in sync test
 
     def test_build_httpx_client_api_key(self) -> None:
         """api_key auth injects the configured header."""
@@ -580,7 +578,7 @@ class TestA2AAdapter:
 
         client = adapter._build_httpx_client()
         assert client.headers["X-Api-Key"] == "secret-123"
-        pass  # AsyncClient uses aclose(); skip in sync test
+        # AsyncClient uses aclose(); skip in sync test
 
     def test_build_httpx_client_bearer(self) -> None:
         """bearer auth uses DefaultAzureCredential and injects Authorization header."""
@@ -605,7 +603,7 @@ class TestA2AAdapter:
 
         with patch(
             "beval.adapters.a2a.A2AAdapter._build_httpx_client"
-        ) as orig:
+        ):
             # Call the real method but with mocked azure deps
             pass
 
@@ -617,12 +615,10 @@ class TestA2AAdapter:
                 get_bearer_token_provider=MagicMock(return_value=mock_token_provider),
             ),
         }):
-            import importlib
-            import beval.adapters.a2a as a2a_mod
             # Call the real _build_httpx_client
             client = A2AAdapter._build_httpx_client(adapter)
             assert client.headers["Authorization"] == "Bearer fake-token-xyz"
-            pass  # AsyncClient uses aclose(); skip in sync test
+            # AsyncClient uses aclose(); skip in sync test
 
     def test_invoke_async_failure_raises(self) -> None:
         """ClientFactory.connect failure raises RuntimeError via invoke."""
@@ -643,7 +639,11 @@ class TestA2AAdapter:
         with patch.object(adapter, "_invoke_async", mock_invoke_async):
             with pytest.raises(RuntimeError, match="Cannot reach agent"):
                 adapter.invoke(
-                    AdapterInput(query="hello", stage=1, stage_name="test", givens={}, context=EvalContext())
+                    AdapterInput(
+                        query="hello", stage=1,
+                        stage_name="test", givens={},
+                        context=EvalContext(),
+                    )
                 )
 
     def test_send_message_extracts_text(self) -> None:
@@ -774,9 +774,9 @@ class TestCLIAgent:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """BEVAL_AGENT env var is picked up as fallback."""
-        from beval.cli import _handle_env_overrides
-
         import argparse
+
+        from beval.cli import _handle_env_overrides
 
         ns = argparse.Namespace(agent=None, mode="dev", output=None,
                                 trials=1, cases=None, subject=None,

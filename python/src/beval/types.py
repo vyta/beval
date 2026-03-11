@@ -111,7 +111,7 @@ class Subject:
             return self.input
         for msg in reversed(self.input):
             if msg.get("role") == "user":
-                return msg.get("content", "")
+                return str(msg.get("content", ""))
         return ""
 
     @property
@@ -121,7 +121,7 @@ class Subject:
             return self.output
         for msg in reversed(self.output):
             if msg.get("role") == "assistant":
-                return msg.get("content", "")
+                return str(msg.get("content", ""))
         return ""
 
 

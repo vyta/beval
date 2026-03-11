@@ -431,6 +431,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
             from beval.adapters import (
                 adapter_as_handler,
                 create_adapter,
+            )
+            from beval.adapters import (
                 load_agent as _load_agent,
             )
 
@@ -630,7 +632,11 @@ def _cmd_run(args: argparse.Namespace) -> int:
             exit_code = max(exit_code, EXIT_FAIL)
 
     if show_console:
-        status = "Evaluation complete" if exit_code == EXIT_PASS else "Evaluation failed"
+        status = (
+            "Evaluation complete"
+            if exit_code == EXIT_PASS
+            else "Evaluation failed"
+        )
         print(f"\n  {status} ({elapsed:.1f}s)\n", file=sys.stderr)
 
     return exit_code

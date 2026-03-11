@@ -87,7 +87,7 @@ class A2AAdapter(AdapterInterface):
         finally:
             loop.close()
 
-    def _build_httpx_client(self):
+    def _build_httpx_client(self) -> Any:
         """Build an httpx.AsyncClient with appropriate auth headers."""
         import httpx
 

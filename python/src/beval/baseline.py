@@ -34,7 +34,8 @@ def load_baseline() -> dict[str, Any] | None:
     if not path.is_file():
         return None
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        result: dict[str, Any] = json.load(f)
+        return result
 
 
 def clear_baseline() -> bool:

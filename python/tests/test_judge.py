@@ -4,10 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from beval.judge import LLMJudge, NullJudge
 from beval.types import GraderLayer

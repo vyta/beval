@@ -185,7 +185,7 @@ class ACPAdapter(AdapterInterface):
                 subprocess_env.update(self._env)
                 cwd = self._connection.get("cwd")
                 self._ctx_manager = spawn_agent_process(
-                    self._client,
+                    self._client,  # type: ignore[arg-type]
                     command[0],
                     *command[1:],
                     env=subprocess_env,
@@ -202,7 +202,7 @@ class ACPAdapter(AdapterInterface):
                     host, port,
                 )
                 self._conn = connect_to_agent(
-                    self._client, writer, reader,
+                    self._client, writer, reader,  # type: ignore[arg-type]
                 )
             else:
                 msg = f"Unknown ACP transport: {self._transport}"

@@ -1,0 +1,24 @@
+name: dt-coach
+description: >
+  Design Thinking Coach — a conversational coaching agent that guides teams
+  through the 9 Design Thinking for HVE methods using a Think/Speak/Empower
+  philosophy.  Runs as a local GitHub Copilot custom agent via ACP stdio
+  transport.
+protocol: acp
+connection:
+  transport: stdio
+  command:
+    - copilot
+    - --acp
+    - --stdio
+    - --agent
+    - dt-coach
+    - --allow-all
+  cwd: ${AGENT_REPO_ROOT}
+timeout: 120
+retry:
+  max_attempts: 2
+  backoff: 5.0
+metadata:
+  domain: design-thinking
+  version: "0.1"

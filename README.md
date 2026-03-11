@@ -17,11 +17,14 @@ verification afterthought.
 
 The framework defines a readable DSL, three grader layers (deterministic,
 process, AI-judged), and dual-mode execution that spans fast development
-iteration through full validation.
+iteration through full validation. Agents are connected via a declarative YAML
+adapter layer supporting ACP (stdio/TCP), A2A (HTTP), and custom protocols —
+the same evaluation cases work across all of them.
 
 ## Specification
 
 The complete framework specification lives in [SPEC.md](SPEC.md) (v0.1.0).
+The agent adapter addendum is in [spec/agent-adapters.spec.md](spec/agent-adapters.spec.md).
 
 ## Repository Structure
 
@@ -29,12 +32,17 @@ The complete framework specification lives in [SPEC.md](SPEC.md) (v0.1.0).
 beval/
 ├── SPEC.md              # Canonical specification
 ├── spec/                # Shared specification artifacts
-│   ├── schemas/         # JSON Schema definitions (results, config, case, comparison)
+│   ├── schemas/         # JSON Schema definitions (results, config, case, agent, comparison)
 │   ├── cli.spec.yaml    # Machine-readable CLI interface contract
-│   └── otel-conventions.md  # OpenTelemetry span naming conventions
+│   ├── agent-adapters.spec.md  # Agent adapter specification (§13)
+│   └── otel-conventions.md     # OpenTelemetry span naming conventions
 ├── conformance/         # Cross-language conformance test suite
 │   ├── fixtures/        # Input/expected pairs for conformance testing
 │   └── runner.sh        # Orchestrates all implementations
+├── samples/             # End-to-end evaluation samples
+│   ├── klingon-agent/           # A2A agent with Azure Entra ID auth
+│   ├── smart-inventory-advisor/ # ACP agent with multi-stage cases
+│   └── dt-coach/                # Design Thinking coaching agent
 ├── python/              # Python implementation
 ├── typescript/          # TypeScript implementation
 ├── go/                  # Go implementation
@@ -91,6 +99,18 @@ The [conformance/](conformance/) directory contains fixture-based tests that all
 implementations must pass. Each fixture provides a case definition, canned system
 output, and the expected evaluation results. This ensures behavioral equivalence
 across languages.
+
+## Samples
+
+The [samples/](samples/) directory contains runnable end-to-end examples:
+
+| Sample | Protocol | Description |
+|--------|----------|-------------|
+| [klingon-agent](samples/klingon-agent/) | A2A | Remote agent with Azure Entra ID bearer auth |
+| [smart-inventory-advisor](samples/smart-inventory-advisor/) | ACP | Multi-stage cases with deterministic + AI-judged graders |
+| [dt-coach](samples/dt-coach/) | — | Design Thinking coaching agent evaluation |
+
+Each sample includes an `agent.yaml`, case files, and a `README.md` with run instructions.
 
 ## License
 

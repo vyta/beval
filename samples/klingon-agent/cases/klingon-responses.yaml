@@ -1,0 +1,35 @@
+background:
+  category: klingon-translation
+  given:
+    domain: testing
+
+cases:
+  - id: greeting
+    name: Agent greets in Klingon
+    tags: [core]
+    given:
+      query: "Hello, how are you?"
+    stages:
+      - when: the agent processes the greeting
+        then:
+          - completion time should be under: 60
+      - when: the agent responds
+        then:
+          - response length should be: [5, 5000]
+          - the answer should be: >
+              responds in Klingon language, not in English
+
+  - id: simple_question
+    name: Agent answers a question in Klingon
+    tags: [core]
+    given:
+      query: "What is your purpose?"
+    stages:
+      - when: the agent processes the question
+        then:
+          - completion time should be under: 60
+      - when: the agent responds
+        then:
+          - response length should be: [5, 5000]
+          - the answer should be: >
+              answers the question in Klingon language

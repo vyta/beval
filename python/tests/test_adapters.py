@@ -542,6 +542,162 @@ class TestA2AAdapter:
 
         adapter.close()
 
+    def test_build_httpx_client_no_auth(self) -> None:
+        """No auth produces a plain httpx client with no extra headers."""
+        from beval.adapters.a2a import A2AAdapter
+
+        adapter = A2AAdapter(
+            {
+                "name": "a2a-test",
+                "protocol": "a2a",
+                "connection": {"url": "https://agent.example.com"},
+            }
+        )
+
+        client = adapter._build_httpx_client()
+        # No Authorization header injected
+        assert "Authorization" not in client.headers
+        pass  # AsyncClient uses aclose(); skip in sync test
+
+    def test_build_httpx_client_api_key(self) -> None:
+        """api_key auth injects the configured header."""
+        from beval.adapters.a2a import A2AAdapter
+
+        adapter = A2AAdapter(
+            {
+                "name": "a2a-test",
+                "protocol": "a2a",
+                "connection": {
+                    "url": "https://agent.example.com",
+                    "auth": {
+                        "type": "api_key",
+                        "header": "X-Api-Key",
+                        "value": "secret-123",
+                    },
+                },
+            }
+        )
+
+        client = adapter._build_httpx_client()
+        assert client.headers["X-Api-Key"] == "secret-123"
+        pass  # AsyncClient uses aclose(); skip in sync test
+
+    def test_build_httpx_client_bearer(self) -> None:
+        """bearer auth uses DefaultAzureCredential and injects Authorization header."""
+        from beval.adapters.a2a import A2AAdapter
+
+        adapter = A2AAdapter(
+            {
+                "name": "a2a-test",
+                "protocol": "a2a",
+                "connection": {
+                    "url": "https://agent.example.com",
+                    "auth": {
+                        "type": "bearer",
+                        "scope": "https://my-scope/.default",
+                    },
+                },
+            }
+        )
+
+        mock_credential = MagicMock()
+        mock_token_provider = MagicMock(return_value="fake-token-xyz")
+
+        with patch(
+            "beval.adapters.a2a.A2AAdapter._build_httpx_client"
+        ) as orig:
+            # Call the real method but with mocked azure deps
+            pass
+
+        # Test by mocking the azure.identity imports
+        with patch.dict("sys.modules", {
+            "azure": MagicMock(),
+            "azure.identity": MagicMock(
+                DefaultAzureCredential=MagicMock(return_value=mock_credential),
+                get_bearer_token_provider=MagicMock(return_value=mock_token_provider),
+            ),
+        }):
+            import importlib
+            import beval.adapters.a2a as a2a_mod
+            # Call the real _build_httpx_client
+            client = A2AAdapter._build_httpx_client(adapter)
+            assert client.headers["Authorization"] == "Bearer fake-token-xyz"
+            pass  # AsyncClient uses aclose(); skip in sync test
+
+    def test_invoke_async_failure_raises(self) -> None:
+        """ClientFactory.connect failure raises RuntimeError via invoke."""
+        from beval.adapters.a2a import A2AAdapter
+
+        adapter = A2AAdapter(
+            {
+                "name": "a2a-test",
+                "protocol": "a2a",
+                "connection": {"url": "https://agent.example.com"},
+                "retry": {"max_attempts": 1},
+            }
+        )
+
+        async def mock_invoke_async(query):
+            raise ConnectionError("Cannot reach agent")
+
+        with patch.object(adapter, "_invoke_async", mock_invoke_async):
+            with pytest.raises(RuntimeError, match="Cannot reach agent"):
+                adapter.invoke(
+                    AdapterInput(query="hello", stage=1, stage_name="test", givens={}, context=EvalContext())
+                )
+
+    def test_send_message_extracts_text(self) -> None:
+        """Verify text is extracted from Message response parts."""
+        import asyncio
+
+        from a2a.types import Message, Part, Role, TextPart
+
+        from beval.adapters.a2a import A2AAdapter
+
+        adapter = A2AAdapter(
+            {
+                "name": "a2a-test",
+                "protocol": "a2a",
+                "connection": {
+                    "url": "https://agent.example.com",
+                    "streaming": False,
+                },
+                "timeout": 5,
+            }
+        )
+
+        response_message = Message(
+            message_id="test-id",
+            role=Role.agent,
+            parts=[Part(root=TextPart(text="response text"))],
+        )
+
+        mock_client = MagicMock()
+
+        async def mock_send_message(**kwargs):
+            yield response_message
+
+        mock_client.send_message = mock_send_message
+
+        async def mock_connect(*args, **kwargs):
+            return mock_client
+
+        mock_httpx = MagicMock()
+
+        async def mock_aclose():
+            pass
+
+        mock_httpx.aclose = mock_aclose
+
+        with patch("a2a.client.ClientFactory.connect", mock_connect):
+            with patch.object(adapter, "_build_httpx_client", return_value=mock_httpx):
+                loop = asyncio.new_event_loop()
+                try:
+                    result = loop.run_until_complete(adapter._invoke_async("hello"))
+                    assert result == "response text"
+                finally:
+                    loop.close()
+
 
 # ---------------------------------------------------------------------------
 # CLI --agent integration tests

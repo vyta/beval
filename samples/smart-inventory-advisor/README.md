@@ -174,9 +174,3 @@ beval run --cases cases/
   domain-specific criteria specified in the `the answer should be` then-clauses.
   Supports Azure OpenAI (Entra ID or API key) and standard OpenAI endpoints.
   Requires `pip install beval[judge]` and `--judge-model`.
-
-## TODO
-
-1. ~~Test copilot agent with TCP connection~~ ✓
-2. ~~Test with LLM judge~~ ✓
-3. Test an agent with A2A

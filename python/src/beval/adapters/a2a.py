@@ -1,33 +1,35 @@
 """A2A (Agent2Agent) adapter. See SPEC §13.4.2.
 
 Uses the ``a2a-sdk`` package for HTTP-based agent communication.
+Supports ``none``, ``api_key``, and ``bearer`` (Azure Entra ID) auth.
 """
 
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
-import uuid
 from typing import Any
 
 from beval.adapters import AdapterInput, AdapterInterface
 from beval.types import Subject
 
+logger = logging.getLogger(__name__)
+
 
 class A2AAdapter(AdapterInterface):
     """Adapter for agents using the Agent2Agent (A2A) protocol.
 
-    Minimal implementation — will be expanded when tested
-    against a real A2A agent.
+    Auth modes (``connection.auth.type``):
+      - ``none`` (default): plain httpx client
+      - ``api_key``: inject ``{header: value}`` into httpx headers
+      - ``bearer``: Azure Entra ID via ``DefaultAzureCredential``
     """
 
     def __init__(self, agent_def: dict[str, Any]) -> None:
         self._connection = agent_def.get("connection", {})
         self._timeout = agent_def.get("timeout", 30)
         self._retry = agent_def.get("retry", {})
-
-        self._loop: asyncio.AbstractEventLoop | None = None
-        self._client: Any = None
 
     def invoke(self, adapter_input: AdapterInput) -> Subject:
         """Send message to A2A agent and return Subject."""
@@ -66,30 +68,68 @@ class A2AAdapter(AdapterInterface):
                 if attempt < max_attempts - 1:
                     time.sleep(backoff * (2**attempt))
 
+        exc_detail = repr(last_exc) if last_exc else "unknown error"
         msg = (
             f"A2A adapter error after {max_attempts}"
-            f" attempt(s): {last_exc}"
+            f" attempt(s): {exc_detail}"
         )
         raise RuntimeError(msg)
 
     def close(self) -> None:
         """Release A2A client resources."""
-        if self._loop is not None and not self._loop.is_closed():
-            self._loop.close()
-            self._loop = None
-        self._client = None
 
     def _invoke_sync(self, query: str) -> str:
-        if self._loop is None or self._loop.is_closed():
-            self._loop = asyncio.new_event_loop()
-        return self._loop.run_until_complete(
-            self._invoke_async(query),
-        )
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(
+                self._invoke_async(query),
+            )
+        finally:
+            loop.close()
+
+    def _build_httpx_client(self):
+        """Build an httpx.AsyncClient with appropriate auth headers."""
+        import httpx
+
+        timeout = httpx.Timeout(self._timeout)
+        auth_config = self._connection.get("auth", {})
+        auth_type = auth_config.get("type", "none")
+
+        if auth_type == "bearer":
+            try:
+                from azure.identity import (
+                    DefaultAzureCredential,
+                    get_bearer_token_provider,
+                )
+            except ImportError as exc:
+                msg = (
+                    "Bearer auth requires 'azure-identity'. "
+                    "Install it with: pip install azure-identity"
+                )
+                raise ImportError(msg) from exc
+
+            scope = auth_config.get(
+                "scope", "https://cognitiveservices.azure.com/.default"
+            )
+            token_provider = get_bearer_token_provider(
+                DefaultAzureCredential(), scope
+            )
+            headers = {"Authorization": f"Bearer {token_provider()}"}
+            return httpx.AsyncClient(headers=headers, timeout=timeout)
+
+        if auth_type == "api_key":
+            header = auth_config.get("header", "Authorization")
+            value = auth_config.get("value", "")
+            return httpx.AsyncClient(headers={header: value}, timeout=timeout)
+
+        # auth_type == "none" or unrecognized
+        return httpx.AsyncClient(timeout=timeout)
 
     async def _invoke_async(self, query: str) -> str:
-        """Async invocation via A2A SDK."""
+        """Async invocation via A2A SDK using ClientFactory."""
         try:
-            from a2a.client import A2AClient  # type: ignore[import-untyped]
+            from a2a.client import ClientConfig, ClientFactory
+            from a2a.types import Message, Role
         except ImportError as exc:
             msg = (
                 "A2A adapter requires the 'a2a-sdk' package. "
@@ -102,29 +142,46 @@ class A2AAdapter(AdapterInterface):
             msg = "A2A connection requires 'url'"
             raise ValueError(msg)
 
-        if self._client is None:
-            self._client = await A2AClient.create(url=url)
+        httpx_client = self._build_httpx_client()
+        streaming = self._connection.get("streaming", False)
 
-        message = {
-            "role": "user",
-            "parts": [{"kind": "text", "text": query}],
-        }
+        try:
+            config = ClientConfig(
+                httpx_client=httpx_client,
+                streaming=streaming,
+            )
 
-        response = await asyncio.wait_for(
-            self._client.send_message(
-                message=message,
-                request_id=str(uuid.uuid4()),
-            ),
-            timeout=self._timeout,
-        )
+            client = await ClientFactory.connect(
+                agent=url,
+                client_config=config,
+            )
 
-        # Extract text from response artifacts
-        result = getattr(response, "result", response)
-        parts: list[str] = []
-        for artifact in getattr(result, "artifacts", []) or []:
-            for part in getattr(artifact, "parts", []) or []:
-                text = getattr(part, "text", None)
-                if text:
-                    parts.append(text)
+            from a2a.client import create_text_message_object
 
-        return "".join(parts) if parts else str(result)
+            message = create_text_message_object(
+                role=Role.user,
+                content=query,
+            )
+
+            text_parts: list[str] = []
+
+            async for event in client.send_message(request=message):
+                if isinstance(event, Message):
+                    for part in getattr(event, "parts", []) or []:
+                        root = getattr(part, "root", part)
+                        text = getattr(root, "text", None)
+                        if text:
+                            text_parts.append(text)
+                else:
+                    # Task response: (Task, update)
+                    task = event[0] if isinstance(event, tuple) else event
+                    for artifact in getattr(task, "artifacts", []) or []:
+                        for part in getattr(artifact, "parts", []) or []:
+                            root = getattr(part, "root", part)
+                            text = getattr(root, "text", None)
+                            if text:
+                                text_parts.append(text)
+
+            return "".join(text_parts) if text_parts else ""
+        finally:
+            await httpx_client.aclose()

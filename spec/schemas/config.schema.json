@@ -248,7 +248,7 @@
     },
     "JudgesConfig": {
       "type": "object",
-      "description": "Configuration for judge providers.",
+      "description": "Configuration for judge providers. See spec/judges.spec.md for full specification.",
       "additionalProperties": false,
       "properties": {
         "llm": {

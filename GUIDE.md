@@ -61,7 +61,7 @@ Recommended cache key structures:
 
 * Output cache: keyed by input content and configuration hash
 * Judge-response cache: keyed by answer, criterion, model identifier,
-  and prompt version
+  and prompt version (for `llm` backend) or connection config hash (for `acp` backend)
 
 Provide cache bypass and cache-clear controls to support iterative
 development.
@@ -102,7 +102,8 @@ required for conformance.
 ### 4.1 Judge calibration
 
 Periodic comparison of judge scores against human-labeled benchmark sets
-helps detect drift in evaluation quality.
+helps detect drift in evaluation quality. See [spec/judges.spec.md](spec/judges.spec.md)
+for supported judge backends and configuration.
 
 ### 4.2 Multi-judge consensus
 

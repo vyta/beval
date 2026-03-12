@@ -1,7 +1,7 @@
 """LLM judge interface for AI-judged graders.
 
 Provides a pluggable judge abstraction for subjective quality assessment.
-See SPEC.md §10 (Pluggable Judges).
+See SPEC.md §10 (security) and spec/judges.spec.md §14 (judge configuration).
 """
 
 from __future__ import annotations

@@ -25,38 +25,42 @@ Agent source: <https://github.com/microsoft/hve-core/blob/main/.github/agents/de
 | `AGENT_REPO_ROOT` | Path to the cloned `hve-core` repo (stdio transport) |
 | `copilot` CLI | GitHub Copilot CLI with ACP support |
 | `AGENT_HOST` / `AGENT_PORT` | Agent endpoint (TCP transport only, defaults to `127.0.0.1:3000`) |
+| `JUDGE_HOST` / `JUDGE_PORT` | Judge endpoint (TCP transport only, defaults to `127.0.0.1:3001`) |
 
 ## Running
+
+The judge is configured in `eval.config.yaml` using the Copilot ACP backend
+(`protocol: acp`). No `--judge-model` flag is needed.
 
 ### Stdio transport
 
 ```bash
-cd python && uv sync --extra acp --extra judge
-uv run beval run \
+cd python && uv sync --extra acp
+uv run beval -c ../samples/dt-coach/eval.config.yaml run \
   --cases ../samples/dt-coach/cases \
-  --agent ../samples/dt-coach/agent.yaml \
-  -m validation \
-  --judge-model gpt-4o
+  -m validation --verbose
 ```
 
 ### TCP transport
 
-Start the agent first:
+Start the agent and judge as separate processes (different ports):
 
 ```bash
-cd $AGENT_REPO_ROOT
-copilot --acp --port 3000 --agent dt-coach --allow-all
+# Agent — runs the dt-coach custom agent
+copilot --acp --port 3000 --agent dt-coach --allow-all &
+
+# Judge — plain Copilot LLM, no custom agent
+copilot --acp --port 3001 --allow-all &
 ```
 
 Then run the evaluation:
 
 ```bash
-cd python && uv sync --extra acp --extra judge
-uv run beval run \
+cd python && uv sync --extra acp
+uv run beval -c ../samples/dt-coach/eval.config.yaml run \
   --cases ../samples/dt-coach/cases \
   --agent ../samples/dt-coach/agent-tcp.yaml \
-  -m validation \
-  --judge-model gpt-4o
+  -m validation --verbose
 ```
 
 ## Cases (30 total)
@@ -115,6 +119,7 @@ uv run beval run \
 
 This sample defaults to `validation` mode because the cases primarily evaluate
 coaching quality through AI-judged criteria (Think/Speak/Empower adherence,
-boundary respect, method-appropriate guidance). The `--judge-model` flag is
+boundary respect, method-appropriate guidance). The judge is configured in
+`eval.config.yaml` using the Copilot ACP backend — no separate API key is
 required. Deterministic graders (completion time, response length) provide
 basic guardrails alongside the AI judge.

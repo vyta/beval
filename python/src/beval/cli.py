@@ -55,9 +55,6 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to eval.config.yaml configuration file.",
     )
     parser.add_argument(
-        "--verbose", action="store_true", default=False, help="Enable verbose output."
-    )
-    parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
@@ -75,6 +72,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     # --- run ---
     run_parser = subparsers.add_parser("run", help="Execute evaluation cases.")
+    run_parser.add_argument(
+        "--verbose", action="store_true", default=False, help="Enable verbose output."
+    )
     run_parser.add_argument(
         "-m",
         "--mode",
@@ -507,22 +507,48 @@ def _cmd_run(args: argparse.Namespace) -> int:
         if show_console:
             _print_case_result(idx, total, case_def, cr, verbose)
 
-    # Build evaluators (judge)
+    # Build evaluators (judge) — precedence per §14.4:
+    # 1. --judge-model CLI flag / BEVAL_LLM_JUDGE_MODEL env var (openai shorthand)
+    # 2. eval.judge config block (explicit protocol)
+    # 3. Legacy flat judge_model key (openai shorthand, backward compat)
+    # 4. NullJudge implicitly (no judge configured)
     evaluators: dict[str, Any] = {}
+    judge: Any = None
     judge_model = getattr(args, "judge_model", None)
     if judge_model is None:
         judge_model = file_config.get("judge_model")
+
     if judge_model:
+        # Shorthand path: activates openai protocol with OPENAI_API_KEY from env
         from beval.judge import LLMJudge
 
         try:
-            evaluators["judge"] = LLMJudge(
+            judge = LLMJudge(
                 judge_model,
                 grade_pass_threshold=config.grade_pass_threshold,
             )
         except ImportError as exc:
             print(f"Error: {exc}", file=sys.stderr)
             return EXIT_INPUT_ERROR
+    else:
+        judge_config = file_config.get("judge")
+        if judge_config and isinstance(judge_config, dict):
+            from beval.judge import load_judge_from_config
+
+            try:
+                judge = load_judge_from_config(
+                    judge_config,
+                    grade_pass_threshold=config.grade_pass_threshold,
+                )
+            except ValueError as exc:
+                print(f"Error: {exc}", file=sys.stderr)
+                return EXIT_INPUT_ERROR
+            except ImportError as exc:
+                print(f"Error: {exc}", file=sys.stderr)
+                return EXIT_INPUT_ERROR
+
+    if judge is not None:
+        evaluators["judge"] = judge
 
     runner = Runner(
         mode=mode,
@@ -556,6 +582,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
     finally:
         if adapter is not None:
             adapter.close()
+        if judge is not None and hasattr(judge, "close"):
+            judge.close()
 
     elapsed = time.monotonic() - start_time
 

@@ -44,6 +44,13 @@ eval:
         metadata:
           domain: design-thinking
           version: "0.1"
+  judge:
+    protocol: acp
+    connection:
+      transport: tcp
+      host: ${JUDGE_HOST:-127.0.0.1}
+      port: ${JUDGE_PORT:-3001}
+    timeout: 60
   output:
     dir: results
     format: json

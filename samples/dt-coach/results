@@ -1,0 +1,2016 @@
+{
+  "timestamp": "2026-03-13T01:24:39Z",
+  "mode": "validation",
+  "config": {
+    "grade_pass_threshold": 0.5,
+    "case_pass_threshold": 0.7,
+    "agent": {
+      "name": "dt-coach-tcp",
+      "protocol": "acp"
+    }
+  },
+  "summary": {
+    "overall_score": 0.8219060725647568,
+    "passed": 24,
+    "failed": 6,
+    "errored": 0,
+    "total": 30,
+    "metrics": {
+      "latency": 0.8349061864703091,
+      "quality": 0.8161500000000003
+    }
+  },
+  "cases": [
+    {
+      "id": "think_speak_empower_pattern",
+      "name": "Response follows Think/Speak/Empower structure",
+      "category": "coaching-behaviors",
+      "overall_score": 0.7616945995360664,
+      "passed": true,
+      "time_seconds": 23.455891958030406,
+      "metric_scores": {
+        "latency": 0.8850837986081994,
+        "quality": 0.7
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8850837986081994,
+          "metric": "latency",
+          "passed": true,
+          "detail": "13.8s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 999 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be shares an observation or insight conversationally (e.g. \"I'm noticing...\" or \"This makes me think...\") and ends with a choice or open question that empowers the user to decide what to explore next, rather than giving a directive or action plan\n",
+          "score": 0.4,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer provides useful insight and exploratory questions, but it does not share the observation in a conversational way (e.g., 'I'm noticing...' or similar), and it does not end with an empowering choice or open question for the user. Instead, it ends with a statement offering help rather than inviting the user to decide what to explore next.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8850837986081994,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.7,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "Our team has been struggling with a legacy inventory system.  Users keep asking for a dashboard, but we're not sure that's the real problem.  Can you help us figure out what to do?\n",
+      "subject_output": "\n\nThis is a classic **frozen request** \u2014 users are naming a specific solution (\"dashboard\") that may mask the real problem. Before building anything, it's worth understanding *what problem the dashboard would solve*.\n\nA few questions to start unpacking this:\n\n1. **What triggers the dashboard requests?** When users ask for a dashboard, what are they trying to accomplish in that moment? Are they looking up stock levels, tracking orders, or something else?\n\n2. **Who's asking?** Is it warehouse staff, managers, procurement \u2014 or all of them? Each role likely experiences different pain points.\n\n3. **What do they do today?** When they need inventory information right now, what's their workaround \u2014 spreadsheets, emails, walking to the warehouse?\n\nUnderstanding the *why* behind the request will tell you whether a dashboard is the right answer, or whether the real issue is something like information access, process gaps, or system integration. Happy to help you work through this systematically."
+    },
+    {
+      "id": "short_conversational_responses",
+      "name": "Keep responses concise \u2014 no methodology lectures",
+      "category": "coaching-behaviors",
+      "overall_score": 0.6581564181694476,
+      "passed": false,
+      "time_seconds": 21.371237834042404,
+      "metric_scores": {
+        "latency": 0.8744692545083429,
+        "quality": 0.55
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8744692545083429,
+          "metric": "latency",
+          "passed": true,
+          "detail": "15.1s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1721 chars (range 50-2000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be gives a brief, conversational explanation without delivering a long methodology lecture or listing all 9 methods in detail; keeps the response focused and asks what the user wants to work on rather than comprehensively explaining the framework\n",
+          "score": 0.1,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer provides a detailed breakdown of three spaces and lists all nine methods with explanations, which directly violates the criterion to avoid a long methodology lecture. Although it ends with a question, the response is largely a comprehensive framework explanation rather than a brief conversational overview.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8744692545083429,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.55,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "What is design thinking and how does it work?\n",
+      "subject_output": "\n\nDesign Thinking is a structured approach to problem-solving that prioritizes understanding real user needs before jumping to solutions. It works through **three spaces** with **nine methods**:\n\n**Problem Space (Methods 1-3)** \u2014 Understand what's actually wrong\n1. **Scope Conversations** \u2014 Classify the request (frozen vs fluid), map stakeholders, discover constraints\n2. **Design Research** \u2014 Interview and observe real users in their actual environment\n3. **Input Synthesis** \u2014 Find patterns across research data, build validated problem statements\n\n**Solution Space (Methods 4-6)** \u2014 Explore how to solve it\n4. **Brainstorming** \u2014 Generate diverse ideas using constraints as creative drivers\n5. **User Concepts** \u2014 Turn ideas into simple visuals stakeholders can react to\n6. **Lo-Fi Prototypes** \u2014 Test scrappy prototypes with real users in real conditions\n\n**Implementation Space (Methods 7-9)** \u2014 Build and validate\n7. **Hi-Fi Prototypes** \u2014 Prove technical feasibility with working systems\n8. **User Testing** \u2014 Structured testing with real users; may loop back to earlier methods\n9. **Iteration at Scale** \u2014 Deploy, measure with telemetry, continuously improve\n\n**Key principles:**\n- The process is **non-linear** \u2014 test results may send you back to earlier methods, and that's progress\n- **Evidence over opinion** \u2014 observations and data drive decisions, not assumptions\n- **Scrappy fidelity** \u2014 rough prototypes invite honest feedback; polish invites cosmetic critique\n- Every method tests assumptions from prior methods\n\nYour inventory situation is a textbook entry point: a frozen request (\"build a dashboard\") that scope conversations would unpack to reveal the actual problem. Want to explore that further?"
+    },
+    {
+      "id": "empowers_with_choices",
+      "name": "End with choices not directives",
+      "category": "coaching-behaviors",
+      "overall_score": 0.8950788785888775,
+      "passed": true,
+      "time_seconds": 22.998233416990843,
+      "metric_scores": {
+        "latency": 0.8652366357666323,
+        "quality": 0.9099999999999999
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8652366357666323,
+          "metric": "latency",
+          "passed": true,
+          "detail": "16.2s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1710 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be presents options or asks a question that lets the user choose the next step rather than issuing a single directive like \"you should do X\"; the response ends with something like \"does that resonate?\" or \"want to explore that or move forward?\"\n",
+          "score": 0.82,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response mainly gives directive steps, but it ends with a question inviting the user to choose the next step ('Want help working through the clustering with your interview data?'). This partially satisfies the criterion, though it offers only a single option rather than multiple choices.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8652366357666323,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.9099999999999999,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We just finished interviewing 8 stakeholders.  What do we do now?\n",
+      "subject_output": "\n\nYou're at the transition from **Method 2 (Design Research)** to **Method 3 (Input Synthesis)**. The goal now is to transform those 8 interviews from scattered observations into unified problem understanding.\n\n**Your next steps:**\n\n1. **Organize raw data** \u2014 Pull out individual observations, direct quotes, and environmental details from each interview. One data point per card (physical or virtual).\n\n2. **Affinity clustering** \u2014 Group data points by natural similarity. Let themes emerge from the data rather than sorting into predetermined categories. Aim for 4-7 clusters.\n\n3. **Cross-source validation** \u2014 Check whether themes appear across multiple stakeholders. A pattern from one interview is anecdotal; the same pattern from three different roles is a signal.\n\n4. **Develop insight statements** \u2014 Move from observation (\"users check spreadsheets\") to inference (\"because the system doesn't surface real-time stock levels\") to insight (\"information access speed shapes whether staff trust the system or work around it\").\n\n5. **Write solution-ready problem statements** \u2014 Frame themes as direction without prescribing solutions. \"Staff need immediate stock visibility without leaving their workflow\" opens creative space; \"staff need a dashboard\" closes it.\n\n**Before you start, check:**\n- Do your 8 interviews cover all key roles (warehouse, procurement, management)?\n- Did you observe users in their actual work environment, or only interview in meeting rooms?\n- Are any stakeholder groups missing \u2014 night shift, seasonal workers, external suppliers?\n\nGaps discovered now are cheaper to fill than gaps discovered during prototyping. Want help working through the clustering with your interview data?"
+    },
+    {
+      "id": "collaborate_not_execute",
+      "name": "Work WITH users, not FOR them",
+      "category": "coaching-behaviors",
+      "overall_score": 0.7562639094916651,
+      "passed": true,
+      "time_seconds": 24.11783933301922,
+      "metric_scores": {
+        "latency": 0.8687917284749953,
+        "quality": 0.7
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8687917284749953,
+          "metric": "latency",
+          "passed": true,
+          "detail": "15.7s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1611 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be does NOT simply produce a finished stakeholder map; instead guides the user to co-create it by asking about relationships, influence levels, or perspectives that would make the map more useful\n",
+          "score": 0.4,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer largely produces a completed stakeholder map (with tiers and perspectives) rather than guiding the user to build it collaboratively. Although it raises questions about missing stakeholders and asks which groups the user can access, it does not actively prompt the user to define relationships, influence levels, or perspectives among the listed stakeholders to co-create the map.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8687917284749953,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.7,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "Can you create a stakeholder map for our project?  The key people are the VP of Operations, two plant managers, a shift supervisor, and the IT director.\n",
+      "subject_output": "\n\nHere's a starting framework, but I want to flag some concerns:\n\n**Current Stakeholder Map**\n\n| Tier | Role | Perspective |\n|------|------|-------------|\n| Primary | Shift Supervisor | Daily operational experience, frontline inventory pain |\n| Primary | Plant Managers (\u00d72) | Cross-shift visibility, production continuity |\n| Secondary | VP of Operations | Strategic priorities, budget authority |\n| Secondary | IT Director | System constraints, integration landscape |\n\n**What's missing is more important than what's listed.**\n\nYou have five people \u2014 all management or leadership. Where are the people who actually *use* the inventory system day-to-day?\n\n- **Warehouse staff** who pick, count, and receive inventory\n- **Procurement/purchasing** who order based on inventory data\n- **Line operators** who need parts to keep production running\n- **Receiving dock workers** who handle inbound materials\n- **Temporary or seasonal workers** who lack institutional knowledge\n\nThe stakeholders you've listed can tell you what they *think* the problem is. The missing voices can tell you what the problem *actually feels like* at 2 AM when a part is out of stock and the system says otherwise.\n\n**Also consider hidden stakeholders:**\n- Finance/accounting (inventory valuation, audit)\n- Suppliers (lead time, ordering interface)\n- Quality/compliance (lot tracking, recalls)\n\nI'd recommend interviewing at least 2-3 frontline users before moving to synthesis. The gap between what management describes and what floor staff experience is often where the real problem lives. Which of these groups could you get access to?"
+    },
+    {
+      "id": "no_prescriptive_solutions",
+      "name": "Do not prescribe specific solutions to user problems",
+      "category": "coaching-behaviors",
+      "overall_score": 0.9501886666667674,
+      "passed": true,
+      "time_seconds": 20.274273874994833,
+      "metric_scores": {
+        "latency": 0.880566000000302,
+        "quality": 0.985
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.880566000000302,
+          "metric": "latency",
+          "passed": true,
+          "detail": "14.3s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1649 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be does NOT jump to prescribing a specific fix like \"add gamification\" or \"simplify the UI\"; instead helps the user explore WHY adoption is low by asking questions about user context, pain points, or assumptions that haven't been tested\n",
+          "score": 0.97,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer appropriately avoids prescribing specific fixes and instead focuses on diagnosing the cause of low adoption. It asks multiple questions about worker environment, workflow, trust, and context, encouraging investigation into assumptions and user realities. The suggested next step (observing a shift) supports exploration rather than prescribing a product change.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.880566000000302,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.985,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "Our factory floor workers are ignoring the new safety checklist app. Adoption is at 15%.  How do we fix this?\n",
+      "subject_output": "\n\nBefore fixing adoption, you need to understand *why* 85% of workers aren't using it. Low adoption is a symptom, not a diagnosis.\n\n**Questions to investigate first:**\n\n**Environmental reality**\n- Are workers wearing gloves, dealing with grease, or in high-noise areas? The app may be physically unusable in their actual conditions.\n- Do they have reliable device access at the moment they need the checklist?\n- Does the app compete with active machine monitoring for their attention?\n\n**Workflow fit**\n- When in their task sequence does the checklist need to happen? If it interrupts flow, they'll skip it.\n- How long does the digital checklist take vs. the old process? If it's slower, workers will rationally avoid it.\n- Does the app require connectivity in areas with poor signal?\n\n**Trust and value**\n- Do workers see the checklist as protecting them, or as management surveillance?\n- Was the app built *with* floor workers or *for* them by someone else?\n- Did the 15% who adopted it get something the others didn't \u2014 training, better devices, a champion on their shift?\n\n**The pattern to watch for:** solutions designed in offices and conference rooms often fail on factory floors because they assume clean hands, quiet environments, full attention, and willing compliance. The workers aren't being resistant \u2014 they're being rational about what works in their conditions.\n\n**Recommended next step:** spend a shift observing workers \u2014 watch where the checklist *should* happen and what actually happens instead. The workarounds will tell you more than any survey.\n\nWhat do you know about the conditions on the floor where the checklist is used?"
+    },
+    {
+      "id": "never_make_users_feel_foolish",
+      "name": "Stay curious and supportive when users are confused",
+      "category": "coaching-behaviors",
+      "overall_score": 0.8600438987250284,
+      "passed": true,
+      "time_seconds": 24.989934000012,
+      "metric_scores": {
+        "latency": 0.8601316961750853,
+        "quality": 0.86
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8601316961750853,
+          "metric": "latency",
+          "passed": true,
+          "detail": "16.8s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1766 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be responds with empathy and curiosity, normalizing the feeling of being overwhelmed; does NOT lecture about synthesis methodology but instead offers a small, manageable starting point and reassures the user\n",
+          "score": 0.72,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response shows empathy and normalizes feeling overwhelmed and ends with an inviting, curious prompt. It also offers a manageable starting point. However, a large portion of the answer shifts into structured instruction about synthesis methodology (multiple steps, rules, and explanations), which partially contradicts the criterion to avoid lecturing about the methodology.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8601316961750853,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.86,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "I don't really understand what input synthesis means.  We just have a bunch of interview notes and I'm not sure what to do with them. This feels overwhelming.\n",
+      "subject_output": "\n\nThat overwhelmed feeling is normal \u2014 it means you've collected real data instead of just confirming what you already believed. Here's how to make sense of it.\n\n**Think of synthesis as sorting laundry, not writing a thesis.**\n\nYou're not creating something new. You're finding patterns that already exist in the data but are hidden across separate interviews.\n\n**Start simple with three steps:**\n\n**Step 1: Extract individual observations.** Go through each interview and pull out single facts, quotes, or behaviors \u2014 one per sticky note or card. Don't interpret yet, just extract.\n\nExamples from your interviews might look like:\n- *\"I check the spreadsheet before I check the system\" \u2014 Plant Manager A*\n- *Supervisor mentioned waiting 10 minutes for inventory reports*\n- *IT Director said three systems don't talk to each other*\n\n**Step 2: Group what feels similar.** Spread everything out and start moving related items together. Don't name the groups yet \u2014 just cluster. You'll probably notice 4-7 natural groupings emerge.\n\nMaybe you'll see a pile about \"workarounds people use,\" another about \"information they can't find,\" another about \"timing and delays.\"\n\n**Step 3: Name what each group is really about.** Now ask: *why do these observations belong together?* The answer becomes your theme.\n\nNot \"spreadsheet problems\" (surface description) but \"staff build shadow systems because the official system doesn't provide information when they need it\" (underlying pattern).\n\n**One rule:** if a theme is only supported by one interview, it's a hypothesis, not a finding. Themes gain strength when multiple people independently describe the same friction.\n\nWant to start by sharing a few observations from your interviews? I can help you practice the clustering."
+    },
+    {
+      "id": "method_1_frozen_vs_fluid",
+      "name": "Method 1: Assess whether request is frozen or fluid",
+      "category": "method-guidance",
+      "overall_score": 0.8635853009278395,
+      "passed": true,
+      "time_seconds": 22.302721708023455,
+      "metric_scores": {
+        "latency": 0.8707559027835183,
+        "quality": 0.86
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8707559027835183,
+          "metric": "latency",
+          "passed": true,
+          "detail": "15.5s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1915 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be helps the user assess whether the VP's request is frozen (solution already decided) or fluid (open to exploring the underlying problem), and suggests how to have scope conversations that uncover the real need behind the chatbot request\n",
+          "score": 0.72,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides useful guidance on how to run scope conversations and suggests questions that uncover the underlying problem behind the chatbot request. However, it assumes the request is definitively 'frozen' rather than helping the user assess whether it is frozen or fluid, so it only partially satisfies the criterion about evaluating the nature of the VP's request.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8707559027835183,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.86,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "Our VP wants us to build an AI chatbot for the help desk.  She's pretty set on it.  We're starting Method 1 scope conversations. How should we approach this?\n",
+      "subject_output": "\n\nThis is a **frozen request** \u2014 a specific solution (\"AI chatbot\") with a specific context (\"help desk\"). Your VP has thought this through and arrived at an answer. Your job in Method 1 isn't to challenge that answer, but to understand what's behind it.\n\n**Approach: unfreeze without confronting.**\n\nStart by honoring her thinking, then explore the problem space underneath.\n\n**Opening conversation:**\n- *\"It sounds like you've given this a lot of thought. What's driving the interest in a chatbot specifically?\"*\n- *\"What problem are you seeing with help desk that made this a priority now?\"*\n- *\"When you imagine this working well, what changes for the team?\"*\n\n**Then dig into the problem:**\n- *\"What are the most common help desk requests today?\"*\n- *\"What happens when someone submits a ticket \u2014 how long until resolution?\"*\n- *\"Are there patterns in when tickets spike or what frustrates people most?\"*\n\n**Surface the complexity gently:**\n- *\"There are really a dozen different kinds of chatbots that could be built \u2014 from FAQ lookup to ticket routing to full conversational AI. Understanding the pain points will help us pick the right approach.\"*\n\n**Key stakeholders to map beyond the VP:**\n- Help desk agents (they live the problem daily)\n- Frequent ticket submitters (they experience the friction)\n- IT team managing current tools (they know the technical constraints)\n- People who *don't* submit tickets (why not \u2014 do they use workarounds?)\n\n**What you're listening for:**\nThe VP may say \"chatbot\" but mean \"faster resolution time,\" \"fewer repetitive questions,\" or \"better self-service.\" The underlying goal shapes the solution more than the label does.\n\n**One caution:** don't skip stakeholder research just because the VP is confident. The gap between executive perception and frontline reality is often the most valuable finding in Method 1.\n\nWhat do you know so far about the help desk pain points?"
+    },
+    {
+      "id": "method_1_identify_stakeholders",
+      "name": "Method 1: Guide stakeholder identification",
+      "category": "method-guidance",
+      "overall_score": 0.7446390632811624,
+      "passed": true,
+      "time_seconds": 21.00765608396614,
+      "metric_scores": {
+        "latency": 0.8785562531246494,
+        "quality": 0.7000000000000001
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8785562531246494,
+          "metric": "latency",
+          "passed": true,
+          "detail": "14.6s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1895 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "response should contain",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "'stakeholder' found in output",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be guides the user to identify relevant stakeholders by asking about who is affected by supply chain visibility issues, who makes decisions, and who has been requesting changes; does not produce a list for them but helps them think through it\n",
+          "score": 0.1,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer directly provides a structured list of stakeholders by tier instead of guiding the user to identify them themselves. It does not prompt the user to think through who is affected, who makes decisions, or who has been requesting changes. Aside from a single operational question, it largely replaces the discovery process with a predefined stakeholder map, which does not meet the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8785562531246494,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.7000000000000001,
+          "passed": false,
+          "grade_count": 3
+        }
+      ],
+      "subject_input": "We want to do scope conversations for our supply chain visibility project but we're not sure who to talk to.\n",
+      "subject_output": "\n\nHere's a stakeholder map organized by tier for supply chain visibility:\n\n**Tier 1 \u2014 Direct (experience the problem daily)**\n\n| Role | Why They Matter |\n|------|----------------|\n| Warehouse/inventory staff | Handle physical goods, know what the system says vs. what's on the shelf |\n| Procurement/buyers | Make purchasing decisions based on visibility (or lack of it) |\n| Logistics coordinators | Track inbound/outbound shipments, manage carrier relationships |\n| Production planners | Need material availability to schedule production runs |\n\n**Tier 2 \u2014 Influential (shape decisions, affected by outcomes)**\n\n| Role | Why They Matter |\n|------|----------------|\n| Supply chain manager | Owns the process, sets priorities |\n| Plant/operations managers | Feel downstream impact when visibility fails |\n| Finance/accounting | Inventory valuation, landed cost, cash flow implications |\n| Customer service | Frontline for \"where's my order\" \u2014 they experience the visibility gap from the customer side |\n\n**Tier 3 \u2014 Hidden (often overlooked, can block or unlock solutions)**\n\n| Role | Why They Matter |\n|------|----------------|\n| Suppliers/vendors | Their data quality and timeliness defines your upstream visibility |\n| Carriers/3PLs | Control in-transit visibility you may lack |\n| IT/systems team | Know which systems connect, which don't, and why |\n| Quality/compliance | Lot tracking, recalls, regulatory traceability |\n| Receiving dock workers | First to see discrepancies between expected and actual |\n\n**Start with Tier 1** \u2014 they'll reveal the real daily pain. Then use their answers to guide which Tier 2 and 3 conversations matter most.\n\n**Key question for every conversation:** *\"When you need to know where something is in the supply chain, what do you actually do?\"*\n\nThe workarounds will map the problem faster than any process document. Which of these groups do you have access to?"
+    },
+    {
+      "id": "method_2_research_planning",
+      "name": "Method 2: Help plan systematic research",
+      "category": "method-guidance",
+      "overall_score": 0.6220282548611609,
+      "passed": false,
+      "time_seconds": 31.94926712499,
+      "metric_scores": {
+        "latency": 0.7874180979168159,
+        "quality": 0.5393333333333333
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.7874180979168159,
+          "metric": "latency",
+          "passed": true,
+          "detail": "25.5s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 0.9786666666666667,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 3064 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be helps the user think through research approach \u2014 who to interview, what to observe, how to capture data \u2014 by asking clarifying questions about goals and constraints rather than handing them a complete research plan\n",
+          "score": 0.1,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The response provides a detailed, prescriptive research plan (phases, participant selection, interview questions, and outputs) rather than helping the user think through their approach. It asks almost no clarifying questions about the user's goals, constraints, or context, which was the key requirement of the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.7874180979168159,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.5393333333333333,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We've completed our scope conversations and confirmed the problem is real.  Now we need to do design research.  We have access to 3 plant managers and about 20 floor operators.  How do we structure our research?\n",
+      "subject_output": "\n\nHere's a research plan structured around your available participants:\n\n**Research Sequence**\n\nFollow the universal discovery order: observe first, then interview, then validate.\n\n**Phase 1: Environmental Observation (2-3 days)**\n\nSpend time on the floor *before* asking questions. Watch, don't talk.\n\n- Observe across at least 2 different shifts \u2014 day shift and off-hours operate differently\n- Note: how workers access inventory information, what tools they carry, physical conditions (noise, lighting, gloves, contamination), where they go when they need to know something\n- Watch for **workaround artifacts** \u2014 sticky notes on monitors, personal spreadsheets, hand signals, whiteboards with inventory counts\n\nThis phase reveals things workers have normalized and stopped mentioning.\n\n**Phase 2: Floor Operator Interviews (8-10 of your 20)**\n\nSelect for diversity, not convenience:\n\n| Selection Criteria | Why |\n|---|---|\n| 2-3 from day shift | Baseline experience with full support available |\n| 2-3 from night/weekend shift | Reduced support, different workarounds |\n| 1-2 new hires (<6 months) | Haven't adapted yet, feel the friction freshly |\n| 1-2 veterans (10+ years) | Carry institutional knowledge, built the workarounds |\n| 1 temp/seasonal worker | Excluded from informal knowledge networks |\n\n**Interview on the floor, not in a conference room.** The environment triggers questions neither of you would remember in a meeting room.\n\n**Opening questions:**\n- *\"Walk me through what happens when you need a part that isn't where it should be.\"*\n- *\"Show me how you find out what's in stock right now.\"*\n- *\"What do you do when the system says one thing and the shelf says another?\"*\n\n**Phase 3: Plant Manager Interviews (all 3)**\n\nInterview managers *after* floor operators \u2014 you'll arrive with ground-level context that sharpens your questions.\n\n- *\"What visibility gaps keep you up at night?\"*\n- *\"When supply chain problems hit production, how do you find out \u2014 and how fast?\"*\n- *\"Where do the plant managers' views differ from what your operators described?\"* (don't reveal specifics, test for awareness of the gap)\n\n**Phase 4: Constraint Validation (1 day)**\n\nReturn to the floor with specific findings to verify:\n- Replay what you heard to 2-3 operators: *\"I heard X is a common problem \u2014 does that match your experience?\"*\n- Test assumptions that surprised you\n\n**Practical tips:**\n- Schedule operator interviews during natural pauses, not production peaks\n- Respect PPE requirements and observation boundaries\n- Capture **direct quotes**, not paraphrased summaries \u2014 quotes carry synthesis better\n- Keep researcher interpretation separate from raw observation\n\n**What you'll hand off to synthesis:**\n- Observation logs with environmental details\n- 8-10 operator interviews with direct quotes\n- 3 manager interviews with strategic context\n- Validated constraint inventory\n\nThe gap between what managers describe and what floor staff experience is typically where your most valuable insights live. When are you planning to start the observations?"
+    },
+    {
+      "id": "method_3_pattern_recognition",
+      "name": "Method 3: Guide pattern recognition from research",
+      "category": "method-guidance",
+      "overall_score": 0.8420296372695399,
+      "passed": true,
+      "time_seconds": 28.871208666998427,
+      "metric_scores": {
+        "latency": 0.8260889118086198,
+        "quality": 0.85
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8260889118086198,
+          "metric": "latency",
+          "passed": true,
+          "detail": "20.9s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2782 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be helps the user identify patterns and themes across the research findings by asking questions about connections between the observations rather than immediately categorizing the findings for them; guides toward theme development\n",
+          "score": 0.7,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does encourage synthesis and includes several guiding questions that help the user explore connections among observations. However, it quickly introduces predefined 'clusters' and potential root causes, which partially categorizes the findings instead of primarily guiding the user to discover themes themselves through questioning. It still supports theme development, but not as strongly as the criterion prefers.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8260889118086198,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.85,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We finished 12 interviews across 3 plants.  Common things we heard: operators say they waste time looking for tools, supervisors want real-time status boards, maintenance crew says preventive schedules are ignored, and everyone complains about the ERP being too slow. Help us synthesize this.\n",
+      "subject_output": "\n\nGood data from multiple sources \u2014 now let's find the patterns underneath the surface complaints.\n\n**Don't take findings at face value.** Each statement is an observation. Synthesis asks *why* and *what connects them*.\n\n**Let's cluster what you've heard:**\n\n**Cluster 1: Information isn't where the work happens**\n- Operators waste time looking for tools \u2192 *Where is tool location tracked? Is it tracked at all?*\n- ERP is \"too slow\" \u2192 *Slow to load, or slow to answer the question they actually have?*\n- Supervisors want status boards \u2192 *What information are they currently missing, and when?*\n\nThese may share a root cause: **people can't get the right information at the point of need without leaving their workflow.**\n\n**Cluster 2: Planned processes break down in practice**\n- Preventive maintenance schedules ignored \u2192 *Why? Understaffed? Conflicting production pressure? Schedules don't match reality?*\n- This likely connects to tool availability \u2014 if tools are missing, maintenance gets deferred.\n\n**Cluster 3: Workaround culture**\n- If the ERP is too slow, what do people use instead? This is the question you should answer from your notes.\n\n**Before finalizing themes, check your data:**\n\n| Validation Question | Why It Matters |\n|---|---|\n| Did operators across all 3 plants describe tool-finding problems, or just one? | Single-plant issues \u2260 systemic themes |\n| When supervisors say \"real-time status,\" what specifically do they want to see? | \"Status board\" is another frozen request |\n| Who *decides* to skip preventive maintenance \u2014 operators, supervisors, or production pressure from above? | Root cause determines the right framing |\n| What does \"ERP is too slow\" mean literally? Seconds? Minutes? Or \"it doesn't answer my actual question\"? | Speed vs. relevance are different problems |\n\n**Now write insight statements for each cluster:**\n\nThe formula is: *observation \u2192 inference \u2192 insight*\n\nFor example:\n- **Observation:** Operators across 3 plants spend significant time locating tools\n- **Inference:** ...because tool location isn't tracked or visible at the workstation\n- **Insight:** ...which means the system design assumes workers have information that actually lives only in people's heads or informal systems\n\n**Your homework before brainstorming:**\n\n1. Go through your 12 interviews and count how many *independently* mentioned each theme \u2014 that's your confidence level\n2. Check for missing voices: did you talk to anyone who does preventive maintenance? Did you hear from night shift?\n3. Write 2-3 \"How Might We\" questions per validated theme\n\nFor example: *\"How might we give operators immediate access to tool and part locations without leaving their workstation?\"*\n\nWhich of these clusters resonates most with what you heard across all three plants?"
+    },
+    {
+      "id": "method_4_divergent_ideation",
+      "name": "Method 4: Facilitate divergent ideation",
+      "category": "method-guidance",
+      "overall_score": 0.8989265342611664,
+      "passed": true,
+      "time_seconds": 32.23290654097218,
+      "metric_scores": {
+        "latency": 0.7967796027834992,
+        "quality": 0.95
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.7967796027834992,
+          "metric": "latency",
+          "passed": true,
+          "detail": "24.4s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2935 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be helps set up a brainstorming session with divergent thinking principles (quantity over quality, build on ideas, defer judgment); may suggest focusing on one theme at a time; does NOT generate solutions but helps the team generate their own\n",
+          "score": 0.9,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly structures a brainstorming session and emphasizes divergent thinking principles such as deferring judgment, quantity over quality, and building on ideas. It suggests focusing on one theme at a time and provides facilitation guidance for a group of six. It mostly avoids generating concrete solutions, instead helping the team produce their own ideas, though a few prompts slightly hint at potential directions.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.7967796027834992,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.95,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "Our synthesis produced three themes: tool accessibility on the floor, real-time communication gaps, and misaligned maintenance schedules. We want to brainstorm solutions.  There are 6 of us in the room.\n",
+      "subject_output": "\n\nThree validated themes and six people \u2014 solid starting point. Here's how to structure your session.\n\n**Ground Rules (post these visibly)**\n\n1. **No evaluation during idea generation.** If someone says \"that won't work,\" redirect: *\"Save that for convergence.\"*\n2. Quantity over quality \u2014 aim for **20+ ideas** before grouping anything\n3. Rough one-liners only \u2014 no detailed proposals\n4. Build on each other's ideas \u2014 \"yes, and...\"\n5. Constraints are creative fuel, not blockers\n\n**Session Structure (~90 minutes)**\n\n**Round 1: Divergent Ideation (45 min)**\n\nRun three 15-minute sprints, one per theme. Each sprint follows the same pattern:\n\n| Minutes | Activity |\n|---|---|\n| 0-3 | State the theme and one key constraint from your research |\n| 3-10 | Silent writing \u2014 everyone writes ideas individually, one per sticky note |\n| 10-15 | Share and build \u2014 read aloud, riff off each other's ideas |\n\n**Constraint prompts to fuel each sprint:**\n\n*Tool Accessibility:*\n- \"Workers have greasy hands and can't easily use screens...\"\n- \"Tools move between stations and shifts...\"\n- \"What if the tool could tell you where it is?\"\n\n*Communication Gaps:*\n- \"Supervisors cover multiple lines and can't be everywhere...\"\n- \"Shift handoff loses context...\"\n- \"What if the information traveled with the work, not the person?\"\n\n*Maintenance Misalignment:*\n- \"Production pressure overrides scheduled maintenance...\"\n- \"The people who schedule aren't the people who execute...\"\n- \"What if maintenance timing adapted to actual production state?\"\n\n**Round 2: Perspective Multiplication (15 min)**\n\nTake your best 10 ideas and ask:\n- How does a **night-shift operator** experience this?\n- How does a **new hire in week one** experience this?\n- How does this work during an **equipment emergency**?\n\nThis stress-tests ideas and generates new ones.\n\n**Round 3: Convergence (30 min)**\n\n1. Spread all ideas out visibly\n2. **Cluster by underlying philosophy**, not surface features:\n   - \"Bring information to the worker\" vs \"bring the worker to information\"\n   - \"Prevent the problem\" vs \"speed up the response\"\n   - \"Individual tools\" vs \"team-wide visibility\"\n3. Name each cluster by its philosophy \u2014 aim for 3-5 themes\n4. Don't vote yet. Just group and name.\n\n**Facilitation tips for 6 people:**\n\n- Rotate who reads ideas aloud to prevent one voice dominating\n- If someone goes quiet, directly invite: *\"What are you thinking about this one?\"*\n- When energy stalls, introduce a constraint flip: *\"What if we had unlimited budget? Now what if we had zero budget?\"*\n- Park detailed discussions: *\"Great detail \u2014 write it on the parking lot and let's keep generating\"*\n\n**After the session, capture:**\n- Photos of all sticky note clusters\n- Philosophy name for each cluster\n- Which themes have ideas from multiple people (signals strength)\n- Any \"parking lot\" items for later\n\nWhat time of day are you running this? Energy levels matter for ideation quality."
+    },
+    {
+      "id": "method_5_concept_validation",
+      "name": "Method 5: Guide concept creation for validation",
+      "category": "method-guidance",
+      "overall_score": 0.6721751907387515,
+      "passed": false,
+      "time_seconds": 30.108373666997068,
+      "metric_scores": {
+        "latency": 0.800858905549588,
+        "quality": 0.6078333333333333
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.800858905549588,
+          "metric": "latency",
+          "passed": true,
+          "detail": "23.9s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 0.8956666666666666,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 3313 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be guides the user toward creating visual, user-facing concept descriptions that can be validated with stakeholders; asks about target audience and what feedback they want to get rather than creating the concept descriptions\n",
+          "score": 0.32,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The response provides useful guidance on concept cards and stakeholder validation, but it directly creates full concept descriptions for the three ideas instead of guiding the user to create them. It also does not ask about the target audience or what specific feedback the user wants to gather before shaping the concepts. This only partially meets the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.800858905549588,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.6078333333333333,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "From brainstorming we picked our top 3 ideas: a tool-tracking tag system, a floor status dashboard, and a predictive maintenance alert.  How do we turn these into user concepts?\n",
+      "subject_output": "\n\nGood \u2014 three ideas from three different themes. Now make them concrete enough for stakeholders to react to, while keeping them deliberately rough.\n\n**For each idea, build a concept card with four elements:**\n\n**1. Title (2-4 words)** \u2014 Immediately conveys the core idea\n\n**2. Description (1-2 sentences)** \u2014 What it does and how, without implementation detail\n\n**3. Purpose** \u2014 The one assumption this concept tests\n\n**4. Visualization prompt** \u2014 A stick-figure sketch showing the core interaction\n\n**Here are your three concepts drafted:**\n\n---\n\n**Concept 1: Tag & Find Tools**\n\n*Description:* Operators scan a station display to see which tools are nearby and where missing ones were last used, eliminating search time.\n\n*Tests the assumption:* Workers will check a system before physically searching if it's faster and accessible from their station.\n\n*Sketch:* Stick figure at a workstation glancing at a small screen showing three tool icons \u2014 two with checkmarks, one with an arrow pointing to \"Station 4.\"\n\n---\n\n**Concept 2: Floor Pulse Board**\n\n*Description:* Large displays at key floor locations show live production status, equipment state, and shift priorities \u2014 updated automatically, no login required.\n\n*Tests the assumption:* Supervisors and operators will use ambient visual information to coordinate if it's always visible and current.\n\n*Sketch:* Two stick figures on a factory floor looking up at a wall-mounted board showing three colored bars (green, yellow, red) next to simple machine icons.\n\n---\n\n**Concept 3: Maintenance Nudge**\n\n*Description:* Equipment sensors trigger timely alerts to maintenance crew when conditions suggest service is needed, aligned to actual production windows rather than fixed calendar schedules.\n\n*Tests the assumption:* Maintenance crews will respond to condition-based alerts if they arrive at actionable moments rather than competing with production pressure.\n\n*Sketch:* Stick figure near a machine, phone in hand showing an alert icon with text \"Line 2 \u2014 vibration rising \u2014 next break in 40 min.\"\n\n---\n\n**Next step: Validate with stakeholders using Silent Review**\n\n1. **Show each concept visual without explanation.** Ask: *\"What do you think this represents?\"*\n2. **Check comprehension.** Did they grasp it in 30 seconds? If not, the concept needs simplifying, not more explanation.\n3. **Identify gaps.** *\"What's missing? What would prevent this from working on your floor?\"*\n4. **Assess resonance.** *\"Which of these would change your day the most?\"*\n\nRun this with at least one operator, one supervisor, and one maintenance crew member. Each role will react differently, and that divergence is valuable data.\n\n**Evaluate each concept through three lenses:**\n\n| Lens | Key Question |\n|---|---|\n| Desirability | Do workers and supervisors actually want this? |\n| Feasibility | Can it work in 85+ dB noise, with gloves, on existing infrastructure? |\n| Viability | Does it create value across enough roles to justify investment? |\n\n**One caution:** \"Floor status dashboard\" appeared as a stakeholder request early in your research. Validate that the concept evolved beyond the original frozen request \u2014 does it solve the *discovered* communication gap, or just repackage the original ask?\n\nWhich stakeholders can you get in front of for the silent review?"
+    },
+    {
+      "id": "method_6_scrappy_prototypes",
+      "name": "Method 6: Encourage scrappy constraint discovery",
+      "category": "method-guidance",
+      "overall_score": 0.9258246950223111,
+      "passed": true,
+      "time_seconds": 28.313181667006575,
+      "metric_scores": {
+        "latency": 0.8274740850669332,
+        "quality": 0.975
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8274740850669332,
+          "metric": "latency",
+          "passed": true,
+          "detail": "20.7s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2437 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be steers away from jumping to code and encourages a low-fidelity approach (paper sketches, wireframes, clickable mockups) to discover constraints cheaply before investing in development; asks what assumptions they want to test with the prototype\n",
+          "score": 0.95,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly discourages starting with React and promotes low\u2011fidelity prototypes (paper, slides, whiteboard) to cheaply test constraints before development. It explicitly frames prototypes around testing assumptions and highlights what those assumptions are. It strongly aligns with the criterion, though it asks about placement rather than directly asking the user which assumptions they want to test.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8274740850669332,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.975,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "Users loved the floor status dashboard concept.  We want to prototype it.  Should we start building it in React?\n",
+      "subject_output": "\n\n**No \u2014 not yet.** React is a Method 7 (hi-fi) decision. You're at Method 6 (lo-fi). Building in code right now is the most expensive way to discover that your layout is wrong, the information hierarchy doesn't match workflow, or the display location is unusable.\n\n**Start scrappy. Discover constraints first.**\n\n**Week 1 Lo-Fi Prototypes (hours to build, not days):**\n\n**Prototype A: Paper on the wall**\n- Print a large poster-sized mockup of the dashboard\n- Tape it to the wall *where it would actually go* on the floor\n- Stand where operators and supervisors actually stand\n- Can they read it from that distance? In that lighting? While walking past?\n\n**Prototype B: Slide on a TV**\n- Put a static PowerPoint slide on a large monitor mounted at the proposed location\n- Show three different information layouts across a shift\n- Which layout do people glance at? Which do they ignore?\n\n**Prototype C: Whiteboard simulation**\n- Have a person manually update a whiteboard with the same information the dashboard would show\n- Update it every 15 minutes for a full shift\n- Watch: do people check it? When? What do they look for first?\n\n**What you're testing (one assumption per prototype):**\n\n| Prototype | Assumption Being Tested |\n|---|---|\n| Paper on wall | Display is readable from actual viewing distance and lighting |\n| Slide on TV | Information hierarchy matches what workers look for first |\n| Whiteboard | People will actually change behavior when live status is visible |\n\n**What you'll discover that React can't tell you:**\n\n- Is the proposed location even visible from key workstations?\n- Do workers want line status, equipment state, or shift priorities first?\n- Does the display need to be different during shift handoff vs normal operation?\n- What happens when someone walks up close \u2014 do they need interactive detail?\n- Is noise too loud for any audio alert component?\n\n**These are the constraints that should *define* your React build, not be discovered during it.**\n\nThe whiteboard prototype is particularly powerful \u2014 if workers don't change behavior when a human updates real-time status manually, they won't change behavior for a digital version either. That's a finding worth $50,000 of avoided development.\n\nOnce lo-fi testing validates the what, where, and when, *then* React (or whatever technology) becomes the right conversation for Method 7.\n\nWhat spaces on the floor are you considering for display placement?"
+    },
+    {
+      "id": "method_7_feasibility_testing",
+      "name": "Method 7: Guide technical feasibility testing",
+      "category": "method-guidance",
+      "overall_score": 0.9297252438665925,
+      "passed": true,
+      "time_seconds": 29.980234375048894,
+      "metric_scores": {
+        "latency": 0.8191757315997772,
+        "quality": 0.985
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8191757315997772,
+          "metric": "latency",
+          "passed": true,
+          "detail": "21.7s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2892 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be helps the user think through technical feasibility questions and what they need to prove with the high-fidelity prototype; asks about technical constraints, integration points, and what \"good enough\" looks like at this stage\n",
+          "score": 0.97,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer strongly supports thinking through technical feasibility for a high\u2011fidelity prototype. It identifies multiple integration approaches (direct PLC polling, OPC-UA gateway, historian), raises key technical constraints (network access, security, data availability, reliability), and frames validation questions the prototype should answer. It also clarifies what the prototype must prove via a minimal vertical slice and discusses latency and refresh rates to define what 'good enough' might mean. It additionally prompts the user about PLC vendors and historian systems, reinforcing integration considerations.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8191757315997772,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.985,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "Our paper prototypes validated the dashboard layout.  Now we need to test whether we can actually pull real-time data from the PLCs on the floor.  We're moving to high-fidelity prototyping.\n",
+      "subject_output": "\n\nGood transition \u2014 you've moved from \"do people want this\" (Method 6) to \"can we actually build it\" (Method 7). The question is now technical feasibility under real-world conditions.\n\n**Test at least 2-3 technical approaches before committing:**\n\n**Approach A: Direct PLC Polling**\n- Connect directly via Modbus or EtherNet/IP\n- Read production counters, equipment state, cycle times\n- Lowest latency, but tightest coupling to plant infrastructure\n\n**Approach B: OPC-UA Gateway**\n- Middleware layer that abstracts PLC communication\n- Supports multiple PLC vendors through a single interface\n- More flexible, but adds a component to maintain\n\n**Approach C: Historian Tap**\n- Read from existing data historian if the plant has one\n- Minimal new infrastructure, but data may be seconds or minutes stale\n- Test whether \"real-time\" actually needs to be sub-second or if 30-second refresh is fine enough\n\n**Critical validation questions:**\n\n| Dimension | What to Test |\n|---|---|\n| Data availability | Which PLC registers contain the data your dashboard needs? Do they already exist or require new ladder logic? |\n| Update frequency | How fast do values change? Match refresh rate to actual need, not assumed need |\n| Network access | Can you reach PLCs from the display network? Segmentation, firewalls, VLANs? |\n| Reliability | What happens when a PLC goes offline? Does the dashboard show stale data or fail visibly? |\n| Security | Your controls engineer and IT security need to approve any PLC network access \u2014 this is non-negotiable |\n\n**Safety boundaries:**\n\n- **Read only.** Your prototype reads PLC data \u2014 it never writes to PLCs or interacts with safety systems\n- Test against a PLC simulator or test bench first if available\n- Coordinate timing with maintenance windows for any physical network connections\n- Document every data point you're reading and get controls engineering sign-off\n\n**Build the thinnest possible vertical slice:**\n\nPick **one production line** and **3-5 data points** that map to what your lo-fi prototype validated people actually look at first. Get those displaying on a screen at the validated location. That's your hi-fi prototype.\n\nDon't build the full dashboard. Build the proof that live PLC data can reach a display reliably, then validate with users.\n\n**Capture comparison data across approaches:**\n\n| Metric | Approach A | Approach B | Approach C |\n|---|---|---|---|\n| Data latency | | | |\n| Setup complexity | | | |\n| Vendor dependency | | | |\n| IT security approval path | | | |\n| Failure mode behavior | | | |\n\n**Who to involve now:**\n- Controls/automation engineer (PLC access and safety)\n- IT/networking (network segmentation, firewall rules)\n- Plant manager (approval for floor-level testing)\n- 1-2 operators from your lo-fi testing (continuity of feedback)\n\nWhich PLC vendors are on the floor, and does the plant have an existing historian system?"
+    },
+    {
+      "id": "method_8_systematic_validation",
+      "name": "Method 8: Structure user testing for validation",
+      "category": "method-guidance",
+      "overall_score": 0.8358880502305498,
+      "passed": true,
+      "time_seconds": 34.25164174998645,
+      "metric_scores": {
+        "latency": 0.7866641506916494,
+        "quality": 0.8605
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.7866641506916494,
+          "metric": "latency",
+          "passed": true,
+          "detail": "25.6s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 0.901,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 3297 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be helps the user plan systematic user testing by asking about success criteria, test scenarios, who will observe, and how they will capture feedback; guides them to think about what they need to learn, not just validate\n",
+          "score": 0.82,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides a strong structure for systematic user testing, including participant selection, concrete task scenarios, observation guidance, and a template for capturing feedback. It also encourages learning (e.g., identifying concept gaps and behavior change) rather than simple validation. However, it does not explicitly help the team define clear success criteria for the test, and it only briefly references observers without planning who will observe or how roles are assigned. Overall it largely meets the criterion but misses some explicit elements.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.7866641506916494,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.8605,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We have a working prototype of the floor status dashboard pulling live PLC data.  We want to test it with operators at Plant B. How should we set up the user testing?\n",
+      "subject_output": "\n\nYou're at Method 8 \u2014 structured user testing. The goal is evidence for go, iterate, or return-to-earlier-method decisions.\n\n**Test Design**\n\n**Participant Selection (8-10 operators):**\n\n| Profile | Count | Rationale |\n|---|---|---|\n| Day shift experienced (2+ years) | 2-3 | Baseline, have established workflows |\n| Day shift newer (<6 months) | 1-2 | Haven't adapted to workarounds yet |\n| Night/off-shift | 2-3 | Different conditions, less support available |\n| Shift supervisor | 1-2 | Uses information differently than operators |\n| Maintenance crew member | 1 | Validates maintenance alert relevance |\n\n**Test Scenarios (task-based, not opinion-based):**\n\n| Scenario | What You're Measuring |\n|---|---|\n| \"Your line just went yellow \u2014 what does that mean and what would you do?\" | Comprehension speed and action clarity |\n| \"You're starting your shift \u2014 use the dashboard to understand current floor state\" | Information hierarchy validation |\n| \"Equipment on Line 3 shows a warning \u2014 walk me through your response\" | Alert interpretation and workflow integration |\n| \"You need to hand off to the next shift \u2014 what would you communicate from what you see?\" | Shift handoff utility |\n\n**Question Protocol \u2014 Leap-Enabling Only**\n\nDon't ask: *\"Do you like the dashboard?\"* (gives you nothing)\n\nInstead, use progressive questioning:\n\n1. **Experience:** *\"Walk me through what just happened when you looked at the board.\"*\n2. **First why:** *\"What made you look at that section first?\"*\n3. **Second why:** *\"What information were you actually trying to get?\"*\n4. **Improvement:** *\"What should change to make this work better during your shift?\"*\n\n**Testing Conditions**\n\n| Requirement | Why |\n|---|---|\n| Test during live production, not downtime | Real noise, real pressure, real distractions |\n| Test across at least 2 shifts | Night shift experience differs fundamentally |\n| Test during a shift handoff | Handoff is where communication gaps live |\n| Observer stays quiet during tasks | Watch what they do, not what they say when asked |\n| No hints or corrections during testing | Confusion is data, not a problem to fix |\n\n**Capture Template (one per session):**\n\n```\nParticipant: [role, shift, experience level]\nScenario: [which task]\nEnvironment: [noise, lighting, other conditions]\n\nWhat they did first:\nWhere they hesitated:\nWhat they misunderstood:\nWorkarounds they attempted:\nWhat they said vs what they did:\nTime to complete task:\n```\n\n**After Testing \u2014 Interpret Honestly**\n\nRoute each finding to the right response:\n\n| Finding Type | Example | Action |\n|---|---|---|\n| Minor usability | \"Text is small from 3 meters\" | Iterate in Method 9 |\n| Information design | \"I looked for line status but found equipment alerts first\" | Adjust hierarchy, retest |\n| Concept gap | \"I don't understand why I'd check this instead of walking the line\" | Return to Method 5-6, rethink value proposition |\n| Research gap | \"This doesn't show what I actually need during changeover\" | Return to Method 2, targeted research |\n\n**The hardest discipline:** if testing reveals operators don't change behavior with the dashboard present, that's a Method 4 finding \u2014 the concept may need rethinking, not refinement. Don't optimize something people aren't using.\n\nWhen is your first test session scheduled?"
+    },
+    {
+      "id": "method_9_continuous_optimization",
+      "name": "Method 9: Guide continuous optimization approach",
+      "category": "method-guidance",
+      "overall_score": 0.7331339438667638,
+      "passed": true,
+      "time_seconds": 37.140910874994006,
+      "metric_scores": {
+        "latency": 0.7557351649336246,
+        "quality": 0.7218333333333333
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.7557351649336246,
+          "metric": "latency",
+          "passed": true,
+          "detail": "29.3s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 0.6236666666666666,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 4129 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be helps the user think about scaling considerations \u2014 what worked at one plant may not transfer directly; asks about differences between plants, feedback loops, and metrics for ongoing optimization rather than providing a rollout plan\n",
+          "score": 0.82,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer strongly emphasizes scaling considerations: it warns against copying Plant B directly, highlights differences between plants, proposes telemetry and metrics, and describes feedback loops and ongoing optimization. It also prompts thinking about plant differences. However, it includes a fairly detailed phased rollout plan with timelines, which partially conflicts with the criterion that the response should focus on scaling thinking rather than prescribing a rollout plan.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.7557351649336246,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.7218333333333333,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "User testing went well at Plant B.  Leadership wants to roll out the dashboard across all 5 plants.  How do we approach iteration at scale?\n",
+      "subject_output": "\n\nCongratulations on validated testing results. Now the challenge shifts from \"does it work\" to \"does it work everywhere, for everyone, sustainably.\" This is Method 9 territory.\n\n**Don't copy-paste Plant B across five plants.** Each plant has different equipment, culture, and workflows. Roll out in phases with learning between each.\n\n**Phase 1: Establish Baselines (before rollout)**\n\nMeasure the current state at each plant so you can prove impact later:\n\n| Metric | What to Capture | Why |\n|---|---|---|\n| Information lookup time | How long do operators spend finding status information today? | Your primary value claim |\n| Shift handoff duration | How long does handoff take and what gets lost? | Dashboard should improve this |\n| Response time to issues | Time from equipment problem to first human response | Leading indicator of dashboard value |\n| Existing workarounds | Whiteboards, spreadsheets, radio patterns in use today | Workaround retirement signals adoption |\n\n**Phase 2: Phased Rollout**\n\n| Phase | Scope | Purpose |\n|---|---|---|\n| Month 1 | Plant B fully instrumented (your pilot) | Establish telemetry, validate measurement approach |\n| Month 2-3 | One additional plant (choose most different from B) | Discover what doesn't transfer \u2014 different PLCs, layout, culture |\n| Month 4-6 | Remaining three plants | Apply lessons from first two, customize per plant |\n\n**Why the second plant matters most:** pick the plant *least* like Plant B \u2014 different PLC vendor, different layout, different shift culture. What breaks there teaches you what to prepare for at the remaining three.\n\n**Phase 3: Telemetry Design**\n\nInstrument the dashboard itself to learn from real usage:\n\n| Data Point | What It Reveals |\n|---|---|\n| Screen views per hour by shift | When do people actually look at it? |\n| Which sections get viewed first | Does real usage match your intended hierarchy? |\n| Peak usage times | Shift changes? Equipment alerts? Start of shift? |\n| Feature usage frequency | What's valuable vs what's ignored? |\n| Time-on-screen patterns | Glance vs study \u2014 different information needs |\n\n**The discovery you can only make post-deployment:** Plant B testing showed how operators *try* the dashboard. Telemetry shows how they *live* with it over weeks and months.\n\n**Phase 4: Change Management Per Plant**\n\nTechnical deployment is the easy part. Adoption is the hard part.\n\n| Activity | Timing |\n|---|---|\n| Identify 1-2 champions per shift at each plant | Before installation |\n| Shift-overlap training (15 min, on the floor, not in a classroom) | During installation week |\n| Champions collect peer feedback for first 2 weeks | Post-installation |\n| Plant-specific customization based on feedback | Week 3-4 |\n| Measure against baselines | Month 2 at each plant |\n\n**Don't train in a conference room.** Walk to the display, show three scenarios, let them ask questions where they'll actually use it.\n\n**Phase 5: Continuous Improvement Cadence**\n\n| Frequency | Activity |\n|---|---|\n| Weekly | Review telemetry for anomalies \u2014 usage drop, spike, unexpected patterns |\n| Monthly | Compare metrics against baselines, prioritize one improvement |\n| Quarterly | Deeper review \u2014 are workarounds retiring? Are new ones emerging? |\n| Annually | Revisit with user research \u2014 has the problem evolved? |\n\n**Watch for these signals:**\n\n| Signal | What It Means |\n|---|---|\n| Usage drops after week 2 | Initial novelty faded, value proposition isn't sticky |\n| Night shift usage significantly lower | Different needs or conditions not addressed |\n| Workarounds persist alongside dashboard | Dashboard doesn't answer their actual question |\n| New workarounds emerge | Dashboard created new friction you didn't anticipate |\n| Shift handoff duration unchanged | Dashboard isn't integrated into handoff ritual |\n\n**One critical mindset shift:** you're no longer designing \u2014 you're operating and iterating. Small validated improvements beat large redesigns. Each change gets a hypothesis, a measurement, and a result before the next change ships.\n\nWhich plant is most different from Plant B? That's your second deployment target."
+    },
+    {
+      "id": "hint_broad_direction_first",
+      "name": "Start with broad hints when user is stuck",
+      "category": "progressive-hints-and-navigation",
+      "overall_score": 0.7533410197917126,
+      "passed": true,
+      "time_seconds": 26.005013999994844,
+      "metric_scores": {
+        "latency": 0.8400230593751379,
+        "quality": 0.71
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8400230593751379,
+          "metric": "latency",
+          "passed": true,
+          "detail": "19.2s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2472 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be provides a broad directional hint or gentle starting point rather than jumping straight to a detailed step-by-step process; acknowledges the feeling of being lost and offers a manageable first move like looking for recurring words or surprising moments in the notes\n",
+          "score": 0.42,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer does acknowledge the feeling of being lost and encourages starting with a manageable action, but it quickly shifts into a detailed multi-step process with extensive instructions. The criterion asked for a broad directional hint or gentle starting point rather than a structured step-by-step workflow.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8400230593751379,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.71,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We're trying to do input synthesis on our interview notes but I have no idea where to start.  I'm totally lost.\n",
+      "subject_output": "\n\nThat's okay \u2014 feeling lost is normal at this stage. It means you've collected real data instead of just confirming assumptions. Let's make it manageable with one small step at a time.\n\n**Step 1: Don't synthesize. Just extract.**\n\nOpen your first interview notes. Read through and pull out individual statements \u2014 one per line. Don't think about patterns yet. Just capture what people said and what you observed.\n\nExamples of what to extract:\n- A direct quote: *\"I check three different systems before I trust the inventory count\"*\n- A behavior you observed: *Operator walked 200 feet to visually confirm stock level*\n- A fact: *Night shift has no supervisor coverage from 2-4 AM*\n- A frustration: *Maintenance tech said work orders arrive after the problem is already fixed*\n\n**That's it for Step 1.** Repeat for each interview. You'll end up with a big list \u2014 maybe 50-100 individual data points. That's good.\n\n**Step 2: Print, cut, spread.**\n\nPut each data point on its own sticky note or index card. If you're digital, one item per cell in a spreadsheet works.\n\nSpread them all out on a table or wall where you can see everything at once.\n\n**Step 3: Move what feels similar together.**\n\nDon't name groups yet. Don't create categories in advance. Just physically move items that feel related near each other. Trust your gut.\n\nYou might notice:\n- A pile about \"checking multiple sources for the same information\"\n- A pile about \"things that work differently on night shift\"\n- A pile about \"workarounds people invented\"\n- Some items that don't fit anywhere \u2014 that's fine, leave them loose\n\n**Step 4: Ask \"why do these belong together?\"**\n\nLook at each pile. The answer to *why* becomes your theme name.\n\n| Not This (surface label) | This (underlying pattern) |\n|---|---|\n| \"System complaints\" | \"Staff don't trust the system so they verify everything manually\" |\n| \"Night shift problems\" | \"Knowledge that's available informally during the day disappears after hours\" |\n| \"Communication issues\" | \"Information travels through people, not systems, so it breaks at shift boundaries\" |\n\n**Step 5: Count your sources.**\n\nFor each theme, check: how many *different* interviews support it? A theme from one person is a hypothesis. A theme from four people across different roles is a finding.\n\n**Start with Step 1 right now.** Pick one interview and extract 10-15 individual data points. Don't worry about the other steps yet.\n\nHow many interviews do you have to work through?"
+    },
+    {
+      "id": "hint_escalation_on_repeated_confusion",
+      "name": "Escalate hints when user remains stuck",
+      "category": "progressive-hints-and-navigation",
+      "overall_score": 0.935552644444526,
+      "passed": true,
+      "time_seconds": 25.249098791973665,
+      "metric_scores": {
+        "latency": 0.8466579333335782,
+        "quality": 0.98
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8466579333335782,
+          "metric": "latency",
+          "passed": true,
+          "detail": "18.4s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2340 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be escalates to a more specific level of guidance \u2014 perhaps suggesting a concrete technique like looking for emotional reactions, workarounds people mentioned, or grouping by job role \u2014 while still letting the user do the actual synthesis work\n",
+          "score": 0.96,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly escalates to concrete, actionable guidance by introducing a specific technique (analyzing goals, barriers, and workarounds) and a practical column-based method. It gives examples and suggests looking for patterns in barriers and workarounds while still leaving the synthesis to the user, which aligns well with the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8466579333335782,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.98,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "You suggested looking for recurring themes but I'm still stuck. I read through all the notes and I don't see any patterns. Everything feels unique to each person.  I really don't know what to look for.\n",
+      "subject_output": "\n\nThat feeling of \"everything is unique\" usually means you're reading at the wrong altitude. You're seeing *details* \u2014 which are different per person \u2014 instead of *structures*, which repeat.\n\n**Try this reframing exercise.**\n\nFor each data point from your interviews, ask these three questions:\n\n**Question 1: What is this person trying to accomplish?**\n\nNot the specific task \u2014 the underlying goal.\n\n- Person A: *\"I walk to the warehouse to count parts myself\"*\n- Person B: *\"I call three people before I get an answer on stock levels\"*\n- Person C: *\"I keep my own spreadsheet of what we actually have\"*\n\nThese look like three unique behaviors. But the goal is identical: **getting inventory information they can trust.**\n\n**Question 2: What's stopping them?**\n\nAgain, ignore the specifics. Look at the *type* of barrier.\n\n- *\"The system is too slow\"* \u2192 barrier: **tool doesn't meet the speed of their work**\n- *\"Nobody updates the log\"* \u2192 barrier: **process depends on manual compliance**\n- *\"Night shift can't reach anyone\"* \u2192 barrier: **knowledge lives in people, not systems**\n\n**Question 3: What did they do instead?**\n\nWorkarounds are your richest pattern source, because people independently inventing similar workarounds is the strongest signal you'll find.\n\n| What they did | Workaround type |\n|---|---|\n| Built a personal spreadsheet | Created a shadow system |\n| Walked to physically check | Bypassed the system entirely |\n| Called a specific person who \"just knows\" | Relied on human knowledge base |\n| Wrote notes on a whiteboard | Made information visible and ambient |\n\n**Now \u2014 go through your notes one more time, but this time create three columns:**\n\n| Trying To... | Blocked By... | So They... |\n|---|---|---|\n| Confirm stock level | System data is stale | Walks to warehouse |\n| Get repair guidance | Manual is in break room | Calls senior operator |\n| Know equipment status | No real-time visibility | Checks machines in person |\n| Hand off shift context | No structured handoff tool | Relies on verbal summary |\n\n**Patterns will emerge in the columns, not in the individual rows.** When the \"Blocked By\" column shows the same barrier type across different people doing different tasks \u2014 that's your theme.\n\nTry this with just five of your data points right now. What are those five people each *trying to accomplish*?"
+    },
+    {
+      "id": "backward_transition_accepted",
+      "name": "Accept backward transitions between methods",
+      "category": "progressive-hints-and-navigation",
+      "overall_score": 0.94676281840285,
+      "passed": true,
+      "time_seconds": 24.87981979100732,
+      "metric_scores": {
+        "latency": 0.8402884552085501,
+        "quality": 1.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8402884552085501,
+          "metric": "latency",
+          "passed": true,
+          "detail": "19.2s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2371 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be validates the decision to go backward, frames it as a normal and healthy part of the design thinking process, suggests returning to Method 2 (Design Research) to understand the night shift context, and helps identify what specific gaps to fill\n",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly validates going backward as a normal and correct part of the design process, explicitly recommends returning to Method 2 (Design Research), and provides concrete guidance on what targeted research to conduct and which specific knowledge gaps about night shift workflows to investigate.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8402884552085501,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 1.0,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We started prototyping (Method 6) but realized we missed a key stakeholder group \u2014 the night shift operators.  Their workflow is completely different.  I think we need to go back to research.\n",
+      "subject_output": "\n\nThat's the design process working correctly \u2014 not a setback. Discovering this gap during lo-fi prototyping is exactly when you want to find it, not after building the full solution.\n\n**Yes, go back to Method 2, but keep it targeted.**\n\nYou don't need to redo all your research. You need a focused investigation to fill this specific gap.\n\n**Targeted Research Plan:**\n\n**What to investigate (3-5 sessions, not 12):**\n\n| Activity | Purpose |\n|---|---|\n| Shadow 1-2 night shift operators for a full shift | See workflow differences firsthand |\n| Interview 2-3 night shift operators on the floor | Hear their specific pain points in context |\n| Observe a shift handoff from day to night | Understand what information transfers and what gets lost |\n\n**Questions designed for the gap:**\n\n- *\"Walk me through your shift from start to finish \u2014 what's different about working nights?\"*\n- *\"When you need help or information at 2 AM, what do you do?\"*\n- *\"We're building [brief concept description] \u2014 what would need to change for it to work on your shift?\"*\n- *\"What do you know about the problems that day shift doesn't?\"*\n\n**What you're specifically looking for:**\n\n| Dimension | Day Shift (known) | Night Shift (investigate) |\n|---|---|---|\n| Support access | Supervisors, peers, engineers nearby | Who's available? How far away? |\n| Information sources | System + ask colleagues | System + what else? |\n| Decision authority | Escalation path is clear | Who decides at 2 AM? |\n| Workarounds | Known from earlier research | Likely different \u2014 night shift invents their own |\n| Environmental differences | Standard conditions | Lighting, staffing density, noise profile may differ |\n\n**After the targeted research:**\n\n1. **Return to Method 3** \u2014 add night shift findings to your existing synthesis. Do your current themes hold, or do they need revision?\n2. **Update your concepts** \u2014 do your Method 5 concepts work for night shift, or do they need variants?\n3. **Resume Method 6** \u2014 prototype with night shift constraints included. Test prototypes *during* a night shift, not during the day.\n\n**The cost of this loop:** roughly one week of targeted research plus synthesis revision.\n\n**The cost of skipping it:** building a solution that 30-40% of your users can't or won't use, and discovering that after full deployment.\n\nHow soon can you get access to the night shift floor?"
+    },
+    {
+      "id": "transparent_method_shift",
+      "name": "Announce method shifts transparently",
+      "category": "progressive-hints-and-navigation",
+      "overall_score": 0.8539383026611177,
+      "passed": true,
+      "time_seconds": 25.467700582987163,
+      "metric_scores": {
+        "latency": 0.8618149079833529,
+        "quality": 0.85
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8618149079833529,
+          "metric": "latency",
+          "passed": true,
+          "detail": "16.6s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1911 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be acknowledges the idea positively but is transparent about the method shift \u2014 notes they are currently in problem space (synthesis) and the idea jumps to solution space; asks whether they want to capture the idea and continue synthesis or deliberately shift to brainstorming\n",
+          "score": 0.7,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response positively acknowledges the idea and clearly explains that the user is currently in synthesis (problem space) while the idea jumps to solution space, which meets a key part of the criterion. However, it does not offer the explicit choice of either capturing the idea and continuing synthesis or deliberately shifting to brainstorming; instead it directs the user to park the idea and continue synthesis. Thus it partially meets the requirement but misses the requested option framing.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8618149079833529,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.85,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We've been talking about our interview findings and I just had an idea for a solution \u2014 what if we put QR codes on every tool so operators can scan them to check availability?\n",
+      "subject_output": "\n\nGood creative instinct \u2014 but notice what just happened. You're in synthesis (Method 3), and a solution idea pulled you forward to Method 4 territory. That's natural, and the idea might be great, but acting on it now carries risk.\n\n**Why to park it, not lose it:**\n\nIf you pursue QR codes now, you'll design everything around that approach and unconsciously filter your remaining synthesis to support it. You'll miss themes that point to completely different \u2014 possibly better \u2014 solutions.\n\n**What to do right now:**\n\nWrite it on a parking lot \u2014 a visible list of solution ideas to revisit during brainstorming. One line is enough:\n\n*\"QR codes on tools for scan-to-check availability\"*\n\nThen come back to your synthesis with fresh eyes.\n\n**The idea also has embedded assumptions worth noting for later:**\n\n| Assumption | Question to Test |\n|---|---|\n| Operators have a device to scan with | Do they? On every shift? Is it accessible with full hands? |\n| QR codes survive the floor environment | Grease, heat, impact, cleaning chemicals \u2014 will codes stay readable? |\n| Scanning is faster than current workarounds | Is it faster than shouting \"where's the torque wrench?\" |\n| The problem is *finding* tools | Or is it that tools aren't *returned*? QR codes track location, not behavior |\n| Operators will adopt scanning | 15% adoption on your safety checklist app suggests this isn't guaranteed |\n\nThat last point connects to your earlier experience. Understanding *why* the safety app was ignored should inform any solution requiring operators to interact with a device.\n\n**When to revisit this idea:**\n\nDuring Method 4 brainstorming, bring it off the parking lot alongside other ideas. It becomes one of many approaches to evaluate rather than the approach you've already committed to. It may survive, merge with something better, or get replaced entirely.\n\nWhat themes are emerging from your synthesis so far?"
+    },
+    {
+      "id": "no_multiple_choice_quizzes",
+      "name": "Avoid multiple-choice question lists",
+      "category": "progressive-hints-and-navigation",
+      "overall_score": 0.6360096421306177,
+      "passed": false,
+      "time_seconds": 21.128447542025242,
+      "metric_scores": {
+        "latency": 0.858028926391853,
+        "quality": 0.525
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.858028926391853,
+          "metric": "latency",
+          "passed": true,
+          "detail": "17.0s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2073 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be does NOT respond with a numbered list of options like a quiz (e.g. \"1. Move to synthesis 2. Do more interviews 3. Revisit scope\"); instead offers a conversational observation about what seems ready and asks one focused question\n",
+          "score": 0.05,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer uses a numbered list of questions (1, 2, 3) and structured option tables, resembling a quiz/checklist. It does not provide a conversational observation nor limit itself to one focused question.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.858028926391853,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.525,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We need help figuring out our next step.  We've completed scope conversations and have notes from 5 interviews.\n",
+      "subject_output": "\n\nYou're at the transition from Method 1 to Method 2. Before moving forward, let's check whether your scope conversations gave you enough foundation.\n\n**Readiness Check:**\n\n| Question | Status |\n|---|---|\n| Did the problem evolve from the original request? | If it stayed the same, scope conversations may not have gone deep enough |\n| Can you articulate the problem differently than the requester did? | This gap is your most valuable finding |\n| Do you have a stakeholder map with all three tiers? | Primary, secondary, and hidden |\n| Are there constraints documented (environmental, technical, organizational)? | These shape everything downstream |\n| Do you know who to interview for design research? | Scope conversations should identify these people |\n\n**Before starting Method 2, answer these:**\n\n1. **Who did you interview?** Were all five scope conversations with leadership/management, or did you include frontline users?\n2. **What roles are missing?** Five interviews is a solid scope start, but check: who experiences the problem daily that you haven't spoken to yet?\n3. **Is the request frozen or fluid?** Did it arrive as a specific solution (\"build X\") or a broad desire (\"improve Y\")?\n\n**Your next step depends on the answers:**\n\n| If... | Then... |\n|---|---|\n| All 5 interviews were management-level | Your scope is solid but one-sided \u2014 proceed to Method 2 targeting frontline users |\n| You included frontline users in the 5 | You may already have some Method 2 data \u2014 review notes for direct quotes and environmental observations before planning more |\n| Key stakeholder groups are unrepresented | Consider 1-2 more scope conversations before moving to research |\n| The problem statement feels clear and evolved | Move to Method 2 \u2014 plan environmental observation followed by workflow interviews |\n\n**To plan Method 2, I need to know:**\n- What roles were your five interviewees?\n- What's the work environment \u2014 office, factory floor, warehouse, field?\n- How many frontline users can you access for research?\n\nWhat did your five scope conversations reveal?"
+    },
+    {
+      "id": "no_unsolicited_method_change",
+      "name": "Do not change method focus without announcing it",
+      "category": "progressive-hints-and-navigation",
+      "overall_score": 0.9389103733805112,
+      "passed": true,
+      "time_seconds": 23.125589457980823,
+      "metric_scores": {
+        "latency": 0.8667311201415335,
+        "quality": 0.975
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8667311201415335,
+          "metric": "latency",
+          "passed": true,
+          "detail": "16.0s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2147 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be stays within Method 3 (Input Synthesis) and helps the user evaluate the significance of this finding as a synthesis pattern; does NOT silently jump to brainstorming solutions for the texting workaround\n",
+          "score": 0.95,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer stays focused on interpreting the workaround as a signal within synthesis (Method 3), guiding the user to examine underlying needs, patterns across interviews, and clustering of themes. It helps evaluate the significance of the observation as a synthesis pattern and does not shift into proposing solutions or workarounds.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8667311201415335,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.975,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We're working on Method 3 synthesis.  I noticed that two interviewees mentioned a workaround where they text photos to their supervisor.  Is that significant?\n",
+      "subject_output": "\n\nTwo people independently describing the same workaround is a meaningful signal. But the significance isn't the workaround itself \u2014 it's what the workaround reveals about unmet needs.\n\n**Unpack it with three questions:**\n\n**What need does the photo texting serve?**\n- Is it proof of a problem? (\"Look at this broken part\")\n- Is it a request for guidance? (\"What do I do about this?\")\n- Is it status communication? (\"Here's where we are\")\n- Is it covering themselves? (\"I documented that I reported this\")\n\nEach answer points to a different underlying theme.\n\n**Why a photo specifically?**\n- Text descriptions aren't sufficient \u2014 the problem is visual or spatial\n- The formal reporting system doesn't support images, or is too slow\n- A photo is faster than writing a description, especially under time pressure\n- Photos carry context that words don't \u2014 location, severity, surrounding conditions\n\n**Why texting instead of the official channel?**\n- The official system is too slow or cumbersome\n- Texting gets an immediate human response\n- The formal channel doesn't reach the right person\n- There's trust in the personal relationship that the system doesn't provide\n\n**Now check your other interviews:**\n\n| Look For | Why |\n|---|---|\n| Others who mention texting, calling, or messaging outside official systems | Same workaround pattern strengthens the theme |\n| Others who describe *different* workarounds for the same underlying need | Multiple workarounds for one need = strong signal |\n| Anyone who *doesn't* have a workaround for the same situation | Why not? Different shift, different access, different expectations? |\n\n**Where this might fit in your synthesis:**\n\nThis likely clusters with a theme around **\"formal communication channels don't match the speed, richness, or directness that the work demands.\"** Check whether other data points \u2014 slow ERP, verbal handoffs, whiteboard notes \u2014 share that same underlying pattern.\n\nWhat were the two interviewees' roles? If an operator and a maintenance tech independently invented the same workaround, that's a stronger signal than two people on the same shift who learned it from each other."
+    },
+    {
+      "id": "session_resumption",
+      "name": "Resume session with state context",
+      "category": "progressive-hints-and-navigation",
+      "overall_score": 0.8746539127306378,
+      "passed": true,
+      "time_seconds": 18.009920082986355,
+      "metric_scores": {
+        "latency": 0.9239617381919136,
+        "quality": 0.85
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.9239617381919136,
+          "metric": "latency",
+          "passed": true,
+          "detail": "9.1s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 989 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be acknowledges the returning user, references Method 2 (Design Research), and asks about or summarizes where they left off to re-establish context before continuing coaching\n",
+          "score": 0.7,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer acknowledges the returning user and asks several questions to rebuild context about where the project left off. However, it does not explicitly reference Method 2 (Design Research) as specified in the criterion, only generally discussing research activities. Thus it partially meets the requirement.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.9239617381919136,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.85,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "I'm back to continue our customer-portal-redesign project.  We left off in the middle of Method 2 design research last week.\n",
+      "subject_output": "\n\nWelcome back. Let me get oriented on where you left off.\n\nI don't have context from your previous session, so I need a quick download to pick up where you stopped.\n\n**Help me rebuild context:**\n\n1. **What research have you completed so far?** How many interviews, with which roles? Any observation sessions done?\n\n2. **What's your research plan?** How many total interviews were planned, and which are remaining?\n\n3. **What have you learned so far?** Any early patterns, surprising findings, or constraint discoveries from the sessions you've completed?\n\n4. **Do you have artifacts?** Interview notes, observation logs, a stakeholder map from Method 1? If you can share key findings, I can help you pick up without losing momentum.\n\n5. **What triggered stopping last week?** Ran out of time, waiting for participant access, or hit a question you weren't sure how to handle?\n\nThe more you can share about where things stand, the faster we can resume productively. What do you know so far?"
+    },
+    {
+      "id": "init_asks_for_project_slug",
+      "name": "Ask for project slug during initialization",
+      "category": "session-phases",
+      "overall_score": 0.6495981636583262,
+      "passed": false,
+      "time_seconds": 23.593640415987466,
+      "metric_scores": {
+        "latency": 0.8487944909749785,
+        "quality": 0.55
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8487944909749785,
+          "metric": "latency",
+          "passed": true,
+          "detail": "18.1s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2580 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be asks the user for a project slug (a kebab-case identifier) or proposes one, and begins gathering context about the user's role, team, and which method they want to start with\n",
+          "score": 0.1,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer does not ask for or propose a project slug and does not gather context about the user's role, team, or which method they want to start with. It assumes Method 1 and proceeds directly into guidance instead.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8487944909749785,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.55,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "Hi!  I want to start a new design thinking project for improving our warehouse picking process.\n",
+      "subject_output": "\n\nGreat \u2014 let's set the foundation with Method 1 scope conversations.\n\n**First, classify your request:**\n\n\"Improving the warehouse picking process\" is **fluid** \u2014 you have a problem area but no predetermined solution. That's a healthy starting point because it leaves room for genuine discovery.\n\n**Before talking to anyone, map who to talk to:**\n\n| Tier | Role | What They'll Reveal |\n|---|---|---|\n| Primary | Pickers (floor workers) | Actual daily experience, workarounds, physical constraints |\n| Primary | Pick team leads/supervisors | Workflow oversight, shift variation, exception handling |\n| Secondary | Warehouse manager | Performance metrics, strategic priorities, known pain points |\n| Secondary | Receiving/replenishment staff | How stock gets to pick locations, upstream dependencies |\n| Secondary | Shipping/packing | Downstream impact of picking errors and delays |\n| Hidden | IT/systems | WMS capabilities, integration constraints, data quality |\n| Hidden | Customers/customer service | What picking problems look like from the outside |\n| Hidden | Temporary/seasonal workers | Onboarding friction, process clarity for non-experts |\n\n**Start with 3-4 scope conversations:**\n\nTalk to the warehouse manager and 1-2 supervisors first to understand the landscape. Then talk to 2-3 pickers to start hearing the ground-level reality.\n\n**Opening questions:**\n\n- *\"Walk me through what a typical pick run looks like from start to finish.\"*\n- *\"When things go wrong during picking, what usually causes it?\"*\n- *\"What's the difference between a good day and a bad day in picking?\"*\n- *\"If you could change one thing about the current process, what would it be \u2014 and why that one?\"*\n\n**Key things to listen for:**\n\n| Signal | What It Suggests |\n|---|---|\n| Specific technology or tool requests | Frozen solution embedded in a fluid problem \u2014 dig into the *why* |\n| \"We've always done it this way\" | Process inertia worth investigating |\n| Different answers from managers vs pickers | Gap between perceived and actual workflow |\n| Workarounds mentioned casually | Unmet needs the current system doesn't address |\n| Complaints about the same thing from multiple people | Early theme signal for Method 3 |\n\n**Environmental factors to note for later:**\n\nWarehouse conditions directly shape what solutions are viable \u2014 lighting, temperature, noise levels, device access, glove requirements, distance walked, cart/equipment constraints. You'll observe these in Method 2, but note anything mentioned during scope conversations.\n\nWho do you have access to for initial conversations?"
+    },
+    {
+      "id": "init_clarifies_context",
+      "name": "Gather role, team, and method focus during init",
+      "category": "session-phases",
+      "overall_score": 0.6651326776639003,
+      "passed": false,
+      "time_seconds": 32.59562116599409,
+      "metric_scores": {
+        "latency": 0.7953980329917006,
+        "quality": 0.6
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.7953980329917006,
+          "metric": "latency",
+          "passed": true,
+          "detail": "24.6s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 907 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be acknowledges the project slug, then asks about the user's role, team composition, which design thinking method to focus on, session goals, or time constraints \u2014 covering at least two of these initialization items\n",
+          "score": 0.2,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer implicitly acknowledges the project slug by referencing the initialized project path and name, but it does not ask about the user's role, team composition, preferred design thinking method, session goals, or time constraints. The questions focus on the problem context instead, so it fails to cover at least two of the required initialization items.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.7953980329917006,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.6,
+          "passed": false,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "I'd like coaching on our customer portal redesign.  Project slug can be \"customer-portal-redesign\".\n",
+      "subject_output": "Info: /Users/eugenefedorenko/work/hve-core/.copilot-tracking/dt/customer-portal-redesign/coaching-state.mdProject initialized. You're starting at **Method 1: Scope Conversations** in the Problem Space.\n\nBefore we dive in, I need to understand the starting point. A few questions:\n\n1. **What's the initial request?** Who asked for the portal redesign, and how did they describe what they want? This helps me classify it as frozen (specific solution) or fluid (broad desire).\n\n2. **What does the current portal do?** Who uses it today \u2014 customers only, or internal teams too?\n\n3. **What's triggering this now?** Customer complaints, low adoption, competitor pressure, outdated technology \u2014 or something else?\n\n4. **Who have you talked to so far?** Any stakeholders already involved, or are we starting from scratch?\n\nThe answers will shape how we approach your first scope conversations. What can you tell me?"
+    },
+    {
+      "id": "init_defaults_to_method_1",
+      "name": "Default to Method 1 for new projects",
+      "category": "session-phases",
+      "overall_score": 0.9183652122694185,
+      "passed": true,
+      "time_seconds": 30.1381067080074,
+      "metric_scores": {
+        "latency": 0.8050956368082552,
+        "quality": 0.975
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8050956368082552,
+          "metric": "latency",
+          "passed": true,
+          "detail": "23.4s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 1483 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be suggests starting with Method 1 (Scope Conversations) since this is a new project with no prior design thinking work; confirms session objectives and begins transitioning to active coaching\n",
+          "score": 0.95,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer explicitly starts with Method 1 (Scope Conversations), acknowledges that the project is new with no prior design thinking work, sets clear objectives for the one-hour session, and begins active coaching by proposing questions, stakeholder mapping, and an exercise for the team. This fully aligns with the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8050956368082552,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.975,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We have a brand new project to rethink how field technicians report equipment failures.  We haven't done any design thinking on this yet.  Project slug is \"field-failure-reporting\".  I'm the product manager and my team is 4 engineers plus a UX designer.  We have about an hour today.\n",
+      "subject_output": "Info: /Users/eugenefedorenko/work/hve-core/.copilot-tracking/dt/field-failure-reporting/coaching-state.mdProject initialized. You're at **Method 1: Scope Conversations** \u2014 and \"rethink how field technicians report equipment failures\" is a **fluid request**, which is a great starting point. No frozen solution to unpack.\n\nWith one hour today, let's use it to build your scope foundation. Here's what we can accomplish:\n\n**Today's goal: Answer three questions**\n\n**1. What do you already know?**\n- What triggers this project now \u2014 is reporting broken, too slow, inaccurate, or something else?\n- How do field techs report failures today?\n- Who receives those reports, and what happens next?\n\n**2. Who's in the stakeholder ecosystem?**\n\nStart mapping \u2014 who should your team eventually talk to?\n\n| Tier | Likely Roles |\n|---|---|\n| Primary | Field technicians, dispatch/coordination |\n| Secondary | Service managers, engineering (receive reports), parts/logistics |\n| Hidden | Customers on-site during repairs, back-office data entry, compliance/safety |\n\n**3. What assumptions does your team hold?**\n\nHave each of your 4 engineers and UX designer independently write down: *\"I think the main problem with failure reporting is...\"* \u2014 don't discuss yet, just capture. Comparing those answers reveals where the team agrees and where you're guessing.\n\nLet's start with what you know: what does the current reporting process look like, and what's making it a problem worth solving right now?"
+    },
+    {
+      "id": "active_coaching_open_ended_questions",
+      "name": "Ask targeted, open-ended questions during coaching",
+      "category": "session-phases",
+      "overall_score": 0.9328491378472084,
+      "passed": true,
+      "time_seconds": 29.893477000005078,
+      "metric_scores": {
+        "latency": 0.798547413541625,
+        "quality": 1.0
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.798547413541625,
+          "metric": "latency",
+          "passed": true,
+          "detail": "24.2s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2171 chars (range 50-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be asks open-ended questions to help the user discover the real problem behind the solution request (e.g. \"what happens today when a technician finds a failure?\"), rather than accepting \"build a mobile app\" at face value\n",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer strongly meets the criterion by proposing multiple open-ended discovery questions (e.g., asking what happens to reports today, what success looks like, what techs say, and what is driving the request). It explicitly reframes the 'build a mobile app' request and guides the user toward uncovering the underlying problem rather than accepting the solution at face value.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.798547413541625,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 1.0,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "We're in Method 1 for our field-failure-reporting project.  The original request from management was \"build a mobile app for failure reports.\"\n",
+      "subject_output": "That changes the classification \u2014 \"build a mobile app for failure reports\" is a **frozen request**. Management has named both the technology (mobile app) and the context (failure reports). Your job is to unfreeze it without pushing back directly.\n\n**The request has at least three embedded assumptions:**\n\n| Assumption | What to investigate |\n|---|---|\n| Mobile is the right platform | Do techs have reliable phones/tablets in the field? Signal? Battery? Clean hands? |\n| The problem is the reporting *tool* | Or is it the process, the data captured, what happens after the report, or all of these? |\n| An app will change behavior | Your own safety checklist app hit 15% adoption \u2014 what's different here? |\n\n**Approach management's request with curiosity, not challenge:**\n\nStart here:\n- *\"A mobile app is an interesting direction \u2014 what's driving that specifically?\"*\n- *\"What's the biggest problem with how failure reports work today?\"*\n- *\"When a failure report is submitted, what happens to it? Where does it go, and how fast?\"*\n- *\"What would success look like \u2014 faster reports, more accurate data, fewer missed failures?\"*\n\nThen go deeper:\n- *\"There are really a dozen different kinds of mobile apps that could be built \u2014 from a simple form to photo capture to voice-to-text to offline-first. Understanding the pain points will help us pick the right approach.\"*\n- *\"What do the field techs themselves say about reporting?\"*\n\n**What you're listening for:**\n\nManagement might say \"mobile app\" but mean:\n- *\"Reports are incomplete\"* \u2192 data quality problem\n- *\"Reports arrive too late\"* \u2192 process latency problem\n- *\"We can't analyze failure patterns\"* \u2192 downstream data problem\n- *\"Techs skip reporting\"* \u2192 adoption and workflow fit problem\n\nEach of these leads to different solutions, and only some of them are mobile apps.\n\n**One thing to keep in your back pocket:** connect this to the safety checklist experience. If your team builds another app that field workers ignore, you'll repeat the same 15% adoption outcome. Understanding *why* that happened should inform this project directly.\n\nWhat did management say when you asked what's prompting this request now?"
+    },
+    {
+      "id": "active_coaching_periodic_summary",
+      "name": "Summarize progress and check direction",
+      "category": "session-phases",
+      "overall_score": 0.8583581628470953,
+      "passed": true,
+      "time_seconds": 34.07149808399845,
+      "metric_scores": {
+        "latency": 0.7950744885412859,
+        "quality": 0.89
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.7950744885412859,
+          "metric": "latency",
+          "passed": true,
+          "detail": "24.6s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2436 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be summarizes or reflects back the key findings, then asks whether the user wants to go deeper into any of these areas, broaden scope, or move on to the next step\n",
+          "score": 0.78,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer reflects and reframes the key findings and summarizes their implications well. It then proposes deeper questions and suggests a potential next step (observing technicians). However, it does not explicitly ask whether the user wants to go deeper into specific areas, broaden the scope, or move on; it mainly suggests one next step, so it only partially meets the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.7950744885412859,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.89,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "So far we've identified that technicians currently use paper forms, the forms get lost about 30% of the time, supervisors don't see reports until end of shift, and there's no way to attach photos. We also learned that technicians hate the current form because it asks for irrelevant fields.\n",
+      "subject_output": "Good findings. Notice what's already happening \u2014 the original \"build a mobile app\" is unfreezing into a richer problem picture. Let's push each finding one layer deeper.\n\n**What you found vs. what it might really mean:**\n\n| Finding | Surface Problem | Deeper Question |\n|---|---|---|\n| 30% of forms get lost | Paper is unreliable | *When* do they get lost \u2014 in the field, in transit, at the office? Who loses them? |\n| Supervisors don't see until end of shift | Reporting is delayed | Does the supervisor need real-time visibility, or just faster-than-end-of-shift? What decisions wait on those reports? |\n| No photo attachment | Paper can't capture visual evidence | What are techs trying to show? Damage severity? Part identification? Proof of condition? |\n| Irrelevant fields on the form | Form doesn't match the work | Which fields are irrelevant \u2014 and who put them there? Is every failure type using the same form? |\n\n**That last finding is the richest one.** Techs hating the form tells you adoption resistance is baked into the current process. If you build a mobile app that digitizes the same irrelevant fields, you'll get a mobile app that techs hate instead of a paper form they hate.\n\n**Questions to ask next:**\n\nAbout the form itself:\n- *\"Which fields do techs actually fill in, and which do they leave blank or make up answers for?\"*\n- *\"If a tech could report a failure in 30 seconds, what's the minimum information that matters?\"*\n- *\"Who designed the current form, and what were they optimizing for?\"*\n\nAbout the lost reports:\n- *\"What happens to the equipment when a report gets lost \u2014 does the failure get addressed anyway, or does it fall through?\"*\n- *\"Do techs know their reports get lost? Do they care, or has it taught them reporting doesn't matter?\"*\n\nAbout the real workflow:\n- *\"When a tech finds a failure, what do they actually do first \u2014 fix it, report it, or call someone?\"*\n- *\"Are techs reporting after the repair, during, or before? When in the workflow does the form happen?\"*\n\n**Your scope is evolving:**\n\n| Original Request | Emerging Problem |\n|---|---|\n| \"Build a mobile app for failure reports\" | The reporting process captures the wrong information too late, loses it in transit, and techs have learned it doesn't matter |\n\nThat's a fundamentally different problem to solve. Are you ready to move to Method 2 and observe technicians in the field, or do you have more scope conversations planned?"
+    },
+    {
+      "id": "method_transition_recap_and_confirm",
+      "name": "Recap accomplishments and confirm method change",
+      "category": "session-phases",
+      "overall_score": 0.8939089583333245,
+      "passed": true,
+      "time_seconds": 43.40134137502173,
+      "metric_scores": {
+        "latency": 0.7317268749999737,
+        "quality": 0.975
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.7317268749999737,
+          "metric": "latency",
+          "passed": true,
+          "detail": "32.2s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 2376 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be explicitly confirms the method transition, briefly recaps key accomplishments from Method 1 (scope conversations), and suggests the next method (Method 2: Design Research) with a clear connection to the previous work\n",
+          "score": 0.95,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly acknowledges the outcome of Method 1 (scope conversations) by noting the shift from the original mobile app request to the real problem of delayed visibility into equipment health. It explicitly signals the transition to Method 2 (Design Research) and explains why this next step follows from the scope findings. The connection between stakeholder perceptions and the need for field research is clearly articulated.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.7317268749999737,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.975,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "I think we've done enough scope conversations for the field-failure-reporting project.  We talked to 6 stakeholders and identified that the core problem is delayed visibility into equipment health, not the reporting form itself.  Let's move on.\n",
+      "subject_output": "Good work \u2014 the problem evolved significantly from \"build a mobile app\" to \"delayed visibility into equipment health.\" That gap between the original request and the discovered problem is exactly what Method 1 is for.\n\n**Moving to Method 2: Design Research**\n\nYou need to see and hear how technicians actually experience equipment failures in the field. Your scope conversations told you what stakeholders *think* happens \u2014 research reveals what *actually* happens.\n\n**Research plan for your team of 6:**\n\n**Phase 1: Field Observation (before any interviews)**\n\nSend your UX designer and one engineer to shadow 2-3 technicians during actual service calls. Watch silently for the first 30 minutes before asking anything.\n\nDocument:\n- When a tech discovers a failure, what do they do *first* \u2014 fix it, report it, call someone?\n- Where is the paper form relative to the work? Truck, clipboard, pocket, left behind?\n- What's the physical environment \u2014 weather, lighting, noise, gloves, dirty hands?\n- What devices do they carry and actually use in the field?\n- How do they communicate with dispatch and supervisors right now?\n\n**Phase 2: Technician Interviews (4-6 techs)**\n\nSelect for diversity:\n\n| Profile | Why |\n|---|---|\n| 2 experienced techs (5+ years) | Built workarounds, carry institutional knowledge |\n| 1-2 newer techs (<1 year) | Feel friction that veterans have normalized |\n| 1 tech from a different region/territory | Conditions and culture may differ |\n\n**Key questions:**\n- *\"Walk me through the last equipment failure you responded to \u2014 from the moment you arrived.\"*\n- *\"When you find something wrong that isn't what you were called for, what do you do?\"*\n- *\"Show me what you actually do with the paper form.\"*\n- *\"How do you know if anyone ever reads your reports?\"*\n\n**Phase 3: Downstream Interviews (2-3 sessions)**\n\nTalk to whoever *receives* the reports:\n- *\"When a failure report arrives, what do you do with it?\"*\n- *\"What information is always missing that you wish you had?\"*\n- *\"How do you currently detect patterns across multiple failures?\"*\n\n**What to watch for specifically, given your scope findings:**\n\nThe problem is \"delayed visibility\" \u2014 so your research should reveal *where time gets lost* in the chain from failure discovery to organizational awareness. Map every handoff point.\n\nHow soon can your team get into the field with technicians?"
+    },
+    {
+      "id": "session_closure_summary",
+      "name": "Summarize session and suggest next steps on closure",
+      "category": "session-phases",
+      "overall_score": 0.8504188652777683,
+      "passed": true,
+      "time_seconds": 26.752016749989707,
+      "metric_scores": {
+        "latency": 0.8512565958333047,
+        "quality": 0.85
+      },
+      "error": null,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8512565958333047,
+          "metric": "latency",
+          "passed": true,
+          "detail": "17.8s of 120.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response length should be",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "length 526 chars (range 80-3000)",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be summarizes the session journey, highlights key decisions or artifacts, mentions open questions or follow-up work, and suggests how to pick up in a future session including which method to revisit\n",
+          "score": 0.7,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides a brief session summary, notes the current method (Method 1) and artifact (project initialized/structure set up), and suggests next steps for the next session. However, it only lightly reflects the session journey, does not clearly articulate open questions or unresolved decisions, and the instruction about which method to revisit is implicit rather than explicit.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "name": "the agent processes the request",
+          "score": 0.8512565958333047,
+          "passed": true,
+          "grade_count": 1
+        },
+        {
+          "stage": 2,
+          "name": "the agent responds",
+          "score": 0.85,
+          "passed": true,
+          "grade_count": 2
+        }
+      ],
+      "subject_input": "I think that's enough for today.  Let's wrap up our session on the customer-portal-redesign project.\n",
+      "subject_output": "**Session Summary \u2014 Customer Portal Redesign**\n\n- **Current state:** Method 1, project initialized but scope conversations haven't started yet\n- **What's captured:** Project structure is set up and ready\n\n**When you come back, bring:**\n\n1. The original request \u2014 who asked for the redesign and how they described it\n2. What the current portal does and who uses it\n3. What's triggering the redesign now\n\nThat'll let us classify the request, start stakeholder mapping, and plan your first scope conversations. See you next time!"
+    }
+  ]
+}

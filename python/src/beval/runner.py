@@ -426,6 +426,8 @@ class Runner:
             metric_scores=ms,
             error=None,
             grades=grades,
+            subject_input=subject.query,
+            subject_output=subject.answer,
         )
 
     def _run_multistage(

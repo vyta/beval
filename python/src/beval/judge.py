@@ -93,7 +93,9 @@ def _extract_json(text: str) -> str:
 
 
 def _parse_judge_response(
-    raw: str, criterion: str, grade_pass_threshold: float,
+    raw: str,
+    criterion: str,
+    grade_pass_threshold: float,
 ) -> Grade:
     """Parse a judge response into a Grade (§14.5). Shared by all judge backends."""
     text = raw.strip()

@@ -21,7 +21,7 @@ class TestExtractJson:
         assert _extract_json('{"score": 0.5}') == '{"score": 0.5}'
 
     def test_info_prefix_lines(self):
-        raw = "Info: Retrying...\n{\"score\": 0.8}"
+        raw = 'Info: Retrying...\n{"score": 0.8}'
         assert _extract_json(raw) == '{"score": 0.8}'
 
     def test_nested_braces(self):
@@ -389,9 +389,7 @@ class TestACPJudge:
 
         mock_conn = MagicMock()
         mock_conn.initialize = AsyncMock()
-        mock_conn.new_session = AsyncMock(
-            return_value=MagicMock(session_id="sess-123")
-        )
+        mock_conn.new_session = AsyncMock(return_value=MagicMock(session_id="sess-123"))
         mock_conn.prompt = AsyncMock()
         mock_conn.close = AsyncMock()
 
@@ -431,7 +429,9 @@ class TestACPJudge:
         response_json = json.dumps({"score": 0.7, "reasoning": "ok"})
 
         with patch.object(
-            judge, "_evaluate_sync", return_value=response_json,
+            judge,
+            "_evaluate_sync",
+            return_value=response_json,
         ) as mock_sync:
             judge.evaluate("crit", "answer1")
             judge.evaluate("crit", "answer2")
@@ -483,7 +483,6 @@ class TestACPJudge:
         grade = judge._parse_response(raw, "criterion")
         assert grade.score == 0.75
         assert grade.detail == "Good answer."
-
 
     def test_close_is_noop_when_not_connected(self):
         judge = ACPJudge({"transport": "stdio", "command": ["copilot"]}, timeout=30)

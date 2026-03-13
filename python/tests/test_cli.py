@@ -154,9 +154,9 @@ class TestCliRun:
         fp = _fixture_path("basic-deterministic")
         exit_code = main(
             [
-                "--verbose",
                 "--json",
                 "run",
+                "--verbose",
                 "--cases",
                 str(fp / "input.yaml"),
                 "--subject",

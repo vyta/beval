@@ -189,6 +189,7 @@ class TestLLMJudgeAzure:
         mock_azure_cls.assert_called_once_with(
             api_key="test-key",
             azure_endpoint="https://myresource.openai.azure.com",
+            api_version="2024-12-01-preview",
         )
         mock_openai_cls.assert_not_called()
 
@@ -222,6 +223,7 @@ class TestLLMJudgeAzure:
                 mock_azure_cls.assert_called_once_with(
                     azure_ad_token_provider=mock_provider,
                     azure_endpoint="https://myresource.openai.azure.com",
+                    api_version="2024-12-01-preview",
                 )
                 mock_openai_cls.assert_not_called()
 
@@ -294,6 +296,7 @@ class TestLLMJudgeExplicitConfig:
             mock_azure_cls.assert_called_once_with(
                 azure_ad_token_provider=mock_provider,
                 azure_endpoint="https://myresource.openai.azure.com",
+                api_version="2024-12-01-preview",
             )
             mock_openai_cls.assert_not_called()
 

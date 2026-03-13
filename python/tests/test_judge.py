@@ -6,7 +6,13 @@ import json
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from beval.judge import ACPJudge, LLMJudge, NullJudge, _extract_json, load_judge_from_config
+from beval.judge import (
+    ACPJudge,
+    LLMJudge,
+    NullJudge,
+    _extract_json,
+    load_judge_from_config,
+)
 from beval.types import GraderLayer
 
 
@@ -414,14 +420,16 @@ class TestACPJudge:
         assert grade.skipped is not True
 
     def test_evaluate_fresh_session_per_call(self):
-        """Each evaluate() call creates a new session (§14.2.4) — no cached session ID."""
+        """Each evaluate() creates a new session (§14.2.4)."""
         judge = ACPJudge(
             {"transport": "stdio", "command": ["copilot", "--acp"]},
             timeout=30,
         )
         response_json = json.dumps({"score": 0.7, "reasoning": "ok"})
 
-        with patch.object(judge, "_evaluate_sync", return_value=response_json) as mock_sync:
+        with patch.object(
+            judge, "_evaluate_sync", return_value=response_json,
+        ) as mock_sync:
             judge.evaluate("crit", "answer1")
             judge.evaluate("crit", "answer2")
             assert mock_sync.call_count == 2
@@ -479,7 +487,7 @@ class TestACPJudge:
         judge.close()  # Should not raise
 
     def test_combined_prompt_contains_answer_tags(self):
-        """ACP judge combines system+user into single prompt with <answer> tags (§14.2.3)."""
+        """ACP judge prompt uses <answer> tags (§14.2.3)."""
         from beval.judge import _ACP_JUDGE_PROMPT_TEMPLATE
 
         prompt = _ACP_JUDGE_PROMPT_TEMPLATE.format(

@@ -92,7 +92,9 @@ def _extract_json(text: str) -> str:
     return text[start:]
 
 
-def _parse_judge_response(raw: str, criterion: str, grade_pass_threshold: float) -> Grade:
+def _parse_judge_response(
+    raw: str, criterion: str, grade_pass_threshold: float,
+) -> Grade:
     """Parse a judge response into a Grade (§14.5). Shared by all judge backends."""
     text = raw.strip()
 
@@ -185,7 +187,7 @@ class Judge(ABC):
         """
         ...
 
-    def close(self) -> None:
+    def close(self) -> None:  # noqa: B027
         """Release any resources held by this judge. No-op by default."""
 
 
@@ -396,7 +398,7 @@ class _ACPJudgeClient:
         **kwargs: Any,  # noqa: ARG002
     ) -> None:
         try:
-            from acp.schema import AgentMessageChunk, TextContentBlock  # type: ignore[import-untyped]  # noqa: I001
+            from acp.schema import AgentMessageChunk, TextContentBlock  # noqa: I001
         except ImportError:
             return
 
@@ -483,7 +485,7 @@ class ACPJudge(Judge):
     async def _evaluate_async(self, prompt: str) -> str:
         """Connect (if needed), create fresh session, send prompt, return text."""
         try:
-            from acp import (  # type: ignore[import-untyped]  # noqa: I001
+            from acp import (  # noqa: I001
                 PROTOCOL_VERSION,
                 connect_to_agent,
                 spawn_agent_process,

@@ -466,7 +466,17 @@ class ACPJudge(Judge):
 
     def close(self) -> None:
         """Release ACP connection resources."""
-        if self._loop is not None and not self._loop.is_closed():
+        try:
+            running_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            running_loop = None
+
+        if running_loop is not None:
+            import concurrent.futures
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(self._close_in_new_loop).result(timeout=5)
+        elif self._loop is not None and not self._loop.is_closed():
             try:
                 self._loop.run_until_complete(self._close_async())
             except Exception:  # noqa: BLE001, S110
@@ -475,14 +485,45 @@ class ACPJudge(Judge):
                 self._loop.close()
                 self._loop = None
 
+    def _close_in_new_loop(self) -> None:
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(self._close_async())
+        except Exception:  # noqa: BLE001, S110
+            pass
+        finally:
+            loop.close()
+
     def _get_loop(self) -> asyncio.AbstractEventLoop:
         if self._loop is None or self._loop.is_closed():
             self._loop = asyncio.new_event_loop()
         return self._loop
 
     def _evaluate_sync(self, prompt: str) -> str:
+        try:
+            running_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            running_loop = None
+
+        if running_loop is not None:
+            import concurrent.futures
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                future = pool.submit(self._run_in_new_loop, prompt)
+                return future.result(timeout=self._timeout * 2)
+        else:
+            loop = self._get_loop()
+            return loop.run_until_complete(self._evaluate_async(prompt))
+
+    def _run_in_new_loop(self, prompt: str) -> str:
+        """Run _evaluate_async in a fresh event loop on a separate thread."""
+        self._loop = None
         loop = self._get_loop()
-        return loop.run_until_complete(self._evaluate_async(prompt))
+        try:
+            return loop.run_until_complete(self._evaluate_async(prompt))
+        finally:
+            loop.close()
+            self._loop = None
 
     async def _evaluate_async(self, prompt: str) -> str:
         """Connect (if needed), create fresh session, send prompt, return text."""

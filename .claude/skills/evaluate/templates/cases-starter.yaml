@@ -1,0 +1,25 @@
+background:
+  category: __CATEGORY__
+  given:
+    domain: __DOMAIN__
+
+cases:
+  - id: __CASE_ID__
+    name: __CASE_NAME__
+    tags: [core]
+    given:
+      query: "__QUERY__"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: __TIMEOUT__
+      - when: the agent responds
+        then:
+          - response length should be: [__MIN__, __MAX__]
+          # Uncomment to check for required keywords (deterministic):
+          # - response should contain: __KEYWORD__
+          # Uncomment to check for forbidden keywords (deterministic):
+          # - response should not contain: __FORBIDDEN__
+          # Uncomment for AI-judged behavioral expectation (requires validation mode):
+          # - the answer should be: >
+          #     __BEHAVIORAL_EXPECTATION__

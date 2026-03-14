@@ -1,0 +1,70 @@
+name: Behavioral Evaluation (beval)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Uncomment to run on a schedule:
+  # schedule:
+  #   - cron: '0 6 * * 1-5'   # weekdays at 06:00 UTC
+  workflow_dispatch:            # allow manual runs
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      # Add your agent's secrets here — set them in:
+      # GitHub → Settings → Secrets and variables → Actions
+      # __ENV_VAR__: ${{ secrets.__SECRET_NAME__ }}
+      #
+      # If using GitHub Copilot CLI as agent/judge, uncomment:
+      # COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Uncomment if using GitHub Copilot CLI as agent/judge:
+      # - name: Install GitHub Copilot CLI
+      #   run: npm install -g @github/copilot@1
+
+      - name: Install beval
+        run: pip install --no-cache-dir "beval[all] @ git+https://github.com/vyta/beval.git#subdirectory=python"
+
+      # Uncomment if your agent needs to be started locally:
+      # - name: Start agent (TCP)
+      #   run: |
+      #     __AGENT_START_COMMAND__ &
+      #     sleep 5
+
+      # Uncomment if using an ACP judge:
+      # - name: Start judge (TCP)
+      #   run: |
+      #     __JUDGE_START_COMMAND__ &
+      #     sleep 5
+
+      - name: Run evaluations
+        run: |
+          beval \
+            -c beval/eval.config.yaml \
+            run \
+            --cases beval/cases/__CASES_FILE__ \
+            --agent beval/agent.yaml \
+            -m __MODE__ \
+            -o beval/results/results.json
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: beval-results-${{ github.run_id }}
+          path: beval/results/
+          retention-days: 30

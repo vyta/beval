@@ -1,0 +1,24 @@
+name: __AGENT_NAME__
+description: >
+  __AGENT_DESCRIPTION__
+protocol: acp
+
+connection:
+  transport: stdio
+  command:
+    - __COMMAND__                       # e.g., copilot
+    # Add additional args here, e.g.:
+    # - --acp
+    # - --stdio
+    # - --agent
+    # - __AGENT_NAME__
+  cwd: ${AGENT_REPO_ROOT:-.}           # Working directory for the command
+
+timeout: 120
+
+retry:
+  max_attempts: 2
+  backoff: 5.0
+
+metadata:
+  domain: __DOMAIN__

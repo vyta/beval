@@ -71,6 +71,22 @@ Evaluate the answer against the criterion. Respond with JSON only.\
 """
 
 
+def _salvage_truncated_json(text: str) -> dict[str, Any] | None:
+    """Try to extract score from truncated JSON.
+
+    Example: '{"score": 0.45, "reasoning": "...'
+    """
+    m = re.search(r'"score"\s*:\s*([\d.]+)', text)
+    if m is None:
+        return None
+    score = float(m.group(1))
+    # Try to get reasoning, even partial
+    rm = re.search(r'"reasoning"\s*:\s*"((?:[^"\\]|\\.)*)', text)
+    reasoning = rm.group(1) if rm else ""
+    logger.warning("Salvaged score %.2f from truncated judge response", score)
+    return {"score": score, "reasoning": f"(truncated) {reasoning}"}
+
+
 def _extract_json(text: str) -> str:
     """Extract the first complete JSON object from text.
 
@@ -92,7 +108,9 @@ def _extract_json(text: str) -> str:
     return text[start:]
 
 
-def _parse_judge_response(raw: str, criterion: str, grade_pass_threshold: float) -> Grade:
+def _parse_judge_response(
+    raw: str, criterion: str, grade_pass_threshold: float
+) -> Grade:
     """Parse a judge response into a Grade (§14.5). Shared by all judge backends."""
     text = raw.strip()
 
@@ -110,15 +128,18 @@ def _parse_judge_response(raw: str, criterion: str, grade_pass_threshold: float)
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
-        logger.warning("Judge returned invalid JSON: %s", raw[:200])
-        return Grade(
-            criterion=criterion,
-            score=0.0,
-            metric="quality",
-            passed=False,
-            detail=f"Invalid judge response: {raw[:200]}",
-            layer=GraderLayer.AI_JUDGED,
-        )
+        # Attempt to salvage score from truncated JSON
+        data = _salvage_truncated_json(text)
+        if data is None:
+            logger.warning("Judge returned invalid JSON: %s", raw[:200])
+            return Grade(
+                criterion=criterion,
+                score=0.0,
+                metric="quality",
+                passed=False,
+                detail=f"Invalid judge response: {raw[:200]}",
+                layer=GraderLayer.AI_JUDGED,
+            )
 
     score = float(data.get("score", 0.0))
     score = max(0.0, min(1.0, score))  # clamp per §14.5
@@ -185,7 +206,7 @@ class Judge(ABC):
         """
         ...
 
-    def close(self) -> None:
+    def close(self) -> None:  # noqa: B027
         """Release any resources held by this judge. No-op by default."""
 
 
@@ -396,7 +417,7 @@ class _ACPJudgeClient:
         **kwargs: Any,  # noqa: ARG002
     ) -> None:
         try:
-            from acp.schema import AgentMessageChunk, TextContentBlock  # type: ignore[import-untyped]  # noqa: I001
+            from acp.schema import AgentMessageChunk, TextContentBlock  # noqa: I001
         except ImportError:
             return
 
@@ -462,7 +483,18 @@ class ACPJudge(Judge):
 
     def close(self) -> None:
         """Release ACP connection resources."""
-        if self._loop is not None and not self._loop.is_closed():
+        try:
+            running_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            running_loop = None
+
+        if running_loop is not None:
+            # Inside an async context — run cleanup in a thread
+            import concurrent.futures
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(self._close_in_new_loop).result(timeout=5)
+        elif self._loop is not None and not self._loop.is_closed():
             try:
                 self._loop.run_until_complete(self._close_async())
             except Exception:  # noqa: BLE001, S110
@@ -471,19 +503,51 @@ class ACPJudge(Judge):
                 self._loop.close()
                 self._loop = None
 
+    def _close_in_new_loop(self) -> None:
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(self._close_async())
+        except Exception:  # noqa: BLE001, S110
+            pass
+        finally:
+            loop.close()
+
     def _get_loop(self) -> asyncio.AbstractEventLoop:
         if self._loop is None or self._loop.is_closed():
             self._loop = asyncio.new_event_loop()
         return self._loop
 
     def _evaluate_sync(self, prompt: str) -> str:
+        try:
+            running_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            running_loop = None
+
+        if running_loop is not None:
+            # Already inside an async context — schedule on the running loop
+            import concurrent.futures
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                future = pool.submit(self._run_in_new_loop, prompt)
+                return future.result(timeout=self._timeout * 2)
+        else:
+            loop = self._get_loop()
+            return loop.run_until_complete(self._evaluate_async(prompt))
+
+    def _run_in_new_loop(self, prompt: str) -> str:
+        """Run _evaluate_async in a fresh event loop on a separate thread."""
+        self._loop = None  # force new loop for the new thread
         loop = self._get_loop()
-        return loop.run_until_complete(self._evaluate_async(prompt))
+        try:
+            return loop.run_until_complete(self._evaluate_async(prompt))
+        finally:
+            loop.close()
+            self._loop = None
 
     async def _evaluate_async(self, prompt: str) -> str:
         """Connect (if needed), create fresh session, send prompt, return text."""
         try:
-            from acp import (  # type: ignore[import-untyped]  # noqa: I001
+            from acp import (  # noqa: I001
                 PROTOCOL_VERSION,
                 connect_to_agent,
                 spawn_agent_process,

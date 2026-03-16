@@ -1,0 +1,18 @@
+name: dt-coach-tcp
+description: >
+  Design Thinking Coach — a conversational coaching agent that guides teams
+  through the 9 Design Thinking for HVE methods.  Connects to a running
+  Copilot agent over TCP.
+protocol: acp
+connection:
+  transport: tcp
+  host: ${AGENT_HOST:-127.0.0.1}
+  port: ${AGENT_PORT:-3000}
+  cwd: ${AGENT_REPO_ROOT}    # Passed in new_session so the agent resolves .github/agents/
+timeout: 120
+retry:
+  max_attempts: 2
+  backoff: 5.0
+metadata:
+  domain: design-thinking
+  version: "0.1"

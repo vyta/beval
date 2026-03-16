@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -54,9 +55,6 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to eval.config.yaml configuration file.",
     )
     parser.add_argument(
-        "--verbose", action="store_true", default=False, help="Enable verbose output."
-    )
-    parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
@@ -73,8 +71,9 @@ def _build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", help="Available commands.")
 
     # --- run ---
-    run_parser = subparsers.add_parser(
-        "run", help="Execute evaluation cases."
+    run_parser = subparsers.add_parser("run", help="Execute evaluation cases.")
+    run_parser.add_argument(
+        "--verbose", action="store_true", default=False, help="Enable verbose output."
     )
     run_parser.add_argument(
         "-m",
@@ -100,6 +99,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help=(
             "Path to a JSON file containing canned system output (Subject). "
             "When provided, the runner uses this instead of invoking the live system."
+        ),
+    )
+    run_parser.add_argument(
+        "-a",
+        "--agent",
+        type=str,
+        default=None,
+        help=(
+            "Agent to evaluate. Accepts a path to an agent YAML file or a name "
+            "defined in the configuration file's agents section. See SPEC §13."
         ),
     )
     run_parser.add_argument("--case", type=str, default=None, help="Filter by case ID.")
@@ -301,6 +310,7 @@ def _handle_env_overrides(args: argparse.Namespace) -> None:
         "BEVAL_TRIALS": "trials",
         "BEVAL_CASES_DIR": "cases",
         "BEVAL_SUBJECT": "subject",
+        "BEVAL_AGENT": "agent",
         "BEVAL_LLM_JUDGE_MODEL": "judge_model",
     }
     for env_var, attr in env_map.items():
@@ -368,7 +378,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     # Build handler from subject file (for conformance / replay)
     handler = None
+    adapter = None
     if subject_data is not None:
+
         def _subject_handler(**kwargs: Any) -> Subject:
             return Subject(
                 input=subject_data.get("input", ""),
@@ -378,6 +390,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
                 spans=subject_data.get("spans", []),
                 metadata=subject_data.get("metadata", {}),
             )
+
         handler = _subject_handler
 
     # Build config (CLI flags > config file > defaults)
@@ -385,13 +398,11 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     # Thresholds: support nested format (config.schema.json) and flat keys (legacy)
     thresholds = file_config.get("thresholds", {})
-    grade_pass_threshold = (
-        thresholds.get("grade_pass")
-        or file_config.get("grade_pass_threshold", 0.5)
+    grade_pass_threshold = thresholds.get("grade_pass") or file_config.get(
+        "grade_pass_threshold", 0.5
     )
-    case_pass_threshold = (
-        thresholds.get("case_pass")
-        or file_config.get("case_pass_threshold", 0.7)
+    case_pass_threshold = thresholds.get("case_pass") or file_config.get(
+        "case_pass_threshold", 0.7
     )
 
     # Skip mode: CLI > config file > default
@@ -404,11 +415,48 @@ def _cmd_run(args: argparse.Namespace) -> int:
     # Metric weights
     metric_weights: dict[str, float] = file_config.get("metric_weights", {})
 
+    # Resolve agent adapter (§13.5): CLI > config default > none
+    agent_info: dict[str, str] | None = None
+    if handler is None:
+        agent_ref = getattr(args, "agent", None)
+        config_agents = file_config.get("agents")
+
+        # Fallback to config default agent if no CLI flag
+        if agent_ref is None and config_agents:
+            agent_ref = config_agents.get("default")
+
+        if agent_ref is not None:
+            from beval.adapters import (
+                adapter_as_handler,
+                create_adapter,
+            )
+            from beval.adapters import (
+                load_agent as _load_agent,
+            )
+
+            try:
+                agent_def = _load_agent(agent_ref, config_agents=config_agents)
+                adapter = create_adapter(agent_def)
+                handler = adapter_as_handler(adapter)
+                agent_info = {
+                    "name": agent_def["name"],
+                    "protocol": agent_def["protocol"],
+                }
+            except SystemExit:
+                raise
+            except ImportError as exc:
+                print(f"Error: {exc}", file=sys.stderr)
+                return EXIT_INPUT_ERROR
+            except Exception as exc:  # noqa: BLE001
+                print(f"Error loading agent: {exc}", file=sys.stderr)
+                return EXIT_INFRA_ERROR
+
     config = RunConfig(
         grade_pass_threshold=float(grade_pass_threshold),
         case_pass_threshold=float(case_pass_threshold),
         skip_mode=skip_mode,
         metric_weights=metric_weights,
+        agent=agent_info,
     )
 
     # Mode: CLI > config file > default
@@ -435,6 +483,73 @@ def _cmd_run(args: argparse.Namespace) -> int:
     if args.format == "json" and "format" in output_config:
         args.format = output_config["format"]
 
+    # Console output: always show header + per-case progress (unless quiet/json)
+    show_console = not args.quiet and not args.json
+    verbose = args.verbose
+
+    if show_console:
+        _print_header(agent_info, len(case_defs), mode.value)
+
+    spinner: _Spinner | None = None
+
+    def _on_case_start(idx: int, total: int, case_def: Any) -> None:
+        nonlocal spinner
+        if show_console:
+            _print_case_start(idx, total, case_def, verbose)
+            spinner = _Spinner("Waiting for agent")
+            spinner.start()
+
+    def _on_case_complete(idx: int, total: int, case_def: Any, cr: Any) -> None:
+        nonlocal spinner
+        if spinner:
+            spinner.stop()
+            spinner = None
+        if show_console:
+            _print_case_result(idx, total, case_def, cr, verbose)
+
+    # Build evaluators (judge) — precedence per §14.4:
+    # 1. --judge-model CLI flag / BEVAL_LLM_JUDGE_MODEL env var (openai shorthand)
+    # 2. eval.judge config block (explicit protocol)
+    # 3. Legacy flat judge_model key (openai shorthand, backward compat)
+    # 4. NullJudge implicitly (no judge configured)
+    evaluators: dict[str, Any] = {}
+    judge: Any = None
+    judge_model = getattr(args, "judge_model", None)
+    if judge_model is None:
+        judge_model = file_config.get("judge_model")
+
+    if judge_model:
+        # Shorthand path: activates openai protocol with OPENAI_API_KEY from env
+        from beval.judge import LLMJudge
+
+        try:
+            judge = LLMJudge(
+                judge_model,
+                grade_pass_threshold=config.grade_pass_threshold,
+            )
+        except ImportError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return EXIT_INPUT_ERROR
+    else:
+        judge_config = file_config.get("judge")
+        if judge_config and isinstance(judge_config, dict):
+            from beval.judge import load_judge_from_config
+
+            try:
+                judge = load_judge_from_config(
+                    judge_config,
+                    grade_pass_threshold=config.grade_pass_threshold,
+                )
+            except ValueError as exc:
+                print(f"Error: {exc}", file=sys.stderr)
+                return EXIT_INPUT_ERROR
+            except ImportError as exc:
+                print(f"Error: {exc}", file=sys.stderr)
+                return EXIT_INPUT_ERROR
+
+    if judge is not None:
+        evaluators["judge"] = judge
+
     runner = Runner(
         mode=mode,
         config=config,
@@ -444,19 +559,14 @@ def _cmd_run(args: argparse.Namespace) -> int:
         use_cache=getattr(args, "use_cache", False),
         score_only=getattr(args, "score_only", False),
         no_cache=getattr(args, "no_cache", False),
+        evaluators=evaluators,
+        on_case_start=_on_case_start,
+        on_case_complete=_on_case_complete,
     )
-
-    # Verbose pre-execution diagnostics
-    if args.verbose:
-        print(f"Mode: {mode.value}", file=sys.stderr)
-        print(f"Cases: {len(case_defs)} definitions", file=sys.stderr)
-        print(f"Trials: {trials}", file=sys.stderr)
-        print(f"Config: grade_pass={config.grade_pass_threshold}, "
-              f"case_pass={config.case_pass_threshold}", file=sys.stderr)
 
     start_time = time.monotonic()
 
-    # Execute
+    # Execute (with adapter cleanup in finally)
     try:
         result = runner.run(
             case_defs,
@@ -469,13 +579,23 @@ def _cmd_run(args: argparse.Namespace) -> int:
     except Exception as exc:  # noqa: BLE001
         print(f"Error: {exc}", file=sys.stderr)
         return EXIT_INTERNAL_ERROR
+    finally:
+        if adapter is not None:
+            adapter.close()
+        if judge is not None and hasattr(judge, "close"):
+            judge.close()
 
-    # Verbose post-execution diagnostics
-    if args.verbose:
-        elapsed = time.monotonic() - start_time
-        print(f"Completed in {elapsed:.2f}s", file=sys.stderr)
-        print(f"Results: {result.summary.total} cases, "
-              f"{result.summary.passed} passed", file=sys.stderr)
+    elapsed = time.monotonic() - start_time
+
+    # Print scorecard
+    if show_console:
+        _print_scorecard(result, verbose)
+
+    # Strip subject_input/output from non-verbose results
+    if not verbose:
+        for cr in result.cases:
+            cr.subject_input = None
+            cr.subject_output = None
 
     # Output results
     scrub = getattr(args, "scrub", True)
@@ -488,7 +608,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
             write_jsonl(result, str(output_path), scrub=scrub)
         else:
             write_json(result, str(output_path), scrub=scrub)
-        if not args.quiet:
+        if show_console:
+            print(f"\n  Results saved to: {output_path}", file=sys.stderr)
+        elif not args.quiet:
             print(f"Results written to {output_path}")
     elif args.format == "jsonl":
         print(to_jsonl(result, scrub=scrub))
@@ -534,15 +656,209 @@ def _cmd_run(args: argparse.Namespace) -> int:
         elif not c.passed:
             exit_code = max(exit_code, EXIT_FAIL)
 
+    if show_console:
+        status = (
+            "Evaluation complete" if exit_code == EXIT_PASS else "Evaluation failed"
+        )
+        print(f"\n  {status} ({elapsed:.1f}s)\n", file=sys.stderr)
+
     return exit_code
+
+
+class _Spinner:
+    """Simple elapsed-time spinner for stderr."""
+
+    _FRAMES = ["|", "/", "-", "\\"]
+
+    def __init__(self, message: str) -> None:
+        self._message = message
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+        self._start_time = 0.0
+
+    def start(self) -> None:
+        self._start_time = time.monotonic()
+        self._stop.clear()
+        self._thread = threading.Thread(target=self._spin, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+        if self._thread:
+            self._thread.join()
+            self._thread = None
+        # Clear the spinner line
+        sys.stderr.write("\r\033[K")
+        sys.stderr.flush()
+
+    def _spin(self) -> None:
+        idx = 0
+        while not self._stop.wait(0.3):
+            elapsed = time.monotonic() - self._start_time
+            frame = self._FRAMES[idx % len(self._FRAMES)]
+            sys.stderr.write(f"\r    {frame} {self._message} ({elapsed:.0f}s)")
+            sys.stderr.flush()
+            idx += 1
+
+
+def _score_bar(score: float, width: int = 10) -> str:
+    """Render a score as a block bar like [########--]."""
+    filled = round(score * width)
+    return "[" + "#" * filled + "-" * (width - filled) + "]"
+
+
+def _truncate(text: str, max_len: int = 60) -> str:
+    """Truncate text with ellipsis."""
+    if len(text) <= max_len:
+        return text
+    return text[: max_len - 3] + "..."
+
+
+def _print_header(
+    agent_info: dict[str, str] | None, total_cases: int, mode: str
+) -> None:
+    """Print the run header banner."""
+    line = "=" * 70
+    print(line, file=sys.stderr)
+    if agent_info:
+        name = agent_info.get("name", "unknown")
+        protocol = agent_info.get("protocol", "unknown").upper()
+        print(f"  {protocol} Agent ({name})", file=sys.stderr)
+    else:
+        print("  beval", file=sys.stderr)
+    print(line, file=sys.stderr)
+    print(f"  Cases: {total_cases}  |  Mode: {mode}", file=sys.stderr)
+    print(file=sys.stderr)
+
+
+def _print_case_start(idx: int, total: int, case_def: Any, verbose: bool) -> None:
+    """Print case start line."""
+    name = _truncate(case_def.name, 65)
+    print(f"  [{idx + 1}/{total}] {name}", file=sys.stderr)
+    givens = getattr(case_def, "givens", None) or {}
+    query = givens.get("query", givens.get("a query", ""))
+    if query:
+        print(f"    Query: {_truncate(query, 75)}", file=sys.stderr)
+
+
+def _print_case_result(
+    idx: int, total: int, case_def: Any, cr: Any, verbose: bool
+) -> None:
+    """Print case result with grades."""
+    status = "+" if cr.passed else "FAIL"
+    name = _truncate(case_def.name, 40)
+    print(
+        f"    {status} {name} -- score: {cr.overall_score:.2f} "
+        f"({cr.time_seconds:.1f}s)",
+        file=sys.stderr,
+    )
+
+    if verbose:
+        # Group grades by stage
+        current_stage: str | None = None
+        for g in cr.grades:
+            stage_label = g.stage_name or ""
+            if stage_label != current_stage:
+                current_stage = stage_label
+                if stage_label:
+                    print(f"      -- {stage_label} --", file=sys.stderr)
+            mark = "+" if g.passed else "x"
+            if g.skipped:
+                mark = "-"
+            metric_tag = f"[{g.metric}]"
+            detail = ""
+            if g.detail:
+                detail = f" -- {g.detail}"
+            skipped_note = " (Skipped)" if g.skipped else ""
+            print(
+                f"      {mark} {g.score:.1f}  {metric_tag:<16s}"
+                f"{g.criterion}{detail}{skipped_note}",
+                file=sys.stderr,
+            )
+
+        # Print answer preview
+        if cr.subject_output:
+            print("      -- answer --", file=sys.stderr)
+            preview = cr.subject_output.replace("\n", " ").strip()
+            if len(preview) > 200:
+                preview = preview[:200] + "..."
+            print(f"      {preview}", file=sys.stderr)
+
+    print(file=sys.stderr)
+
+
+def _print_scorecard(result: Any, verbose: bool = False) -> None:
+    """Print the final scorecard."""
+    s = result.summary
+    line = "=" * 70
+    print(line, file=sys.stderr)
+    print("  SCORECARD", file=sys.stderr)
+    print(line, file=sys.stderr)
+    print(
+        f"  Overall: {s.overall_score:.2f}  ({s.passed}/{s.total} cases passed)",
+        file=sys.stderr,
+    )
+    print(file=sys.stderr)
+
+    # Metrics table
+    if s.metrics:
+        print(f"  {'Metric':<20s} {'Score':>6s}  Bar", file=sys.stderr)
+        print(f"  {'-' * 20} {'-' * 6}  {'-' * 12}", file=sys.stderr)
+        for metric, score in sorted(s.metrics.items()):
+            bar = _score_bar(score)
+            print(f"  {metric:<20s} {score:>5.2f}  {bar}", file=sys.stderr)
+        print(file=sys.stderr)
+
+    # Cases table
+    print(
+        f"  {'Case':<40s} {'Score':>6s}  Status",
+        file=sys.stderr,
+    )
+    print(f"  {'-' * 40} {'-' * 6}  {'-' * 6}", file=sys.stderr)
+    for cr in result.cases:
+        name = _truncate(cr.name, 40)
+        status = "+ PASS" if cr.passed else "x FAIL"
+        if cr.error:
+            status = "! ERR"
+        print(f"  {name:<40s} {cr.overall_score:>5.2f}  {status}", file=sys.stderr)
+
+        if verbose:
+            # Per-case metric scores
+            if cr.metric_scores:
+                metrics = "  ".join(
+                    f"{m}: {v:.2f}" for m, v in sorted(cr.metric_scores.items())
+                )
+                print(f"    Metrics: {metrics}", file=sys.stderr)
+            # Query
+            if cr.subject_input:
+                preview = cr.subject_input.replace("\n", " ").strip()
+                if len(preview) > 120:
+                    preview = preview[:120] + "..."
+                print(f"    Query: {preview}", file=sys.stderr)
+            # Response
+            if cr.subject_output:
+                preview = cr.subject_output.replace("\n", " ").strip()
+                if len(preview) > 120:
+                    preview = preview[:120] + "..."
+                print(f"    Response: {preview}", file=sys.stderr)
+
+    # Avg time
+    if result.cases:
+        avg_time = sum(c.time_seconds for c in result.cases) / len(result.cases)
+        print(file=sys.stderr)
+        print(f"  Avg time: {avg_time:.1f}s", file=sys.stderr)
+
+    print(line, file=sys.stderr)
 
 
 def _print_summary(result: Any) -> None:
     """Print a human-readable summary to stdout."""
     s = result.summary
-    print(f"Score: {s.overall_score:.2f}  "
-          f"Passed: {s.passed}  Failed: {s.failed}  "
-          f"Errored: {s.errored}  Total: {s.total}")
+    print(
+        f"Score: {s.overall_score:.2f}  "
+        f"Passed: {s.passed}  Failed: {s.failed}  "
+        f"Errored: {s.errored}  Total: {s.total}"
+    )
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:

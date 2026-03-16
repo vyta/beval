@@ -1,0 +1,56 @@
+eval:
+  mode: validation
+  thresholds:
+    grade_pass: 0.5
+    case_pass: 0.7
+  agents:
+    default: dt-coach
+    definitions:
+      - name: dt-coach
+        description: >
+          Design Thinking Coach via ACP stdio transport.
+        protocol: acp
+        connection:
+          transport: stdio
+          command:
+            - copilot
+            - --acp
+            - --stdio
+            - --agent
+            - dt-coach
+            - --allow-all
+          cwd: ${AGENT_REPO_ROOT}
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+        metadata:
+          domain: design-thinking
+          version: "0.1"
+
+      - name: dt-coach-tcp
+        description: >
+          Design Thinking Coach via ACP TCP transport.
+        protocol: acp
+        connection:
+          transport: tcp
+          host: ${AGENT_HOST:-127.0.0.1}
+          port: ${AGENT_PORT:-3000}
+          cwd: ${AGENT_REPO_ROOT}
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+        metadata:
+          domain: design-thinking
+          version: "0.1"
+  judge:
+    protocol: acp
+    connection:
+      transport: tcp
+      host: ${JUDGE_HOST:-127.0.0.1}
+      port: ${JUDGE_PORT:-3001}
+    timeout: 60
+  output:
+    dir: results
+    format: json

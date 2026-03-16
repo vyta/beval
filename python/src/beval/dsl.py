@@ -28,6 +28,7 @@ class CaseDefinition:
     func: Callable[..., None] | None = None
     examples: list[dict[str, Any]] | None = None
     grades: list[Grade] | None = None
+    givens: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -37,9 +38,7 @@ class CaseBuilder:
     _givens: dict[str, Any] = field(default_factory=dict)
     _whens: list[str] = field(default_factory=list)
     _thens: list[tuple[str, tuple[Any, ...]]] = field(default_factory=list)
-    _stage_thens: list[list[tuple[str, tuple[Any, ...]]]] = field(
-        default_factory=list
-    )
+    _stage_thens: list[list[tuple[str, tuple[Any, ...]]]] = field(default_factory=list)
 
     def given(self, name: str, value: Any = None) -> CaseBuilder:
         """Set a precondition. See SPEC §4.1."""

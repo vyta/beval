@@ -1,0 +1,22 @@
+name: klingon-agent
+description: >
+  A testing agent deployed in Azure Foundry that answers in Klingon.
+  Uses the A2A (Agent2Agent) protocol.
+protocol: a2a
+
+connection:
+  url: ${A2A_AGENT_URL}
+  auth:
+    type: bearer
+    scope: ${A2A_AUTH_SCOPE:-https://cognitiveservices.azure.com/.default}
+  streaming: false
+
+timeout: 60
+
+retry:
+  max_attempts: 2
+  backoff: 2.0
+
+metadata:
+  domain: testing
+  language: klingon

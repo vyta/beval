@@ -51,6 +51,7 @@ class TestPutAndGet:
         put_cached_subject("case_secret", subject)
         # Read the raw cache file to verify scrubbing
         import json
+
         cache_files = list((tmp_path / "cache").glob("*.json"))
         assert len(cache_files) == 1
         data = json.loads(cache_files[0].read_text())

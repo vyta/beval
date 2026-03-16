@@ -54,9 +54,9 @@
           "$ref": "#/$defs/OutputConfig",
           "description": "Results output configuration."
         },
-        "judges": {
-          "$ref": "#/$defs/JudgesConfig",
-          "description": "Judge provider configuration."
+        "judge": {
+          "$ref": "#/$defs/JudgeConfig",
+          "description": "Judge configuration. See spec/judges.spec.md §14."
         },
         "tracing": {
           "$ref": "#/$defs/TracingConfig",
@@ -77,8 +77,118 @@
         "cache": {
           "$ref": "#/$defs/CacheConfig",
           "description": "Response caching configuration."
+        },
+        "agents": {
+          "$ref": "#/$defs/AgentsConfig",
+          "description": "Agent definition and selection configuration. See SPEC §13."
         }
       }
+    },
+    "AgentsConfig": {
+      "type": "object",
+      "description": "Agent configuration for connecting to systems under test.",
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "type": "string",
+          "description": "Name of the default agent from the definitions array."
+        },
+        "definitions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AgentDefinition" },
+          "description": "Agent definitions available for this project."
+        }
+      }
+    },
+    "AgentDefinition": {
+      "type": "object",
+      "description": "Inline agent definition. Same schema as standalone agent YAML files (agent.schema.json).",
+      "required": ["name", "protocol", "connection"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique agent identifier."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["acp", "a2a", "custom"],
+          "description": "Connection protocol type."
+        },
+        "connection": {
+          "type": "object",
+          "description": "Protocol-specific connection parameters. Validated per-protocol via allOf conditionals below."
+        },
+        "timeout": {
+          "type": "number",
+          "minimum": 0,
+          "default": 30,
+          "description": "Request timeout in seconds."
+        },
+        "retry": {
+          "type": "object",
+          "description": "Retry policy.",
+          "additionalProperties": false,
+          "properties": {
+            "max_attempts": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "backoff": {
+              "type": "number",
+              "minimum": 0,
+              "default": 1.0
+            }
+          }
+        },
+        "env": {
+          "type": "object",
+          "description": "Environment variable bindings using ${VAR_NAME} syntax.",
+          "additionalProperties": { "type": "string" }
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Open-ended key-value pairs surfaced in results.",
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "protocol": { "const": "acp" } }
+          },
+          "then": {
+            "properties": {
+              "connection": { "$ref": "agent.schema.json#/$defs/ACPConnection" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "protocol": { "const": "a2a" } }
+          },
+          "then": {
+            "properties": {
+              "connection": { "$ref": "agent.schema.json#/$defs/A2AConnection" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "protocol": { "const": "custom" } }
+          },
+          "then": {
+            "properties": {
+              "connection": { "$ref": "agent.schema.json#/$defs/CustomConnection" }
+            }
+          }
+        }
+      ]
     },
     "Thresholds": {
       "type": "object",
@@ -136,59 +246,59 @@
         }
       }
     },
-    "JudgesConfig": {
+    "JudgeConfig": {
       "type": "object",
-      "description": "Configuration for judge providers.",
+      "description": "Judge configuration. See spec/judges.spec.md §14.",
+      "required": ["protocol"],
       "additionalProperties": false,
       "properties": {
-        "llm": {
-          "$ref": "#/$defs/LLMJudgeConfig",
-          "description": "Built-in LLM judge configuration."
+        "protocol": {
+          "type": "string",
+          "enum": ["acp", "openai"],
+          "description": "Judge backend protocol."
         },
-        "external": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/ExternalJudgeConfig" },
-          "description": "External judge provider configurations."
-        }
-      }
-    },
-    "LLMJudgeConfig": {
-      "type": "object",
-      "description": "Configuration for the built-in LLM judge.",
-      "additionalProperties": false,
-      "properties": {
+        "connection": {
+          "type": "object",
+          "description": "ACP connection parameters (protocol: acp only)."
+        },
+        "timeout": {
+          "type": "number",
+          "minimum": 0,
+          "default": 30
+        },
         "model": {
           "type": "string",
-          "description": "Model identifier for the LLM judge."
+          "description": "Model identifier (protocol: openai only)."
+        },
+        "api_key": {
+          "type": "string",
+          "description": "API key reference, e.g. ${OPENAI_API_KEY} (protocol: openai only)."
+        },
+        "base_url": {
+          "type": "string",
+          "description": "Base URL override (protocol: openai only)."
+        },
+        "auth": {
+          "type": "string",
+          "enum": ["entra_id"],
+          "description": "Auth method override. 'entra_id' uses Azure DefaultAzureCredential (protocol: openai only)."
         },
         "max_answer_chars": {
           "type": "integer",
           "minimum": 1,
-          "description": "Maximum characters of the answer to include in the judge prompt."
+          "description": "Truncation limit for subject answer in judge prompt (protocol: openai only)."
         }
-      }
-    },
-    "ExternalJudgeConfig": {
-      "type": "object",
-      "description": "Configuration for an external judge provider.",
-      "required": ["name"],
-      "additionalProperties": false,
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Unique name for this external judge."
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "protocol": { "const": "acp" } } },
+          "then": { "required": ["connection"] }
         },
-        "enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether this external judge is enabled."
-        },
-        "config": {
-          "type": "object",
-          "description": "Provider-specific configuration. Values may reference environment variables via ${VAR_NAME} syntax.",
-          "additionalProperties": true
+        {
+          "if": { "properties": { "protocol": { "const": "openai" } } },
+          "then": { "required": ["model"] }
         }
-      }
+      ]
     },
     "TracingConfig": {
       "type": "object",

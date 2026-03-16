@@ -1,0 +1,32 @@
+# Smart Inventory Advisor — ACP agent definition (TCP transport)
+#
+# This variant connects to a copilot agent already running as a TCP server.
+# Start the agent first:
+#
+#   cd $AGENT_REPO_ROOT
+#   copilot --acp --port 3000 --agent material-substitution --allow-all
+#
+# Then run the evaluation:
+#   beval run --cases cases/ --agent agent-tcp.yaml
+
+name: smart-inventory-advisor-tcp
+description: >
+  Copilot custom agent (TCP transport) that investigates material
+  substitutions in an industrial inventory knowledge graph using MCP-based tools.
+protocol: acp
+
+connection:
+  transport: tcp
+  host: ${AGENT_HOST:-127.0.0.1}
+  port: ${AGENT_PORT:-3000}
+  cwd: ${AGENT_REPO_ROOT}    # Passed in new_session so the agent resolves .github/agents/
+
+timeout: 120
+
+retry:
+  max_attempts: 2
+  backoff: 5.0
+
+metadata:
+  domain: industrial-inventory
+  version: "1.0"

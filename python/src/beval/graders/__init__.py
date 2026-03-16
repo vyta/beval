@@ -88,6 +88,41 @@ def _run_with_timeout(
 
 # Global grader registry
 _GRADER_REGISTRY: list[GraderEntry] = []
+_BUILTIN_ENTRIES: list[GraderEntry] = []
+
+
+def grader(
+    pattern: str,
+    *,
+    layer: str = GraderLayer.DETERMINISTIC,
+    metric: str = "quality",
+) -> Callable[[GraderHandler], GraderHandler]:
+    """Decorator to register a grader handler. See SPEC §4.1.
+
+    Usage::
+
+        @grader("response should contain", layer=GraderLayer.DETERMINISTIC)
+        def _response_contains(criterion, args, subject, context):
+            ...
+    """
+
+    def decorator(fn: GraderHandler) -> GraderHandler:
+        entry = GraderEntry(pattern, fn, layer, metric)
+        _BUILTIN_ENTRIES.append(entry)
+        _GRADER_REGISTRY.append(entry)
+        return fn
+
+    return decorator
+
+
+def register_builtin_graders() -> None:
+    """Re-register all @grader-decorated built-in graders.
+
+    Call this after ``clear_grader_registry()`` to restore built-ins.
+    """
+    for entry in _BUILTIN_ENTRIES:
+        if entry not in _GRADER_REGISTRY:
+            _GRADER_REGISTRY.append(entry)
 
 
 def register_grader(
@@ -250,13 +285,7 @@ def clear_grader_registry() -> None:
     _GRADER_REGISTRY.clear()
 
 
-# Auto-register built-in graders
-from beval.graders.deterministic import (  # noqa: E402
-    register_deterministic_graders as _reg_det,
-)
-from beval.graders.process import (  # noqa: E402
-    register_process_graders as _reg_proc,
-)
-
-_reg_det()
-_reg_proc()
+# Auto-register built-in graders (decorators register at import time)
+import beval.graders.ai_judged as _ai_judged  # noqa: E402, F401
+import beval.graders.deterministic as _deterministic  # noqa: E402, F401
+import beval.graders.process as _process  # noqa: E402, F401

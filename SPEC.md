@@ -23,6 +23,7 @@ Version: 0.1.0
 10. Security and Safety Requirements
 11. Non-determinism and Multi-trial Evaluation
 12. Extension Points
+13. Agent Adapters
 
 See [GUIDE.md](GUIDE.md) for informative companion material including
 recommended vocabularies, implementation guidance, and optional advanced
@@ -228,7 +229,7 @@ EvalContext provides runtime dependencies and mode:
   available to graders. The key `"judge"` is reserved for the primary
   LLM-as-judge evaluator when configured. Implementations must also
   support `llm_judge` as a convenience alias for `evaluators["judge"]`
-  for backward compatibility.
+  for backward compatibility. See §14 for judge backend configuration.
 * `mode` (evaluation mode)
 * `config` (non-sensitive config view)
 
@@ -507,7 +508,7 @@ Configuration precedence must be:
 Implementations must expose configuration for all normative parameters
 in this specification, including mode (§6.1), thresholds (§5.3),
 weights (§5.5), skip mode (§6.2), output format (§8.1), and judge
-backends (§4.3).
+backends (§14).
 
 ### 9.3 Environment overrides
 
@@ -609,5 +610,31 @@ Implementations may extend the framework through:
 * Custom reporters for CI and dashboards
 * Custom subject normalizers
 * Case loaders from YAML, CSV, JSON, or production samples
+* Agent adapters for custom connection protocols (§13)
 
 Cross-SUT comparison is an external workflow built from multiple result artifacts, not a required core runner feature.
+
+## 13. Agent Adapters
+
+See [spec/agent-adapters.spec.md](spec/agent-adapters.spec.md) for the full
+agent adapter specification, covering:
+
+* Agent definition schema (YAML)
+* Adapter interface contract
+* Built-in adapters: ACP (Agent Client Protocol), A2A (Agent2Agent), Custom
+* Agent resolution precedence (CLI → config → handler → stub)
+* CLI and configuration changes
+* Error handling and security requirements
+
+## 14. Judges
+
+See [spec/judges.spec.md](spec/judges.spec.md) for the full judge configuration
+specification, covering:
+
+* Unified `eval.judge` block with explicit `protocol: acp | openai`
+* ACP judge — invoke any ACP agent (e.g. GitHub Copilot CLI) as a judge
+* OpenAI-compatible judge — standard OpenAI, Azure (API key or Entra ID), LiteLLM proxy
+* Configuration precedence (CLI flag → env var → `eval.judge` → legacy)
+* Prompt structure and `<answer>` tag delimiting (§10.3)
+* Response parsing and error handling
+* JSON schema changes

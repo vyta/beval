@@ -379,9 +379,7 @@ class TestResolveGrade:
         assert grade.score == 0.9
         assert grade.passed is True  # runner enforces threshold
 
-    def test_resolve_grade_threshold_boundary(
-        self, sample_subject: Subject
-    ) -> None:
+    def test_resolve_grade_threshold_boundary(self, sample_subject: Subject) -> None:
         """Score exactly at threshold does not pass (> not >=, §5.3)."""
 
         def exact_threshold(
@@ -409,9 +407,7 @@ class TestResolveGrade:
         assert grade.score == 0.5
         assert grade.passed is False  # 0.5 is NOT > 0.5
 
-    def test_resolve_grade_custom_threshold(
-        self, sample_subject: Subject
-    ) -> None:
+    def test_resolve_grade_custom_threshold(self, sample_subject: Subject) -> None:
         """Custom grade_pass_threshold from config is honoured."""
         from beval.types import RunConfig
 
@@ -456,12 +452,10 @@ def _make_context(mode: EvaluationMode = EvaluationMode.VALIDATION) -> EvalConte
 
 
 def _register_builtins() -> None:
-    """Re-register built-in graders (conftest clears registry each test)."""
-    from beval.graders.deterministic import register_deterministic_graders
-    from beval.graders.process import register_process_graders
+    """Re-register built-in graders after registry clear."""
+    from beval.graders import register_builtin_graders
 
-    register_deterministic_graders()
-    register_process_graders()
+    register_builtin_graders()
 
 
 class TestDeterministicGraders:
@@ -472,7 +466,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="a", completion_time=2.0)
         grade = resolve_grade(
             "completion time should be under 10",
-            ["10"], subject, _make_context(),
+            ["10"],
+            subject,
+            _make_context(),
         )
         assert grade.passed
         assert grade.score > 0.5
@@ -483,7 +479,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="a", completion_time=15.0)
         grade = resolve_grade(
             "completion time should be under 10",
-            ["10"], subject, _make_context(),
+            ["10"],
+            subject,
+            _make_context(),
         )
         assert not grade.passed
 
@@ -492,7 +490,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="Hello World", completion_time=1.0)
         grade = resolve_grade(
             "response should contain hello",
-            ["hello"], subject, _make_context(),
+            ["hello"],
+            subject,
+            _make_context(),
         )
         assert grade.passed
         assert grade.score == 1.0
@@ -502,7 +502,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="Hello World", completion_time=1.0)
         grade = resolve_grade(
             "response should contain goodbye",
-            ["goodbye"], subject, _make_context(),
+            ["goodbye"],
+            subject,
+            _make_context(),
         )
         assert not grade.passed
         assert grade.score == 0.0
@@ -512,7 +514,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="Hello World", completion_time=1.0)
         grade = resolve_grade(
             "response should not contain goodbye",
-            ["goodbye"], subject, _make_context(),
+            ["goodbye"],
+            subject,
+            _make_context(),
         )
         assert grade.passed
         assert grade.score == 1.0
@@ -522,7 +526,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="Hello World", completion_time=1.0)
         grade = resolve_grade(
             "response should not contain hello",
-            ["hello"], subject, _make_context(),
+            ["hello"],
+            subject,
+            _make_context(),
         )
         assert not grade.passed
         assert grade.score == 0.0
@@ -532,7 +538,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="Hello", completion_time=1.0)
         grade = resolve_grade(
             "response length should be between 1 and 100",
-            ["1", "100"], subject, _make_context(),
+            ["1", "100"],
+            subject,
+            _make_context(),
         )
         assert grade.passed
         assert grade.score == 1.0
@@ -542,7 +550,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="Hi", completion_time=1.0)
         grade = resolve_grade(
             "response length should be at least 100",
-            ["100", "200"], subject, _make_context(),
+            ["100", "200"],
+            subject,
+            _make_context(),
         )
         assert not grade.passed
         assert grade.score < 1.0
@@ -552,7 +562,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="abc123", completion_time=1.0)
         grade = resolve_grade(
             "response should match digits",
-            [r"\d+"], subject, _make_context(),
+            [r"\d+"],
+            subject,
+            _make_context(),
         )
         assert grade.passed
         assert grade.score == 1.0
@@ -562,7 +574,9 @@ class TestDeterministicGraders:
         subject = Subject(input="q", output="abcdef", completion_time=1.0)
         grade = resolve_grade(
             "response should match digits",
-            [r"^\d+$"], subject, _make_context(),
+            [r"^\d+$"],
+            subject,
+            _make_context(),
         )
         assert not grade.passed
         assert grade.score == 0.0
@@ -574,12 +588,15 @@ class TestProcessGraders:
     def test_has_span_found(self) -> None:
         _register_builtins()
         subject = Subject(
-            input="q", output="a", completion_time=1.0,
+            input="q",
+            output="a",
+            completion_time=1.0,
             spans=[{"name": "retrieval", "duration": 0.5}],
         )
         grade = resolve_grade(
             "should have span retrieval",
-            ["retrieval"], subject,
+            ["retrieval"],
+            subject,
             _make_context(EvaluationMode.DEV_PROCESS),
         )
         assert grade.passed
@@ -588,11 +605,15 @@ class TestProcessGraders:
     def test_has_span_not_found(self) -> None:
         _register_builtins()
         subject = Subject(
-            input="q", output="a", completion_time=1.0, spans=[],
+            input="q",
+            output="a",
+            completion_time=1.0,
+            spans=[],
         )
         grade = resolve_grade(
             "should have span retrieval",
-            ["retrieval"], subject,
+            ["retrieval"],
+            subject,
             _make_context(EvaluationMode.DEV_PROCESS),
         )
         assert not grade.passed
@@ -600,12 +621,15 @@ class TestProcessGraders:
     def test_calls_tool_found(self) -> None:
         _register_builtins()
         subject = Subject(
-            input="q", output="a", completion_time=1.0,
+            input="q",
+            output="a",
+            completion_time=1.0,
             tool_calls=[{"name": "search", "args": {}}],
         )
         grade = resolve_grade(
             "should call tool search",
-            ["search"], subject,
+            ["search"],
+            subject,
             _make_context(EvaluationMode.DEV_PROCESS),
         )
         assert grade.passed
@@ -613,11 +637,15 @@ class TestProcessGraders:
     def test_calls_tool_not_found(self) -> None:
         _register_builtins()
         subject = Subject(
-            input="q", output="a", completion_time=1.0, tool_calls=[],
+            input="q",
+            output="a",
+            completion_time=1.0,
+            tool_calls=[],
         )
         grade = resolve_grade(
             "should call tool search",
-            ["search"], subject,
+            ["search"],
+            subject,
             _make_context(EvaluationMode.DEV_PROCESS),
         )
         assert not grade.passed
@@ -625,12 +653,15 @@ class TestProcessGraders:
     def test_tool_call_count_exact(self) -> None:
         _register_builtins()
         subject = Subject(
-            input="q", output="a", completion_time=1.0,
+            input="q",
+            output="a",
+            completion_time=1.0,
             tool_calls=[{"name": "a"}, {"name": "b"}],
         )
         grade = resolve_grade(
             "tool call count should be 2",
-            ["2"], subject,
+            ["2"],
+            subject,
             _make_context(EvaluationMode.DEV_PROCESS),
         )
         assert grade.passed
@@ -639,12 +670,15 @@ class TestProcessGraders:
     def test_tool_call_count_mismatch(self) -> None:
         _register_builtins()
         subject = Subject(
-            input="q", output="a", completion_time=1.0,
+            input="q",
+            output="a",
+            completion_time=1.0,
             tool_calls=[{"name": "a"}],
         )
         grade = resolve_grade(
             "tool call count should be 3",
-            ["3"], subject,
+            ["3"],
+            subject,
             _make_context(EvaluationMode.DEV_PROCESS),
         )
         assert not grade.passed

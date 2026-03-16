@@ -1,0 +1,45 @@
+# Smart Inventory Advisor — evaluation configuration
+#
+# Usage:
+#   beval run --cases cases/ --agent agent.yaml -c eval.config.yaml
+#   beval run --cases cases/ -c eval.config.yaml  # uses agents.default
+
+eval:
+  mode: dev
+  thresholds:
+    grade_pass: 0.5
+    case_pass: 0.7
+
+  agents:
+    default: smart-inventory-advisor
+    definitions:
+      - name: smart-inventory-advisor
+        protocol: acp
+        connection:
+          transport: stdio
+          command: ["copilot", "--acp", "--stdio", "--agent", "material-substitution", "--allow-all"]
+          cwd: ${AGENT_REPO_ROOT}  # Path to repo with .github/agents/material-substitution.agent.md
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+        metadata:
+          domain: industrial-inventory
+
+      - name: smart-inventory-advisor-tcp
+        protocol: acp
+        connection:
+          transport: tcp
+          host: ${AGENT_HOST:-127.0.0.1}
+          port: ${AGENT_PORT:-3000}
+          cwd: ${AGENT_REPO_ROOT}
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+        metadata:
+          domain: industrial-inventory
+
+  output:
+    dir: results
+    format: json

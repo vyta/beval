@@ -111,7 +111,7 @@ class Subject:
             return self.input
         for msg in reversed(self.input):
             if msg.get("role") == "user":
-                return msg.get("content", "")
+                return str(msg.get("content", ""))
         return ""
 
     @property
@@ -121,7 +121,7 @@ class Subject:
             return self.output
         for msg in reversed(self.output):
             if msg.get("role") == "assistant":
-                return msg.get("content", "")
+                return str(msg.get("content", ""))
         return ""
 
 
@@ -146,6 +146,8 @@ class CaseResult:
     score_max: float | None = None
     pass_rate: str | None = None
     high_variance: bool = False
+    subject_input: str | None = None
+    subject_output: str | None = None
 
 
 @dataclass(frozen=True)
@@ -190,6 +192,7 @@ class RunConfig:
     metric_weights: dict[str, float] = field(default_factory=dict)
     active_layers: frozenset[str] | None = None
     pass_at_k: int = 1
+    agent: dict[str, str] | None = None
 
 
 @dataclass

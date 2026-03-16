@@ -18,6 +18,12 @@ uv sync
 With optional extras:
 
 ```bash
+# ACP agent adapter (Agent Client Protocol)
+uv sync --extra acp
+
+# A2A agent adapter (Agent-to-Agent)
+uv sync --extra a2a
+
 # JSON Schema validation
 uv sync --extra validate
 
@@ -95,10 +101,15 @@ uv run mypy src/beval/
 
 ## Integrating With Your Agent
 
-beval evaluates the **outputs** of your AI agent or LLM-powered system. The
-framework does not run your agent directly — you connect the two by writing a
-thin adapter that invokes your system and normalizes its output into a
-`Subject`.
+beval evaluates the **outputs** of your AI agent or LLM-powered system. There
+are two ways to connect beval to your agent:
+
+1. **Agent YAML (declarative)** — define a YAML file describing how to reach
+   your agent (protocol, connection, auth). The CLI uses this to connect
+   automatically. Best for CI and team workflows.
+2. **Programmatic handler (library)** — write a Python callable that invokes
+   your agent and returns a `Subject`. Best for custom orchestration or when
+   embedding beval in your own test harness.
 
 ### Integration pattern
 
@@ -106,16 +117,18 @@ The general flow is:
 
 1. **Define cases** — describe what your agent should do and the quality criteria
 2. **Register graders** — map criterion patterns to scoring functions
-3. **Write a subject adapter** — call your agent, capture the response, wrap it in a `Subject`
-4. **Run the evaluation** — the runner executes cases, feeds subjects to graders, and aggregates scores
+3. **Define the agent** — declare an agent YAML file *or* write a programmatic handler
+4. **Run the evaluation** — the runner connects to the agent, executes cases, feeds subjects to graders, and aggregates scores
 
 ```text
 ┌──────────────┐     ┌────────────┐     ┌──────────────┐     ┌──────────┐
-│  Case YAML   │────▶│   Runner   │────▶│ Your Agent   │────▶│  Subject │
-│  or @case()  │     │            │◀────│  (adapter)   │◀────│  output  │
+│  Case YAML   │────▶│            │────▶│ Your Agent   │────▶│  Subject │
+│  or @case()  │     │   Runner   │◀────│  (adapter)   │◀────│  output  │
 └──────────────┘     │            │     └──────────────┘     └──────────┘
-                     │            │────▶ Graders ────▶ Grades ────▶ Report
-                     └────────────┘
+┌──────────────┐     │            │────▶ Graders ────▶ Grades ────▶ Report
+│  Agent YAML  │────▶│            │
+│  or handler  │     └────────────┘
+└──────────────┘
 ```
 
 ### Step 1 — Define evaluation cases
@@ -158,6 +171,27 @@ cases:
 Graders score a `Subject` against a criterion. Register them by pattern prefix — the
 runner matches each `then` clause to the grader with the longest matching prefix.
 
+**Using the `@grader` decorator** (recommended):
+
+```python
+from beval import grader, Grade, GraderLayer, Subject
+
+@grader("the answer should mention", layer=GraderLayer.DETERMINISTIC, metric="relevance")
+def keyword_grader(criterion: str, args: list, subject: Subject, context) -> Grade:
+    keyword = args[0] if args else ""
+    found = keyword.lower() in subject.answer.lower()
+    return Grade(
+        criterion=criterion,
+        score=1.0 if found else 0.0,
+        metric="relevance",
+        passed=found,
+        detail=f"Keyword '{keyword}' {'found' if found else 'not found'}",
+        layer=GraderLayer.DETERMINISTIC,
+    )
+```
+
+**Using `register_grader` directly:**
+
 ```python
 from beval import register_grader, Grade, GraderLayer, Subject
 
@@ -181,10 +215,63 @@ register_grader(
 )
 ```
 
-### Step 3 — Write a subject adapter
+### Step 3 — Connect your agent
 
-The adapter is where you connect your actual agent. It takes the `given`
-context from a case, calls your system, and returns a normalized `Subject`.
+#### Agent YAML (declarative)
+
+Define an agent YAML file that tells beval how to reach your system. The
+runner handles connection, invocation, and Subject construction automatically.
+
+**ACP over stdio** (`agents/my-agent.yaml`):
+
+```yaml
+name: my-agent
+protocol: acp
+connection:
+  transport: stdio
+  command: ["python", "-m", "my_agent"]
+timeout: 30
+env:
+  OPENAI_API_KEY: ${OPENAI_API_KEY}
+metadata:
+  version: "1.0"
+```
+
+**A2A (Agent2Agent) over HTTP** (`agents/remote-agent.yaml`):
+
+```yaml
+name: remote-agent
+protocol: a2a
+connection:
+  url: "https://agent.example.com"
+  auth:
+    type: api_key
+    header: "Authorization"
+    value: ${A2A_API_KEY}
+  streaming: true
+timeout: 60
+```
+
+**Custom adapter** (`agents/custom-agent.yaml`):
+
+```yaml
+name: custom-agent
+protocol: custom
+connection:
+  module: "my_package.adapters"
+  class: "MyAdapter"
+  config:
+    endpoint: "https://custom.api"
+    api_key: ${CUSTOM_KEY}
+```
+
+See the [Agent Adapters Specification](../spec/agent-adapters.spec.md) for the
+full schema and protocol details.
+
+#### Programmatic handler (library usage)
+
+When using beval as a library, write a callable that takes the `given` context
+from a case, calls your system, and returns a normalized `Subject`.
 
 **Direct function call:**
 
@@ -265,7 +352,14 @@ def load_subject(path: str) -> Subject:
 
 ### Step 4 — Run the evaluation
 
-Wire the adapter into the Runner and execute:
+**CLI with an agent YAML file** (recommended):
+
+```bash
+uv run beval run --agent agents/my-agent.yaml --mode dev
+uv run beval run --agent agents/my-agent.yaml --mode validation --trials 3 --format json
+```
+
+**Programmatic** (library usage):
 
 ```python
 from beval import Runner, EvaluationMode, RunConfig
@@ -314,6 +408,7 @@ Modes control which grader layers are active:
 | `dev` | deterministic | Fast local iteration |
 | `dev+process` | deterministic + process | Include trace/span checks |
 | `validation` | deterministic + process + ai_judged | Full evaluation with LLM judges |
+| `monitoring` | deterministic + process + ai_judged | Production monitoring |
 
 Graders for inactive layers emit skipped grades (excluded from scoring by
 default). Cases remain identical across modes — you change the mode, not
@@ -321,14 +416,19 @@ the cases.
 
 ## CLI Usage
 
-> [!NOTE]
-> In version 0.1.0, only `beval version` is implemented. The remaining
-> commands listed below are planned for future releases.
-
 ```bash
 # Run evaluations
-uv run beval run --mode dev
-uv run beval run --mode validation --trials 3 --format json
+uv run beval run --cases ./cases/ --agent agents/my-agent.yaml --mode dev
+uv run beval run --cases ./cases/ --agent agents/my-agent.yaml --mode validation --trials 3 --format json
+
+# Verbose output (prints truncated agent responses to stderr)
+uv run beval --verbose run --cases ./cases/ --agent agents/my-agent.yaml
+
+# Save results to file
+uv run beval run --cases ./cases/ --agent agents/my-agent.yaml --output results.json
+
+# Verbose + output to file (full responses in file, truncated previews on stderr)
+uv run beval --verbose run --cases ./cases/ --agent agents/my-agent.yaml --output results.json
 
 # Validate case files and schemas
 uv run beval validate --cases ./cases/
@@ -358,10 +458,17 @@ Run as a module:
 uv run python -m beval version
 ```
 
+### Global flags
+
+| Flag | Description |
+|------|-------------|
+| `--verbose` | Print truncated agent responses to stderr; include full responses in output file |
+
 ### Environment variables
 
 | Variable          | Overrides     | Example             |
 |-------------------|---------------|---------------------|
+| `BEVAL_AGENT`     | `--agent`     | `BEVAL_AGENT=my-agent` |
 | `BEVAL_MODE`      | `--mode`      | `BEVAL_MODE=dev`    |
 | `BEVAL_OUTPUT_DIR`| `--output`    | `BEVAL_OUTPUT_DIR=./results` |
 | `BEVAL_TRIALS`    | `--trials`    | `BEVAL_TRIALS=5`    |
@@ -378,7 +485,16 @@ python/
 │       ├── cli.py           # CLI (argparse)
 │       ├── types.py         # Core type definitions (frozen dataclasses)
 │       ├── dsl.py           # DSL (@case decorator, Given/When/Then)
+│       ├── adapters/        # Agent adapters (ACP, A2A, custom)
+│       │   ├── __init__.py  # Interface, loader, factory
+│       │   ├── acp.py       # ACP adapter (optional: beval[acp])
+│       │   ├── a2a.py       # A2A adapter (optional: beval[a2a])
+│       │   └── custom.py    # Custom adapter (dynamic class loading)
 │       ├── graders/         # Grader registry and built-ins
+│       │   ├── __init__.py  # Registry, @grader decorator
+│       │   ├── deterministic.py  # Built-in deterministic graders
+│       │   ├── process.py        # Built-in process graders
+│       │   └── ai_judged.py      # AI-judged grader (LLM judge)
 │       ├── judge.py         # LLM judge interface
 │       ├── runner.py        # Runner orchestration
 │       ├── subject.py       # Subject normalization
@@ -391,6 +507,8 @@ python/
     ├── conftest.py          # Shared fixtures + registry isolation
     ├── test_types.py        # Core type tests
     ├── test_loader.py       # YAML loader tests
+    ├── test_adapters.py     # Agent adapter tests
+    ├── test_graders.py      # Grader tests
     ├── test_cli.py          # CLI tests
     └── test_conformance.py  # Cross-language conformance tests
 ```

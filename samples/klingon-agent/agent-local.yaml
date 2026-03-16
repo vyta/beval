@@ -1,0 +1,16 @@
+name: klingon-agent-local
+description: >
+  A local Klingon agent for testing. Requires server.py to be running.
+protocol: a2a
+
+connection:
+  url: http://127.0.0.1:8000
+  auth:
+    type: none
+  streaming: false
+
+timeout: 60
+
+retry:
+  max_attempts: 2
+  backoff: 2.0

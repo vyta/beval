@@ -7,14 +7,9 @@ description: >
 protocol: acp
 connection:
   transport: stdio
-  command:
-    - copilot
-    - --acp
-    - --stdio
-    - --agent
-    - dt-coach
-    - --allow-all
+  command: ["copilot", "--acp", "--stdio", "--allow-all"]
   cwd: ${AGENT_REPO_ROOT}
+init_prompt: "Launch .github/agents/design-thinking/dt-coach.agent.md"
 timeout: 120
 retry:
   max_attempts: 2

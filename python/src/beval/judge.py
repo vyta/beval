@@ -109,7 +109,9 @@ def _extract_json(text: str) -> str:
 
 
 def _parse_judge_response(
-    raw: str, criterion: str, grade_pass_threshold: float
+    raw: str,
+    criterion: str,
+    grade_pass_threshold: float,
 ) -> Grade:
     """Parse a judge response into a Grade (§14.5). Shared by all judge backends."""
     text = raw.strip()
@@ -489,7 +491,6 @@ class ACPJudge(Judge):
             running_loop = None
 
         if running_loop is not None:
-            # Inside an async context — run cleanup in a thread
             import concurrent.futures
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
@@ -524,7 +525,6 @@ class ACPJudge(Judge):
             running_loop = None
 
         if running_loop is not None:
-            # Already inside an async context — schedule on the running loop
             import concurrent.futures
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
@@ -536,7 +536,7 @@ class ACPJudge(Judge):
 
     def _run_in_new_loop(self, prompt: str) -> str:
         """Run _evaluate_async in a fresh event loop on a separate thread."""
-        self._loop = None  # force new loop for the new thread
+        self._loop = None
         loop = self._get_loop()
         try:
             return loop.run_until_complete(self._evaluate_async(prompt))

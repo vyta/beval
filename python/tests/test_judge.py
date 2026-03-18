@@ -445,7 +445,9 @@ class TestACPJudge:
         response_json = json.dumps({"score": 0.7, "reasoning": "ok"})
 
         with patch.object(
-            judge, "_evaluate_sync", return_value=response_json
+            judge,
+            "_evaluate_sync",
+            return_value=response_json,
         ) as mock_sync:
             judge.evaluate("crit", "answer1")
             judge.evaluate("crit", "answer2")
@@ -503,7 +505,7 @@ class TestACPJudge:
         judge.close()  # Should not raise
 
     def test_combined_prompt_contains_answer_tags(self):
-        """ACP judge uses single prompt with <answer> tags (§14.2.3)."""
+        """ACP judge prompt uses <answer> tags (§14.2.3)."""
         from beval.judge import _ACP_JUDGE_PROMPT_TEMPLATE
 
         prompt = _ACP_JUDGE_PROMPT_TEMPLATE.format(

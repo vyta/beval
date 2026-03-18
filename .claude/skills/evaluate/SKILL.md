@@ -30,7 +30,7 @@ Try commands in order until one succeeds:
 Store the working invocation as `BEVAL_CMD` (e.g., `uv run beval`).
 
 If **none** succeed, tell the user:
-> beval is not installed. Run: `pip install "beval[all]"` then re-run `/evaluate`.
+> beval is not installed. Run: `pip install "beval[all] @ git+https://github.com/vyta/beval.git#subdirectory=python"` then re-run `/evaluate`.
 
 Stop here until beval is available.
 

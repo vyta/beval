@@ -42,7 +42,7 @@ Try in order until one succeeds:
 4. `python -m beval version`
 
 Store the working invocation as `BEVAL_CMD`. If none work:
-> beval is not installed. Run: `pip install "beval[all]"`
+> beval is not installed. Run: `pip install "beval[all] @ git+https://github.com/vyta/beval.git#subdirectory=python"`
 
 ### Step 3 — Run
 

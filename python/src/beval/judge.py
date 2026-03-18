@@ -76,10 +76,13 @@ def _salvage_truncated_json(text: str) -> dict[str, Any] | None:
 
     Example: '{"score": 0.45, "reasoning": "...'
     """
-    m = re.search(r'"score"\s*:\s*([\d.]+)', text)
+    m = re.search(r'"score"\s*:\s*(\d+(?:\.\d+)?)', text)
     if m is None:
         return None
-    score = float(m.group(1))
+    try:
+        score = float(m.group(1))
+    except ValueError:
+        return None
     # Try to get reasoning, even partial
     rm = re.search(r'"reasoning"\s*:\s*"((?:[^"\\]|\\.)*)', text)
     reasoning = rm.group(1) if rm else ""

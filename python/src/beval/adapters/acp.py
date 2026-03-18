@@ -228,7 +228,10 @@ class ACPAdapter(AdapterInterface):
             model = self._connection.get("model")
             if model:
                 await asyncio.wait_for(
-                    self._conn.set_session_model(model_id=model, session_id=self._session_id),
+                    self._conn.set_session_model(
+                        model_id=model,
+                        session_id=self._session_id,
+                    ),
                     timeout=self._timeout,
                 )
 

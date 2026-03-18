@@ -490,19 +490,21 @@ class ACPJudge(Judge):
         except RuntimeError:
             running_loop = None
 
-        if running_loop is not None:
-            import concurrent.futures
+        try:
+            if running_loop is not None:
+                import concurrent.futures
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                pool.submit(self._close_in_new_loop).result(timeout=5)
-        elif self._loop is not None and not self._loop.is_closed():
-            try:
-                self._loop.run_until_complete(self._close_async())
-            except Exception:  # noqa: BLE001, S110
-                pass
-            finally:
-                self._loop.close()
-                self._loop = None
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    pool.submit(self._close_in_new_loop).result(timeout=5)
+            elif self._loop is not None and not self._loop.is_closed():
+                try:
+                    self._loop.run_until_complete(self._close_async())
+                finally:
+                    if not self._loop.is_running():
+                        self._loop.close()
+                    self._loop = None
+        except Exception:  # noqa: BLE001, S110
+            pass
 
     def _close_in_new_loop(self) -> None:
         loop = asyncio.new_event_loop()

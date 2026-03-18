@@ -580,10 +580,16 @@ def _cmd_run(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return EXIT_INTERNAL_ERROR
     finally:
-        if adapter is not None:
-            adapter.close()
-        if judge is not None and hasattr(judge, "close"):
-            judge.close()
+        try:
+            if adapter is not None:
+                adapter.close()
+        except Exception:  # noqa: BLE001, S110
+            pass
+        try:
+            if judge is not None and hasattr(judge, "close"):
+                judge.close()
+        except Exception:  # noqa: BLE001, S110
+            pass
 
     elapsed = time.monotonic() - start_time
 

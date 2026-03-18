@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 import threading
@@ -16,6 +17,8 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 _SPEC_VERSION = "0.1.0"
 
@@ -584,12 +587,12 @@ def _cmd_run(args: argparse.Namespace) -> int:
             if adapter is not None:
                 adapter.close()
         except Exception as close_exc:  # noqa: BLE001
-            print(f"Warning: error closing adapter: {close_exc}", file=sys.stderr)
+            logger.warning("Error closing adapter: %s", close_exc)
         try:
             if judge is not None and hasattr(judge, "close"):
                 judge.close()
         except Exception as close_exc:  # noqa: BLE001
-            print(f"Warning: error closing judge: {close_exc}", file=sys.stderr)
+            logger.warning("Error closing judge: %s", close_exc)
 
     elapsed = time.monotonic() - start_time
 

@@ -485,26 +485,25 @@ class ACPJudge(Judge):
 
     def close(self) -> None:
         """Release ACP connection resources."""
-        try:
-            running_loop = asyncio.get_running_loop()
-        except RuntimeError:
-            running_loop = None
+        if self._conn is None:
+            return
 
-        try:
-            if running_loop is not None:
-                import concurrent.futures
+        loop = self._loop
+        if loop is not None and not loop.is_closed() and not loop.is_running():
+            try:
+                loop.run_until_complete(self._close_async())
+            except Exception:  # noqa: BLE001, S110
+                pass
+            finally:
+                loop.close()
+                self._loop = None
+        else:
+            # Loop is unavailable or running — clean up in a fresh thread/loop
+            import concurrent.futures
 
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    pool.submit(self._close_in_new_loop).result(timeout=5)
-            elif self._loop is not None and not self._loop.is_closed():
-                try:
-                    self._loop.run_until_complete(self._close_async())
-                finally:
-                    if not self._loop.is_running():
-                        self._loop.close()
-                    self._loop = None
-        except Exception:  # noqa: BLE001, S110
-            pass
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(self._close_in_new_loop).result(timeout=5)
+            self._loop = None
 
     def _close_in_new_loop(self) -> None:
         loop = asyncio.new_event_loop()

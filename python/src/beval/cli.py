@@ -583,13 +583,13 @@ def _cmd_run(args: argparse.Namespace) -> int:
         try:
             if adapter is not None:
                 adapter.close()
-        except Exception:  # noqa: BLE001, S110
-            pass
+        except Exception as close_exc:  # noqa: BLE001
+            print(f"Warning: error closing adapter: {close_exc}", file=sys.stderr)
         try:
             if judge is not None and hasattr(judge, "close"):
                 judge.close()
-        except Exception:  # noqa: BLE001, S110
-            pass
+        except Exception as close_exc:  # noqa: BLE001
+            print(f"Warning: error closing judge: {close_exc}", file=sys.stderr)
 
     elapsed = time.monotonic() - start_time
 

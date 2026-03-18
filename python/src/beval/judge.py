@@ -607,6 +607,13 @@ class ACPJudge(Judge):
         )
         session_id = resp.session_id
 
+        model = self._connection.get("model")
+        if model:
+            await asyncio.wait_for(
+                self._conn.set_session_model(model_id=model, session_id=session_id),
+                timeout=self._timeout,
+            )
+
         self._acp_client.clear()
         await asyncio.wait_for(
             self._conn.prompt(

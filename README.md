@@ -25,6 +25,25 @@ the same evaluation cases work across all of them.
 
 The complete framework specification lives in [SPEC.md](SPEC.md) (v0.1.0).
 The agent adapter addendum is in [spec/agent-adapters.spec.md](spec/agent-adapters.spec.md).
+The judges specification is in [spec/judges.spec.md](spec/judges.spec.md).
+The Claude Code integration spec is in [spec/claude-code-integration.spec.md](spec/claude-code-integration.spec.md).
+
+## Installation
+
+beval is not yet published to PyPI. Install directly from GitHub:
+
+```bash
+pip install "beval[all] @ git+https://github.com/vyta/beval.git#subdirectory=python"
+```
+
+## Claude Code Integration
+
+This repository ships with project-scoped Claude Code primitives in `.claude/`:
+
+- **`/evaluate` skill** — an interactive 7-phase wizard that takes you from zero to a running beval evaluation: agent setup, case generation, config, run, results summary, and optional CI integration.
+- **`beval-runner` sub-agent** — auto-triggers when you ask to re-run evaluations; remembers your project's file paths across sessions for instant re-runs.
+
+Open this repository in Claude Code and type `/evaluate` to get started.
 
 ## Repository Structure
 
@@ -34,8 +53,13 @@ beval/
 ├── spec/                # Shared specification artifacts
 │   ├── schemas/         # JSON Schema definitions (results, config, case, agent, comparison)
 │   ├── cli.spec.yaml    # Machine-readable CLI interface contract
-│   ├── agent-adapters.spec.md  # Agent adapter specification (§13)
-│   └── otel-conventions.md     # OpenTelemetry span naming conventions
+│   ├── agent-adapters.spec.md          # Agent adapter specification (§13)
+│   ├── judges.spec.md                  # Judges specification (§14)
+│   ├── claude-code-integration.spec.md # Claude Code skill + sub-agent specification
+│   └── otel-conventions.md             # OpenTelemetry span naming conventions
+├── .claude/             # Claude Code project-scoped primitives
+│   ├── skills/evaluate/ # /evaluate interactive setup wizard
+│   └── agents/          # beval-runner sub-agent
 ├── conformance/         # Cross-language conformance test suite
 │   ├── fixtures/        # Input/expected pairs for conformance testing
 │   └── runner.sh        # Orchestrates all implementations

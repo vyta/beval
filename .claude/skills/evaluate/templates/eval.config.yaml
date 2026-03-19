@@ -1,0 +1,37 @@
+eval:
+  mode: __MODE__                        # dev | dev+process | validation | monitoring
+  thresholds:
+    grade_pass: 0.5
+    case_pass: 0.7
+  agents:
+    default: __AGENT_NAME__
+    definitions:
+      - name: __AGENT_NAME__
+        # Paste your agent definition here, or use --agent flag on the CLI
+        # Example (A2A):
+        # description: My agent
+        # protocol: a2a
+        # connection:
+        #   url: ${A2A_AGENT_URL}
+        #   auth:
+        #     type: bearer
+  output:
+    dir: results
+    format: json
+  # Judge configuration (required for validation mode with ai_judged graders).
+  # Uncomment ONE of the blocks below:
+  #
+  # Option 1 — OpenAI-compatible LLM judge:
+  # judge:
+  #   protocol: openai
+  #   model: gpt-4o                       # or claude-sonnet-4-6, etc.
+  #   # base_url: https://custom-endpoint  # only if not using default OpenAI
+  #
+  # Option 2 — ACP judge (external judge agent):
+  # judge:
+  #   protocol: acp
+  #   connection:
+  #     transport: stdio                   # or tcp
+  #     command: [judge-agent, --stdio]    # stdio example
+  #     # host: localhost                  # tcp example
+  #     # port: 8080

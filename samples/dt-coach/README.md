@@ -46,8 +46,8 @@ uv run beval -c ../samples/dt-coach/eval.config.yaml run \
 Start the agent and judge as separate processes (different ports):
 
 ```bash
-# Agent — runs the dt-coach custom agent
-copilot --acp --port 3000 --agent dt-coach --allow-all &
+# Agent — Copilot ACP server (the init_prompt in agent-tcp.yaml activates dt-coach)
+copilot --acp --port 3000 --allow-all &
 
 # Judge — plain Copilot LLM, no custom agent
 copilot --acp --port 3001 --allow-all &

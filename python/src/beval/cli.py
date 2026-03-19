@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 import threading
@@ -16,6 +17,8 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 _SPEC_VERSION = "0.1.0"
 
@@ -580,10 +583,16 @@ def _cmd_run(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return EXIT_INTERNAL_ERROR
     finally:
-        if adapter is not None:
-            adapter.close()
-        if judge is not None and hasattr(judge, "close"):
-            judge.close()
+        try:
+            if adapter is not None:
+                adapter.close()
+        except Exception as close_exc:  # noqa: BLE001
+            logger.warning("Error closing adapter: %s", close_exc)
+        try:
+            if judge is not None and hasattr(judge, "close"):
+                judge.close()
+        except Exception as close_exc:  # noqa: BLE001
+            logger.warning("Error closing judge: %s", close_exc)
 
     elapsed = time.monotonic() - start_time
 

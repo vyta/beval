@@ -4,7 +4,7 @@
 # Start the agent first:
 #
 #   cd $AGENT_REPO_ROOT
-#   copilot --acp --port 3000 --agent material-substitution --allow-all
+#   copilot --acp --port 3000 --allow-all
 #
 # Then run the evaluation:
 #   beval run --cases cases/ --agent agent-tcp.yaml
@@ -19,8 +19,9 @@ connection:
   transport: tcp
   host: ${AGENT_HOST:-127.0.0.1}
   port: ${AGENT_PORT:-3000}
-  cwd: ${AGENT_REPO_ROOT}    # Passed in new_session so the agent resolves .github/agents/
+  cwd: ${AGENT_REPO_ROOT}
 
+init_prompt: "Launch .github/agents/material-substitution.agent.md"
 timeout: 120
 
 retry:

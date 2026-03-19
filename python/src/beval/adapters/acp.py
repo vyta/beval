@@ -91,6 +91,7 @@ class ACPAdapter(AdapterInterface):
         self._process: Any = None
         self._ctx_manager: Any = None
         self._session_id: str | None = None
+        self._init_prompt = agent_def.get("init_prompt")
 
     def invoke(self, adapter_input: AdapterInput) -> Subject:
         """Connect (if needed), create session, prompt, and return Subject."""
@@ -223,6 +224,26 @@ class ACPAdapter(AdapterInterface):
                 timeout=self._timeout,
             )
             self._session_id = resp.session_id
+
+            model = self._connection.get("model")
+            if model:
+                await asyncio.wait_for(
+                    self._conn.set_session_model(
+                        model_id=model,
+                        session_id=self._session_id,
+                    ),
+                    timeout=self._timeout,
+                )
+
+            if self._init_prompt:
+                self._client.clear()
+                await asyncio.wait_for(
+                    self._conn.prompt(
+                        prompt=[text_block(self._init_prompt)],
+                        session_id=self._session_id,
+                    ),
+                    timeout=self._timeout,
+                )
 
         self._client.clear()
 

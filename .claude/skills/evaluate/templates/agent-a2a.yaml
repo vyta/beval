@@ -1,0 +1,20 @@
+name: __AGENT_NAME__
+description: >
+  __AGENT_DESCRIPTION__
+protocol: a2a
+
+connection:
+  url: ${A2A_AGENT_URL}
+  auth:
+    type: bearer                        # Options: bearer, api_key, none
+    scope: ${A2A_AUTH_SCOPE:-}          # Remove if not using OAuth scopes
+  streaming: false
+
+timeout: 60
+
+retry:
+  max_attempts: 2
+  backoff: 2.0
+
+metadata:
+  domain: __DOMAIN__

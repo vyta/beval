@@ -138,6 +138,22 @@ class TestLLMJudge:
         assert "Invalid judge response" in grade.detail
 
     @patch("openai.OpenAI")
+    def test_evaluate_salvages_truncated_json(self, mock_openai_cls):
+        mock_client = MagicMock()
+        mock_openai_cls.return_value = mock_client
+        mock_response = MagicMock()
+        mock_response.choices[0].message.content = (
+            '```json\n{"score": 0.45, "reasoning": '
+            '"The answer partially meets the criterion but'
+        )
+        mock_client.chat.completions.create.return_value = mock_response
+
+        judge = LLMJudge("gpt-4o")
+        grade = judge.evaluate("criterion", "answer")
+        assert grade.score == 0.45
+        assert "(truncated)" in grade.detail
+
+    @patch("openai.OpenAI")
     def test_evaluate_handles_api_error(self, mock_openai_cls):
         mock_client = MagicMock()
         mock_openai_cls.return_value = mock_client

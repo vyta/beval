@@ -17,8 +17,9 @@ eval:
         protocol: acp
         connection:
           transport: stdio
-          command: ["copilot", "--acp", "--stdio", "--agent", "material-substitution", "--allow-all"]
-          cwd: ${AGENT_REPO_ROOT}  # Path to repo with .github/agents/material-substitution.agent.md
+          command: ["copilot", "--acp", "--stdio", "--allow-all"]
+          cwd: ${AGENT_REPO_ROOT}
+        init_prompt: "Launch .github/agents/material-substitution.agent.md"
         timeout: 120
         retry:
           max_attempts: 2
@@ -33,6 +34,7 @@ eval:
           host: ${AGENT_HOST:-127.0.0.1}
           port: ${AGENT_PORT:-3000}
           cwd: ${AGENT_REPO_ROOT}
+        init_prompt: "Launch .github/agents/material-substitution.agent.md"
         timeout: 120
         retry:
           max_attempts: 2

@@ -33,6 +33,11 @@ export AGENT_REPO_ROOT=/path/to/your/agent/repo
 
 You also need the `copilot` CLI installed and authenticated.
 
+The agent YAML uses `init_prompt` to activate the custom agent at session
+start by launching the agent definition file (e.g.
+`Launch .github/agents/material-substitution.agent.md`). This works
+reliably across both stdio and TCP transports.
+
 ## Running
 
 All commands below assume you are in the `samples/smart-inventory-advisor/`
@@ -90,7 +95,7 @@ tell copilot to listen for ACP connections on the given port:
 
 ```bash
 cd $AGENT_REPO_ROOT
-copilot --acp --port 3000 --agent material-substitution --allow-all
+copilot --acp --port 3000 --allow-all
 ```
 
 Then in another terminal, run the evaluation:

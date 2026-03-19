@@ -22,9 +22,10 @@ protocol: acp
 
 connection:
   transport: stdio
-  command: ["copilot", "--acp", "--stdio", "--agent", "material-substitution", "--allow-all"]
-  cwd: ${AGENT_REPO_ROOT}    # Path to the repo containing .github/agents/material-substitution.agent.md
+  command: ["copilot", "--acp", "--stdio", "--allow-all"]
+  cwd: ${AGENT_REPO_ROOT}
 
+init_prompt: "Launch .github/agents/material-substitution.agent.md"
 timeout: 120
 
 retry:

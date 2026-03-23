@@ -430,6 +430,32 @@ class _ACPJudgeClient:
             if isinstance(update.content, TextContentBlock):
                 self.chunks.append(update.content.text)
 
+    async def request_permission(
+        self,
+        options: Any,
+        session_id: str,  # noqa: ARG002
+        tool_call: Any,  # noqa: ARG002
+        **kwargs: Any,  # noqa: ARG002
+    ) -> Any:
+        """Auto-approve all permission requests during evaluation."""
+        try:
+            from acp.schema import AllowedOutcome, RequestPermissionResponse  # noqa: I001
+        except ImportError:
+            return None
+
+        chosen_id = options[0].option_id if options else "allow_once"
+        for opt in options or []:
+            if "allow" in (getattr(opt, "kind", "") or "").lower():
+                chosen_id = opt.option_id
+                break
+
+        return RequestPermissionResponse(
+            outcome=AllowedOutcome(
+                outcome="selected",
+                option_id=chosen_id,
+            ),
+        )
+
 
 class ACPJudge(Judge):
     """ACP-backed judge that invokes any ACP agent as a judge. See §14.2.

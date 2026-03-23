@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -10,6 +11,7 @@ from beval.judge import (
     ACPJudge,
     LLMJudge,
     NullJudge,
+    _ACPJudgeClient,
     _extract_json,
     load_judge_from_config,
 )
@@ -517,3 +519,80 @@ class TestACPJudge:
         assert "</answer>" in prompt
         assert "Python is a language." in prompt
         assert "the answer should be concise" in prompt
+
+
+class TestACPJudgeClient:
+    def test_request_permission_exists(self):
+        client = _ACPJudgeClient()
+        assert callable(getattr(client, "request_permission", None))
+
+    def test_selects_allow_option_when_present(self):
+        mock_allow = MagicMock()
+        mock_allow.option_id = "allow_once"
+        mock_allow.kind = "allow"
+        mock_deny = MagicMock()
+        mock_deny.option_id = "deny"
+        mock_deny.kind = "deny"
+
+        mock_response = MagicMock()
+        mock_outcome = MagicMock()
+
+        with patch.dict(
+            "sys.modules",
+            {
+                "acp.schema": MagicMock(
+                    AllowedOutcome=MagicMock(return_value=mock_outcome),
+                    RequestPermissionResponse=MagicMock(return_value=mock_response),
+                ),
+            },
+        ):
+            client = _ACPJudgeClient()
+            result = asyncio.run(
+                client.request_permission(
+                    options=[mock_deny, mock_allow],
+                    session_id="s1",
+                    tool_call=MagicMock(),
+                )
+            )
+
+        assert result is mock_response
+
+    def test_falls_back_to_first_option_when_no_allow(self):
+        mock_opt = MagicMock()
+        mock_opt.option_id = "first"
+        mock_opt.kind = "other"
+
+        mock_response = MagicMock()
+        mock_outcome = MagicMock()
+
+        with patch.dict(
+            "sys.modules",
+            {
+                "acp.schema": MagicMock(
+                    AllowedOutcome=MagicMock(return_value=mock_outcome),
+                    RequestPermissionResponse=MagicMock(return_value=mock_response),
+                ),
+            },
+        ):
+            client = _ACPJudgeClient()
+            result = asyncio.run(
+                client.request_permission(
+                    options=[mock_opt],
+                    session_id="s1",
+                    tool_call=MagicMock(),
+                )
+            )
+
+        assert result is mock_response
+
+    def test_returns_none_when_acp_not_installed(self):
+        with patch.dict("sys.modules", {"acp.schema": None}):
+            client = _ACPJudgeClient()
+            result = asyncio.run(
+                client.request_permission(
+                    options=[],
+                    session_id="s1",
+                    tool_call=MagicMock(),
+                )
+            )
+        assert result is None

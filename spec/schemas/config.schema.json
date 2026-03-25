@@ -81,6 +81,10 @@
         "agents": {
           "$ref": "#/$defs/AgentsConfig",
           "description": "Agent definition and selection configuration. See SPEC §13."
+        },
+        "conversation": {
+          "$ref": "#/$defs/ConversationConfig",
+          "description": "Conversation simulation configuration. See spec/conversation-sim.spec.md §15."
         }
       }
     },
@@ -352,6 +356,171 @@
           "description": "Directory for cache storage."
         }
       }
+    },
+    "ConversationConfig": {
+      "type": "object",
+      "description": "Conversation simulation configuration. See spec/conversation-sim.spec.md §15.9.",
+      "additionalProperties": false,
+      "properties": {
+        "simulator": {
+          "$ref": "#/$defs/SimulatorConfig",
+          "description": "UserSimulator configuration. Required for beval converse run."
+        },
+        "personas": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PersonaSource" },
+          "description": "Persona sources: file paths and/or inline persona definitions."
+        },
+        "goals": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GoalSource" },
+          "description": "Goal sources: file paths and/or inline goal definitions."
+        },
+        "actor_count": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Number of independent actors per persona/goal pair. Analogous to trials (§11)."
+        },
+        "max_parallel_actors": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Maximum number of actors running concurrently."
+        },
+        "history_dir": {
+          "type": "string",
+          "default": ".beval_history",
+          "description": "Directory for persisting ConversationRunResult history files."
+        },
+        "history_retention_days": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 30,
+          "description": "Number of days to retain history files. 0 disables automatic deletion."
+        },
+        "run_timeout_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Optional wall-clock timeout for the entire run. Triggers clean cancellation on expiry."
+        }
+      }
+    },
+    "SimulatorConfig": {
+      "type": "object",
+      "description": "UserSimulator configuration. See spec/conversation-sim.spec.md §15.6. Mirrors JudgeConfig structure.",
+      "required": ["protocol"],
+      "additionalProperties": false,
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "enum": ["openai", "acp"],
+          "description": "Simulator backend protocol."
+        },
+        "model": {
+          "type": "string",
+          "description": "Model identifier (protocol: openai only)."
+        },
+        "api_key": {
+          "type": "string",
+          "description": "API key reference, e.g. ${OPENAI_API_KEY} (protocol: openai only)."
+        },
+        "base_url": {
+          "type": "string",
+          "description": "Base URL override for proxies or Azure (protocol: openai only)."
+        },
+        "auth": {
+          "type": "string",
+          "enum": ["entra_id"],
+          "description": "Auth method override. 'entra_id' uses Azure DefaultAzureCredential (protocol: openai only)."
+        },
+        "max_answer_chars": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Truncation limit for agent response content in simulator prompts (protocol: openai only)."
+        },
+        "connection": {
+          "type": "object",
+          "description": "ACP connection parameters (protocol: acp only)."
+        },
+        "timeout": {
+          "type": "number",
+          "minimum": 0,
+          "default": 30,
+          "description": "Request timeout in seconds."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "protocol": { "const": "openai" } } },
+          "then": { "required": ["model"] }
+        },
+        {
+          "if": { "properties": { "protocol": { "const": "acp" } } },
+          "then": { "required": ["connection"] }
+        }
+      ]
+    },
+    "PersonaSource": {
+      "description": "A persona source: either a file path reference or an inline persona definition.",
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "File path reference to a persona library YAML file.",
+          "required": ["file"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "Path to a persona library YAML file (personas-goals.schema.json)."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Inline persona definition.",
+          "required": ["id", "name", "description"],
+          "additionalProperties": true,
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "GoalSource": {
+      "description": "A goal source: either a file path reference or an inline goal definition.",
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "File path reference to a goal library YAML file.",
+          "required": ["file"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "Path to a goal library YAML file (personas-goals.schema.json)."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Inline goal definition.",
+          "required": ["id", "name", "objective", "success_criteria"],
+          "additionalProperties": true,
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "objective": { "type": "string" },
+            "success_criteria": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1
+            }
+          }
+        }
+      ]
     }
   }
 }

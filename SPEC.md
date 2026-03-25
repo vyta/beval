@@ -24,6 +24,8 @@ Version: 0.1.0
 11. Non-determinism and Multi-trial Evaluation
 12. Extension Points
 13. Agent Adapters
+14. Judges
+15. Conversation Simulation
 
 See [GUIDE.md](GUIDE.md) for informative companion material including
 recommended vocabularies, implementation guidance, and optional advanced
@@ -638,3 +640,17 @@ specification, covering:
 * Prompt structure and `<answer>` tag delimiting (§10.3)
 * Response parsing and error handling
 * JSON schema changes
+
+## 15. Conversation Simulation
+
+See [spec/conversation-sim.spec.md](spec/conversation-sim.spec.md) for the full
+conversation simulation specification, covering:
+
+* Test matrix model: `personas × goals × actor_count`
+* Persona and goal definition YAML schema
+* UserSimulator contract with built-in `llm` and `acp` simulators
+* Conversation lifecycle, termination reasons, and history
+* Per-turn and conversation-level evaluation using the §4 grader registry
+* Progress tracking, run history, and cancellation
+* `beval converse` CLI command group
+* JSON schema additions for config and results

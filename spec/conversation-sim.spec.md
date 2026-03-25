@@ -556,6 +556,12 @@ to `max_parallel_actors=1`. When parallel execution is supported and
 `max_parallel_actors > 1`, actors execute as concurrent tasks (threads, async
 tasks, or processes — implementation choice).
 
+Implementations SHOULD support `max_parallel_actors` values up to **1000**.
+At this scale each actor is I/O-bound (waiting on the agent and simulator APIs),
+so async task-based concurrency is strongly preferred over thread-per-actor or
+process-per-actor models. Implementations MUST NOT impose an arbitrary low
+ceiling on `max_parallel_actors` (e.g., hard-coding a limit of 10 or 50).
+
 ### 15.7.3 Actor lifecycle
 
 ```text

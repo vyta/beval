@@ -80,6 +80,13 @@ This produces **3 conversations** per run (one per persona/goal pairing declared
 > ACP sessions but play different roles. Separating them avoids cross-session
 > context bleed and allows independent timeout tuning.
 
+> **Concurrent sessions:** With `max_parallel_actors > 1`, each parallel actor
+> opens its own ACP session on the simulator server simultaneously. The default
+> config uses `max_parallel_actors: 1` (sequential) which is safe regardless
+> of whether your Copilot build supports concurrent sessions. If your Copilot
+> instance supports session multiplexing, you can raise this to run actors in
+> parallel and reduce total wall-clock time.
+
 Override the default ports via environment variables:
 
 ```bash

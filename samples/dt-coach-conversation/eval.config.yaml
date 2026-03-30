@@ -60,9 +60,7 @@ eval:
       - file: goals.yaml
 
     actor_count: 1          # increase for variance data
-    # Each parallel actor opens its own session on the simulator ACP server.
-    # Set to 1 if your Copilot instance does not support concurrent sessions.
-    max_parallel_actors: 1
+    max_parallel_actors: 3
     history_dir: .beval_history
     history_retention_days: 30
 

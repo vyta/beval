@@ -13,6 +13,7 @@ from beval.conversation.runner import (
     ConversationRunner,
     _build_conversations,
     _build_summary,
+    _run_all_actors,
     load_personas_and_goals,
 )
 from beval.conversation.simulator import (
@@ -405,3 +406,133 @@ class TestBuildSummary:
         ]
         summary = _build_summary(results, RunConfig())
         assert summary.total_turns == 10
+
+
+# ── Parallel concurrency ──────────────────────────────────────────────────
+
+
+class TestParallelActors:
+    """Verify that max_parallel_actors limits concurrency via semaphore."""
+
+    def test_3_actors_run_concurrently(self):
+        """All 3 actors complete when max_parallel_actors=3."""
+        import asyncio
+
+        persona = make_persona(id="p", goals=["g1", "g2", "g3"])
+        goals = [
+            make_goal(id="g1"),
+            make_goal(id="g2"),
+            make_goal(id="g3"),
+        ]
+        goal_pool = {g.id: g for g in goals}
+        conversations = _build_conversations([persona], goal_pool, actor_count=1)
+        assert len(conversations) == 3
+
+        active_count = 0
+        peak_active = 0
+
+        class CountingSimulator:
+            async def generate_case(self, *a, **kw):
+                nonlocal active_count, peak_active
+                active_count += 1
+                peak_active = max(peak_active, active_count)
+                await asyncio.sleep(0.01)  # yield to let others start
+                active_count -= 1
+                return DynamicCase(query="", then=(), progress=1.0)
+
+            async def close(self):
+                pass
+
+        class CountingAdapter:
+            def invoke(self, *a, **kw):
+                from beval.types import Subject
+                return Subject(input="q", output="a", completion_time=0.0)
+
+            def close(self):
+                pass
+
+        from unittest.mock import patch
+
+        def make_simulator(_config):
+            return CountingSimulator()
+
+        def make_adapter(_def):
+            return CountingAdapter()
+
+        context = make_context()
+
+        with patch(
+            "beval.conversation.runner.load_simulator_from_config", side_effect=make_simulator
+        ), patch("beval.conversation.runner.create_adapter", side_effect=make_adapter):
+            results = asyncio.run(
+                _run_all_actors(
+                    conversations,
+                    agent_def={"name": "mock", "protocol": "acp", "connection": {}},
+                    simulator_config={"protocol": "openai", "model": "mock"},
+                    context=context,
+                    max_parallel_actors=3,
+                    run_timeout_seconds=None,
+                )
+            )
+
+        assert len(results) == 3
+        assert all(r.termination_reason == "goal_achieved" for r in results)
+        # With max_parallel_actors=3 all 3 should have been active simultaneously
+        assert peak_active == 3
+
+    def test_semaphore_limits_to_1(self):
+        """With max_parallel_actors=1 actors run one at a time."""
+        import asyncio
+
+        persona = make_persona(id="p", goals=["g1", "g2", "g3"])
+        goals = [make_goal(id=f"g{i}") for i in range(1, 4)]
+        goal_pool = {g.id: g for g in goals}
+        conversations = _build_conversations([persona], goal_pool, actor_count=1)
+
+        active_count = 0
+        peak_active = 0
+
+        class CountingSimulator:
+            async def generate_case(self, *a, **kw):
+                nonlocal active_count, peak_active
+                active_count += 1
+                peak_active = max(peak_active, active_count)
+                await asyncio.sleep(0.01)
+                active_count -= 1
+                return DynamicCase(query="", then=(), progress=1.0)
+
+            async def close(self):
+                pass
+
+        class CountingAdapter:
+            def invoke(self, *a, **kw):
+                from beval.types import Subject
+                return Subject(input="q", output="a", completion_time=0.0)
+
+            def close(self):
+                pass
+
+        from unittest.mock import patch
+
+        context = make_context()
+
+        with patch(
+            "beval.conversation.runner.load_simulator_from_config",
+            side_effect=lambda _: CountingSimulator(),
+        ), patch(
+            "beval.conversation.runner.create_adapter",
+            side_effect=lambda _: CountingAdapter(),
+        ):
+            asyncio.run(
+                _run_all_actors(
+                    conversations,
+                    agent_def={},
+                    simulator_config={},
+                    context=context,
+                    max_parallel_actors=1,
+                    run_timeout_seconds=None,
+                )
+            )
+
+        # Semaphore of 1 means at most 1 actor active at a time
+        assert peak_active == 1

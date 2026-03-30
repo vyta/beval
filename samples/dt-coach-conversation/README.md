@@ -127,12 +127,17 @@ uv run beval -c ../samples/dt-coach-conversation/eval.config.yaml \
   converse run --output ../samples/dt-coach-conversation/results/
 ```
 
-Run with multiple actors per pair (for variance data):
+Run 3 independent actors per (persona, goal) pair to measure consistency:
 
 ```bash
 uv run beval -c ../samples/dt-coach-conversation/eval.config.yaml \
   converse run --actor-count 3 --max-parallel 3
 ```
+
+Each actor replays the same goal from scratch with a different simulated
+conversation. This produces 9 results instead of 3 and answers questions like
+"does the coach reliably guide users to a problem frame, or does it only
+succeed 1 out of 3 times?" — analogous to `--trials` in static evaluation.
 
 ### OpenAI simulator (alternative)
 

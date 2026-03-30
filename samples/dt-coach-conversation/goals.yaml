@@ -1,0 +1,94 @@
+goals:
+
+  # ── Goal 1: Full Method 1 session ──────────────────────────────────────
+  - id: run_method1_session
+    name: Run a complete Method 1 (Scope Conversations) session
+    tags: [method-1, session-arc, core]
+    given:
+      objective: >
+        Get the design thinking coach to guide you through a full Method 1
+        (Scope Conversations) session for the field-failure-reporting project.
+        Start with initialization (provide the project slug and context), then
+        work through active coaching to identify the real problem behind the
+        solution assumption ("build a mobile app"), and end with a clear
+        problem frame and a natural session close. The session should feel
+        like a real coaching conversation, not a quiz.
+      max_turns: 20
+      timeout_seconds: 600
+    stages:
+      - when: "each turn"
+        then:
+          - "response time should be under 120"
+          - "the answer should be: responds conversationally and stays in
+            coaching mode — does not lecture or produce artifacts for the user"
+      - when: "on finish"
+        then:
+          - "the agent helped the user articulate a real human problem rather
+            than accepting the solution assumption at face value"
+          - "the agent maintained the Think/Speak/Empower philosophy throughout
+            the conversation"
+          - "the agent asked open-ended questions rather than prescribing
+            solutions or issuing directives"
+          - "the conversation ended with a clear problem frame or a natural
+            transition prompt"
+
+  # ── Goal 2: Recover from confusion ─────────────────────────────────────
+  - id: recover_from_confusion
+    name: Coach recovers user from a confused mid-session state
+    tags: [hints, resilience, core]
+    given:
+      objective: >
+        Express genuine confusion about what to do next mid-session. Say you
+        feel lost, that the notes from your interviews don't make sense, and
+        that you're not sure design thinking is working for you. The goal is
+        to have the coach respond with empathy, provide progressive guidance
+        (broad hint first, then more specific if needed), and get you back on
+        track without making you feel foolish. By the end you should feel
+        re-oriented and know your next concrete step.
+      max_turns: 10
+      timeout_seconds: 300
+    stages:
+      - when: "each turn"
+        then:
+          - "response time should be under 120"
+          - "the answer should be: responds with curiosity and empathy rather
+            than defensiveness or methodology lectures"
+      - when: "on finish"
+        then:
+          - "the agent responded to the user's expressed confusion with empathy
+            and normalization, not with a methodology lecture"
+          - "the agent used progressive hints — starting broad and getting more
+            specific only if the user remained stuck"
+          - "by the end of the conversation the user had a clear, manageable
+            next step to take"
+
+  # ── Goal 3: Method transition ───────────────────────────────────────────
+  - id: transition_to_method2
+    name: Transition from Method 1 to Method 2 with continuity
+    tags: [method-transition, navigation, core]
+    given:
+      objective: >
+        Resume the field-failure-reporting project. Reference the key insight
+        from your previous Method 1 session (delayed visibility into equipment
+        health is the real problem). Tell the coach you want to move on to
+        Method 2 (Design Research). The coach should recap the Method 1
+        accomplishments, confirm the transition, and help you plan a systematic
+        user research approach for Method 2 — specifically who to interview
+        and what to explore. End with a concrete research plan outline.
+      max_turns: 15
+      timeout_seconds: 450
+    stages:
+      - when: "each turn"
+        then:
+          - "response time should be under 120"
+          - "the answer should be: acknowledges context and builds on prior
+            session knowledge rather than starting from scratch"
+      - when: "on finish"
+        then:
+          - "the agent explicitly confirmed the method transition and briefly
+            recapped the key Method 1 accomplishment"
+          - "the agent helped the user plan a research approach for Method 2
+            including who to interview and what questions to explore"
+          - "the agent maintained continuity from the previous session rather
+            than treating this as a fresh start"
+          - "the conversation ended with a concrete next step for the user"

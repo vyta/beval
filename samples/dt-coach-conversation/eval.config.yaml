@@ -1,0 +1,69 @@
+eval:
+  mode: validation
+  thresholds:
+    grade_pass: 0.5
+    case_pass: 0.7
+
+  agents:
+    default: dt-coach
+    definitions:
+      - name: dt-coach
+        description: >
+          Design Thinking Coach via ACP stdio transport.
+        protocol: acp
+        connection:
+          transport: stdio
+          command: ["copilot", "--acp", "--stdio", "--allow-all"]
+          cwd: ${AGENT_REPO_ROOT}
+        init_prompt: "Launch .github/agents/design-thinking/dt-coach.agent.md"
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+
+      - name: dt-coach-tcp
+        description: >
+          Design Thinking Coach via ACP TCP transport.
+        protocol: acp
+        connection:
+          transport: tcp
+          host: ${AGENT_HOST:-127.0.0.1}
+          port: ${AGENT_PORT:-3000}
+          cwd: ${AGENT_REPO_ROOT}
+        init_prompt: "Launch .github/agents/design-thinking/dt-coach.agent.md"
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+
+  judge:
+    protocol: acp
+    connection:
+      transport: tcp
+      host: ${JUDGE_HOST:-127.0.0.1}
+      port: ${JUDGE_PORT:-3001}
+    timeout: 60
+
+  conversation:
+    simulator:
+      protocol: acp
+      connection:
+        transport: tcp
+        host: ${SIMULATOR_HOST:-127.0.0.1}
+        port: ${SIMULATOR_PORT:-3002}
+      timeout: 60
+
+    personas:
+      - file: personas.yaml
+
+    goals:
+      - file: goals.yaml
+
+    actor_count: 1          # increase for variance data
+    max_parallel_actors: 3
+    history_dir: .beval_history
+    history_retention_days: 30
+
+  output:
+    dir: results
+    format: json

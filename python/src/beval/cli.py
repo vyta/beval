@@ -277,6 +277,79 @@ def _build_parser() -> argparse.ArgumentParser:
     # --- version ---
     subparsers.add_parser("version", help="Print version and build information.")
 
+    # --- converse ---
+    converse_parser = subparsers.add_parser(
+        "converse", help="Run conversation simulation (§15)."
+    )
+    converse_sub = converse_parser.add_subparsers(
+        dest="converse_command", help="Conversation subcommands."
+    )
+    converse_run = converse_sub.add_parser(
+        "run", help="Execute a conversation simulation run."
+    )
+    converse_run.add_argument(
+        "-m",
+        "--mode",
+        type=str,
+        choices=["dev", "dev+process", "validation", "monitoring"],
+        default="dev",
+        help="Evaluation mode.",
+    )
+    converse_run.add_argument(
+        "-l", "--label", type=str, default=None, help="Run label for traceability."
+    )
+    converse_run.add_argument(
+        "-a",
+        "--agent",
+        type=str,
+        default=None,
+        help="Agent YAML file or config name (system under test).",
+    )
+    converse_run.add_argument(
+        "--simulator-model",
+        type=str,
+        default=None,
+        help="Shorthand: openai simulator model (overrides config/env).",
+    )
+    converse_run.add_argument(
+        "--simulator-agent",
+        type=str,
+        default=None,
+        help="Shorthand: ACP simulator command (overrides config/env).",
+    )
+    converse_run.add_argument(
+        "--actor-count",
+        type=int,
+        default=None,
+        help="Number of actors per persona/goal pair (overrides config).",
+    )
+    converse_run.add_argument(
+        "--max-parallel",
+        type=int,
+        default=None,
+        help="Maximum parallel actors (overrides config).",
+    )
+    converse_run.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default=None,
+        help="Results output path.",
+    )
+    converse_run.add_argument(
+        "--format",
+        type=str,
+        choices=["json", "jsonl"],
+        default="json",
+        help="Results output format.",
+    )
+    converse_run.add_argument(
+        "--judge-model",
+        type=str,
+        default=None,
+        help="LLM judge model identifier (overrides config/env).",
+    )
+
     return parser
 
 
@@ -1087,6 +1160,195 @@ def _cmd_init(args: argparse.Namespace) -> int:
     return EXIT_PASS
 
 
+def _cmd_converse(args: argparse.Namespace) -> int:
+    """Handle the converse command (§15)."""
+    sub = getattr(args, "converse_command", None)
+    if sub is None:
+        print("Error: provide a subcommand: run", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+    if sub == "run":
+        return _cmd_converse_run(args)
+    print(f"Error: unknown converse subcommand: {sub}", file=sys.stderr)
+    return EXIT_INPUT_ERROR
+
+
+def _cmd_converse_run(args: argparse.Namespace) -> int:
+    """Handle beval converse run (§15.14)."""
+    import dataclasses
+    import json as _json
+
+    from beval.adapters import load_agent
+    from beval.conversation.runner import ConversationRunner
+    from beval.types import EvaluationMode, RunConfig
+
+    # Load config file
+    file_config = _load_config_file(getattr(args, "config", None))
+    conv_config: dict[str, Any] = file_config.get("conversation", {})
+
+    # ── Resolve agent (system under test) ────────────────────────────────
+    agent_ref = getattr(args, "agent", None)
+    config_agents = file_config.get("agents")
+    if agent_ref is None and config_agents:
+        agent_ref = config_agents.get("default")
+    if agent_ref is None:
+        print("Error: --agent is required (or set agents.default in config)", file=sys.stderr)  # noqa: E501
+        return EXIT_INPUT_ERROR
+
+    try:
+        agent_def = load_agent(agent_ref, config_agents=config_agents)
+    except SystemExit:
+        print(f"Error: could not load agent: {agent_ref}", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+    except Exception as exc:  # noqa: BLE001
+        print(f"Error loading agent: {exc}", file=sys.stderr)
+        return EXIT_INFRA_ERROR
+
+    # ── Resolve simulator (§15.6.6) ──────────────────────────────────────
+    sim_model = getattr(args, "simulator_model", None) or os.environ.get(
+        "BEVAL_SIMULATOR_MODEL"
+    )
+    sim_agent = getattr(args, "simulator_agent", None) or os.environ.get(
+        "BEVAL_SIMULATOR_AGENT"
+    )
+
+    if sim_model and sim_agent:
+        print(
+            "Error: --simulator-model and --simulator-agent are mutually exclusive",
+            file=sys.stderr,
+        )
+        return EXIT_INPUT_ERROR
+
+    if sim_model:
+        simulator_config: dict[str, Any] = {"protocol": "openai", "model": sim_model}
+    elif sim_agent:
+        simulator_config = {
+            "protocol": "acp",
+            "connection": {"transport": "stdio", "command": sim_agent.split()},
+        }
+    else:
+        raw_sim = (conv_config.get("simulator") or {})
+        if not raw_sim:
+            print(
+                "Error: no simulator configured. Use --simulator-model, "
+                "--simulator-agent, BEVAL_SIMULATOR_MODEL, BEVAL_SIMULATOR_AGENT, "
+                "or eval.conversation.simulator in config.",
+                file=sys.stderr,
+            )
+            return EXIT_INPUT_ERROR
+        simulator_config = raw_sim
+
+    # ── Override conv_config with CLI flags ───────────────────────────────
+    if getattr(args, "actor_count", None) is not None:
+        conv_config = dict(conv_config)
+        conv_config["actor_count"] = args.actor_count
+    if getattr(args, "max_parallel", None) is not None:
+        conv_config = dict(conv_config)
+        conv_config["max_parallel_actors"] = args.max_parallel
+
+    # ── Build RunConfig ───────────────────────────────────────────────────
+    thresholds = file_config.get("thresholds", {})
+    grade_pass_threshold = thresholds.get("grade_pass") or file_config.get(
+        "grade_pass_threshold", 0.5
+    )
+    case_pass_threshold = thresholds.get("case_pass") or file_config.get(
+        "case_pass_threshold", 0.7
+    )
+    config = RunConfig(
+        grade_pass_threshold=float(grade_pass_threshold),
+        case_pass_threshold=float(case_pass_threshold),
+    )
+
+    # ── Evaluation mode ───────────────────────────────────────────────────
+    mode_str = getattr(args, "mode", "dev")
+    if mode_str == "dev" and "mode" in file_config:
+        mode_str = file_config["mode"]
+    mode = EvaluationMode(mode_str)
+
+    # ── Judge (optional) ──────────────────────────────────────────────────
+    evaluators: dict[str, Any] = {}
+    judge_model = getattr(args, "judge_model", None)
+    if judge_model is None:
+        judge_model = file_config.get("judge_model")
+    if judge_model:
+        try:
+            from beval.judge import LLMJudge
+
+            evaluators["judge"] = LLMJudge(
+                judge_model, grade_pass_threshold=config.grade_pass_threshold
+            )
+        except ImportError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return EXIT_INPUT_ERROR
+    else:
+        judge_config = file_config.get("judge")
+        if judge_config and isinstance(judge_config, dict):
+            try:
+                from beval.judge import load_judge_from_config
+
+                evaluators["judge"] = load_judge_from_config(
+                    judge_config, grade_pass_threshold=config.grade_pass_threshold
+                )
+            except (ValueError, ImportError) as exc:
+                print(f"Error: {exc}", file=sys.stderr)
+                return EXIT_INPUT_ERROR
+
+    # ── Run ───────────────────────────────────────────────────────────────
+    runner = ConversationRunner(
+        agent_def=agent_def,
+        simulator_config=simulator_config,
+        conv_config=conv_config,
+        mode=mode,
+        config=config,
+        evaluators=evaluators,
+    )
+
+    label = getattr(args, "label", None)
+    try:
+        result = runner.run(label=label)
+    except SystemExit:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        print(f"Error: {exc}", file=sys.stderr)
+        return EXIT_INTERNAL_ERROR
+
+    # ── Output ────────────────────────────────────────────────────────────
+    def _to_dict(obj: Any) -> Any:
+        if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
+            return {k: _to_dict(v) for k, v in dataclasses.asdict(obj).items()}
+        if isinstance(obj, (list, tuple)):
+            return [_to_dict(i) for i in obj]
+        return obj
+
+    result_dict = _to_dict(result)
+
+    output_path = getattr(args, "output", None)
+    if output_path:
+        p = Path(output_path)
+        if p.is_dir():
+            p = p / "conversation_results.json"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "w", encoding="utf-8") as f:
+            _json.dump(result_dict, f, indent=2)
+        if not args.quiet:
+            print(f"\n  Results saved to: {p}", file=sys.stderr)
+    else:
+        print(_json.dumps(result_dict, indent=2))
+
+    # Console summary
+    s = result.summary
+    if not args.quiet:
+        print(
+            f"\n  Score: {s.overall_score:.2f}  "
+            f"Goal rate: {s.goal_achievement_rate:.0%}  "
+            f"Passed: {s.passed}/{s.total}  "
+            f"Turns: {s.total_turns}",
+            file=sys.stderr,
+        )
+
+    # Exit code: fail if any conversation failed
+    return EXIT_PASS if result.summary.failed == 0 and result.summary.errored == 0 else EXIT_FAIL  # noqa: E501
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI entrypoint for beval."""
     parser = _build_parser()
@@ -1101,6 +1363,7 @@ def main(argv: list[str] | None = None) -> int:
         "cache": _cmd_cache,
         "init": _cmd_init,
         "version": lambda _: _cmd_version(),
+        "converse": _cmd_converse,
     }
 
     if args.command is None:

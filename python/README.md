@@ -414,6 +414,150 @@ Graders for inactive layers emit skipped grades (excluded from scoring by
 default). Cases remain identical across modes — you change the mode, not
 the cases.
 
+## Conversation Simulation
+
+In addition to static single-turn evaluation, beval supports **conversation
+simulation**: an AI-powered simulated user pursues a goal through multi-turn
+dialogue with your agent, grading every turn and the conversation as a whole.
+
+```text
+┌────────────┐  generate_case()   ┌──────────────┐
+│  Simulator │ ─────────────────▶ │  DynamicCase │
+│  (persona+ │                    │  query+then  │
+│   goal)    │                    └──────┬───────┘
+└────────────┘                           │ invoke()
+                                  ┌──────▼───────┐
+                                  │  Your Agent  │
+                                  └──────┬───────┘
+                                         │ response
+                                  ┌──────▼───────┐
+                                  │   Graders    │ ◀── static goal criteria
+                                  │  (§4 registry)│     + dynamic turn criteria
+                                  └──────────────┘
+```
+
+The simulator calls an LLM (or an ACP agent like GitHub Copilot) to generate
+the next message and 1–3 turn-specific evaluation criteria. Grading reuses the
+same §4 grader registry as static evaluation — no new infrastructure.
+
+### Quick start
+
+**1. Define personas and goals** (`personas.yaml`, `goals.yaml`):
+
+```yaml
+# personas.yaml
+personas:
+  - id: casual_user
+    name: Casual User
+    description: >
+      A non-technical user asking questions in plain, conversational language.
+      Patient and polite.
+    goals: [find_refund_policy]
+    traits:
+      tone: friendly
+      expertise: beginner
+```
+
+```yaml
+# goals.yaml
+goals:
+  - id: find_refund_policy
+    name: Find Refund Policy
+    given:
+      objective: >
+        Find the company's refund policy, including the time limit for returns
+        and conditions under which refunds are granted.
+      max_turns: 10
+    stages:
+      - when: "each turn"
+        then:
+          - "response time should be under 10"
+      - when: "on finish"
+        then:
+          - "the agent describes at least one condition for refund eligibility"
+          - "the agent provided accurate policy information"
+```
+
+**2. Add conversation config** (`eval.config.yaml`):
+
+```yaml
+eval:
+  conversation:
+    simulator:
+      protocol: openai
+      model: gpt-4o
+      api_key: ${OPENAI_API_KEY}
+    personas:
+      - file: personas.yaml
+    goals:
+      - file: goals.yaml
+    actor_count: 1
+    max_parallel_actors: 5
+```
+
+**3. Run:**
+
+```bash
+uv run beval converse run \
+  --agent agents/my-agent.yaml \
+  --output results/conversation.json
+```
+
+Or with shorthand flags (no config file needed):
+
+```bash
+uv run beval converse run \
+  --agent agents/my-agent.yaml \
+  --simulator-model gpt-4o \
+  --output results/conversation.json
+```
+
+### Pairing model
+
+Personas declare which goals they pursue in their `goals` list — this is not a
+cartesian product. If persona A lists `[goal_1, goal_2]` and persona B lists
+`[goal_2]`, the run produces three conversations:
+`(A, goal_1)`, `(A, goal_2)`, `(B, goal_2)`.
+
+Set `actor_count > 1` for variance data (analogous to `--trials` for static
+evaluation): multiple independent actors run the same persona/goal pair.
+
+### Simulator options
+
+| Method | Config / Flag |
+|---|---|
+| OpenAI-compatible LLM | `--simulator-model gpt-4o` or `eval.conversation.simulator.protocol: openai` |
+| ACP agent (e.g., Copilot) | `--simulator-agent "copilot --acp --stdio"` or `eval.conversation.simulator.protocol: acp` |
+
+### Parallelism
+
+Set `max_parallel_actors` to run multiple actors concurrently. Actors are async
+tasks (not threads or processes) — each is I/O-bound (waiting on the agent and
+simulator APIs), so the implementation scales to 1000 concurrent actors on a
+single process without significant overhead.
+
+### Results
+
+Conversation results follow the same shape as static `CaseResult` — the same
+reporting tooling (`beval compare`, baseline diffing) works unchanged.
+
+```json
+{
+  "mode": "validation",
+  "summary": {
+    "overall_score": 0.82,
+    "goal_achievement_rate": 0.75,
+    "passed": 6,
+    "total": 8,
+    "total_turns": 34,
+    "mean_turns_to_goal": 4.2
+  },
+  "conversations": [...]
+}
+```
+
+---
+
 ## CLI Usage
 
 ```bash
@@ -450,6 +594,11 @@ uv run beval init --dir ./my-evals
 
 # Print version information
 uv run beval version
+
+# Conversation simulation
+uv run beval converse run --agent agents/my-agent.yaml --simulator-model gpt-4o
+uv run beval converse run --agent agents/my-agent.yaml --simulator-agent "copilot --acp --stdio"
+uv run beval converse run --agent agents/my-agent.yaml --actor-count 3 --max-parallel 10 --output results/
 ```
 
 Run as a module:
@@ -466,13 +615,17 @@ uv run python -m beval version
 
 ### Environment variables
 
-| Variable          | Overrides     | Example             |
-|-------------------|---------------|---------------------|
-| `BEVAL_AGENT`     | `--agent`     | `BEVAL_AGENT=my-agent` |
-| `BEVAL_MODE`      | `--mode`      | `BEVAL_MODE=dev`    |
-| `BEVAL_OUTPUT_DIR`| `--output`    | `BEVAL_OUTPUT_DIR=./results` |
-| `BEVAL_TRIALS`    | `--trials`    | `BEVAL_TRIALS=5`    |
-| `NO_COLOR`        | `--no-color`  | `NO_COLOR=1`        |
+| Variable                     | Overrides                    | Description |
+|------------------------------|------------------------------|-------------|
+| `BEVAL_AGENT`                | `--agent`                    | Agent YAML file or config name |
+| `BEVAL_MODE`                 | `--mode`                     | Evaluation mode |
+| `BEVAL_OUTPUT_DIR`           | `--output`                   | Results output directory |
+| `BEVAL_TRIALS`               | `--trials`                   | Number of trial executions |
+| `BEVAL_SIMULATOR_MODEL`      | `--simulator-model`          | Conversation simulator LLM model |
+| `BEVAL_SIMULATOR_AGENT`      | `--simulator-agent`          | Conversation simulator ACP command |
+| `BEVAL_ACTOR_COUNT`          | `--actor-count`              | Actors per persona/goal pair |
+| `BEVAL_CONVERSATION_HISTORY_DIR` | `eval.conversation.history_dir` | History directory |
+| `NO_COLOR`                   | `--no-color`                 | Disable colored output |
 
 ## Project Structure
 
@@ -502,6 +655,12 @@ python/
 │       ├── loader.py        # YAML case loading (safe_load)
 │       ├── schema.py        # JSON Schema validation (optional: beval[validate])
 │       ├── tracing.py       # OpenTelemetry tracing (optional: beval[tracing])
+│       ├── conversation/    # Conversation simulation (§15)
+│       │   ├── __init__.py
+│       │   ├── types.py     # Persona, Goal, DynamicCase, ConversationResult, …
+│       │   ├── simulator.py # UserSimulatorInterface, OpenAISimulator, ACPSimulator
+│       │   ├── actor.py     # run_actor() async coroutine (turn loop)
+│       │   └── runner.py    # ConversationRunner (asyncio orchestration)
 │       └── py.typed         # PEP 561 marker
 └── tests/
     ├── conftest.py          # Shared fixtures + registry isolation
@@ -510,6 +669,7 @@ python/
     ├── test_adapters.py     # Agent adapter tests
     ├── test_graders.py      # Grader tests
     ├── test_cli.py          # CLI tests
+    ├── test_conversation.py # Conversation simulation tests
     └── test_conformance.py  # Cross-language conformance tests
 ```
 

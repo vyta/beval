@@ -1,0 +1,687 @@
+{
+  "id": "starfleet_diplomat:mission_critical_phrases:1",
+  "name": "Starfleet Diplomatic Officer \u2192 Learn phrases for a diplomatic encounter (actor 1)",
+  "category": "starfleet_diplomat/mission_critical_phrases",
+  "persona_id": "starfleet_diplomat",
+  "goal_id": "mission_critical_phrases",
+  "actor_index": 1,
+  "overall_score": 0.8126537182874501,
+  "goal_achievement_score": 1.0,
+  "passed": true,
+  "goal_achieved": true,
+  "termination_reason": "goal_achieved",
+  "turn_count": 9,
+  "time_seconds": 133.67662475001998,
+  "metric_scores": {
+    "latency": 0.8719309419775123,
+    "quality": 0.7989743589743589
+  },
+  "error": null,
+  "turns": [
+    {
+      "turn_number": 1,
+      "user_message": "I\u2019ve got 30 minutes. Give me the most important Klingon phrases for a formal first contact. I need: a respectful greeting, a way to show goodwill, and something to use if the conversation gets tense. Keep it practical. Then let me repeat them back and tell me if I\u2019m saying them right.",
+      "agent_response": "nuqneH. (What do you want?)\n\nbIlugh: 30 minutes is enough for the essentials. (You are correct: 30 minutes is enough for the essentials.)\n\n**1) Respectful greeting:**  \n**tlhIngan Hol vIjatlh, jIH vIghItlhbe\u2019.** (I speak Klingon, I do not write it.)  \nFor first contact, better and simpler:  \n**nuqneH. jIH [your name].** (What do you want? I am [your name].)  \nIf you want a more formal, respectful opening:  \n**tlhIngan maH. nuqneH?** (We are Klingon. What do you want?)\n\n**2) Show goodwill:**  \n**jIHvaD Qapla\u2019 wIje\u2019meH vIghItlh.** (I speak so that we may achieve success.)  \nMore practical and natural:  \n**Qapla\u2019 wIHech.** (We intend success.)  \nOr:  \n**jIH puS vIghajbe\u2019.** (I have no hostility.)  \nBest simple phrase for goodwill:  \n**qatlh jIHvam? jIH puS vIghajbe\u2019.** (Why am I here? I have no hostility.)\n\n**3) If the conversation gets tense:**  \n**tugh Daqmey vIqIp.** (Soon I will strike the locations.)  \nToo aggressive for diplomacy\u2014so use this instead:  \n**yIjegh.** (Stand down / submit.)  \nMore diplomatic and practical:  \n**yIHarQo\u2019.** (Do not trust this / do not believe this.)  \nBest tense-de-escalation phrase:  \n**jIQochbe\u2019.** (I do not disagree.)  \nAnd if you need a pause:  \n**wa\u2019leS.** (One moment / wait.)\n\n**My recommended first-contact set:**  \n1. **nuqneH.** (What do you want?)  \n2. **jIH [name].** (I am [name].)  \n3. **Qapla\u2019 wIHech.** (We intend success.)  \n4. **jIH puS vIghajbe\u2019.** (I have no hostility.)  \n5. **jIQochbe\u2019.** (I do not disagree.)\n\nNow repeat them back, one by one. (Now repeat them back, one by one.)  \nI will correct your Klingon and tell you if it sounds strong and clear. (I will correct your Klingon and tell you if it sounds strong and clear.)",
+      "completion_time_seconds": 3.8803924579988234,
+      "goal_progress": 0.1,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.8706535847333725,
+          "metric": "latency",
+          "passed": true,
+          "detail": "3.9s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.72,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does provide multiple specific Klingon phrases and some practical suggestions for greeting, goodwill, and tension, which aligns with the criterion. However, several phrases appear questionable or may not be accurate Klingon, and the response includes a lot of commentary and translations rather than a clean set of usable phrases. It also does not actually let the user repeat them and assess pronunciation, so it only partially meets the request.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: provide 3+ short, usable Klingon phrases with English meanings and diplomatic context the answer should be: provide 3+ short, usable Klingon phrases with English meanings and diplomatic context",
+          "score": 0.72,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides more than 3 short Klingon phrases with English meanings and some diplomatic framing, and it gives a practical first-contact set. However, several translations/context notes are shaky or awkward, and it does not actually invite or assess the user repeating them back in a meaningful way\u2014it only says it will correct them. Still, it substantially meets the core criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: invite repetition and confirm or correct pronunciation/usage the answer should be: invite repetition and confirm or correct pronunciation/usage",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer explicitly invites the user to repeat the phrases back one by one and says it will correct the Klingon and judge whether it sounds strong and clear, which directly meets the criterion to invite repetition and confirm or correct pronunciation/usage. It is highly aligned, though it mentions Klingon generally rather than explicitly pronunciation in a narrow sense.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: keep it concise and focused on first-contact politeness and de-escalation the answer should be: keep it concise and focused on first-contact politeness and de-escalation",
+          "score": 0.28,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer is not concise and drifts far beyond first-contact politeness and de-escalation. It includes multiple questionable or aggressive Klingon phrases, lots of extra commentary, and does not stay tightly focused on the requested practical essentials. It also invites repetition/correction, but the overall response is cluttered and not de-escalation-centered.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.8706535847333725,
+        "quality": 0.675
+      },
+      "overall_score": 0.7141307169466745,
+      "error": null
+    },
+    {
+      "turn_number": 2,
+      "user_message": "Good. Let\u2019s do this fast.\n\n1) nuqneH.\n2) jIH [name].\n3) Qapla\u2019 wIHech.\n4) jIH puS vIghajbe\u2019.\n5) jIQochbe\u2019.\n\nTell me which of those are actually right for a formal first contact, and if any sound rude or off. Give me the best three I can use in the room, with the English meaning next to each.",
+      "agent_response": "bIvIHbe\u2019! (You are not timid!)\n\nHere is the warrior\u2019s judgment:\n\n1) **nuqneH.** (What do you want?)  \n**Right, but not ideal as a formal opening.** (Correct, but not ideal as a formal opening.)  \nIt is a Klingon greeting, but it can sound blunt or challenging in a diplomatic room. (It is a Klingon greeting, but it can sound blunt or challenging in a diplomatic room.)\n\n2) **jIH [name].** (I am [name].)  \n**Right as a name-introduction pattern, but incomplete by itself.** (Correct as a name-introduction pattern, but incomplete by itself.)  \nYou usually want **jIH [name]** after a greeting or with more context. (You usually want \u201cI am [name]\u201d after a greeting or with more context.)\n\n3) **Qapla\u2019 wIHech.** (We intend success.)  \n**Good for showing goodwill.** (Good for showing goodwill.)  \nThis is the strongest of your set for a formal encounter. (This is the strongest of your set for a formal encounter.)\n\n4) **jIH puS vIghajbe\u2019.** (I have no hostility.)  \n**This is off.** (This is off.)  \nIt is not a good Klingon phrasing for \u201cI have no hostility.\u201d (It is not a good Klingon phrasing for \u201cI have no hostility.\u201d)  \nBetter: **jIQochbe\u2019.** (I do not disagree.)  \nOr, if you want \u201cI come in peace,\u201d Klingon often prefers a different idea, but the clean practical version is limited. (Or, if you want \u201cI come in peace,\u201d Klingon often prefers a different idea, but the clean practical version is limited.)\n\n5) **jIQochbe\u2019.** (I do not disagree.)  \n**Grammatically understandable, but not the best diplomatic phrase.** (Grammatically understandable, but not the best diplomatic phrase.)  \nIt sounds cautious, not warm. (It sounds cautious, not warm.)\n\n## Best three for the room\n1. **Qapla\u2019 wIHech.** (We intend success.)  \n2. **jIH [name].** (I am [name].)  \n3. **jIQochbe\u2019.** (I do not disagree.)  \n\n## Better, more formal set\nIf you want the best practical first-contact line, use these instead:  \n\n- **tlhIngan maH.** (We are Klingon.)  \n- **jIH [name].** (I am [name].)  \n- **Qapla\u2019 wIHech.** (We intend success.)  \n\nIf tension rises, add:  \n- **jIQochbe\u2019.** (I do not disagree.)  \n\nSay them back exactly as you would in the room, and I will check your pronunciation and wording. (Say them back exactly as you would in the room, and I will check your pronunciation and wording.)",
+      "completion_time_seconds": 9.90094266703818,
+      "goal_progress": 0.5,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.669968577765394,
+          "metric": "latency",
+          "passed": true,
+          "detail": "9.9s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.78,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does provide specific Klingon phrases and even identifies which are better or off, which matches the criterion well. However, it includes a lot of general commentary and introduces some extra phrases beyond evaluating the user\u2019s list, so it is not purely focused on usable phrases.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: the response gives direct confirmation or correction for each attempted phrase the answer should be: the response gives direct confirmation or correction for each attempted phrase",
+          "score": 0.92,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response gives direct confirmation or correction for each of the five attempted phrases, stating whether each is right, off, or contextually unsuitable, and briefly explaining why. It also provides a best-three list with meanings. The only slight weakness is that some corrections are somewhat indirect or add extra commentary, but overall it satisfies the criterion well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: the response identifies the best three diplomatically useful phrases for a tense first-contact meeting the answer should be: the response identifies the best three diplomatically useful phrases for a tense first-contact meeting",
+          "score": 0.62,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does identify three phrases and explains which are appropriate or off, but its final 'best three' are not fully optimal for a tense first-contact meeting. It includes one weak choice ('jIQochbe\u2019') and adds extra alternatives rather than clearly selecting the best three diplomatically useful phrases from the list. It partially meets the criterion, but not fully.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: the response includes brief English translations and notes on any phrases that sound rude, awkward, or unsafe to use the answer should be: the response includes brief English translations and notes on any phrases that sound rude, awkward, or unsafe to use",
+          "score": 0.95,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response includes brief English translations for the Klingon phrases and clearly notes which ones are rude, awkward, off, or not ideal for formal use. It also gives a recommended top three. The only minor issue is that some explanations are a bit more elaborate than necessary, but it fully satisfies the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.669968577765394,
+        "quality": 0.8175000000000001
+      },
+      "overall_score": 0.7879937155530788,
+      "error": null
+    },
+    {
+      "turn_number": 3,
+      "user_message": "Good. I need the room-ready version now.\n\nGive me the 3 best phrases, exactly as I should say them, with the English beside each. Then I\u2019ll repeat them back.\n\nKeep it tight. No theory.",
+      "agent_response": "**tlhIngan maH.** (We are Klingon.)  \n\n**jIH [your name].** (I am [your name].)  \n\n**Qapla\u2019 wIHech.** (We intend success.)  \n\nRepeat them back. (Repeat them back.)",
+      "completion_time_seconds": 1.3262852909974754,
+      "goal_progress": 0.8,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.9557904903000841,
+          "metric": "latency",
+          "passed": true,
+          "detail": "1.3s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.94,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides three specific, usable Klingon phrases with English beside each, matching the request for a tight, practical list. It avoids cultural commentary and includes the exact phrasing style the user asked for. Minor issue: one phrase contains a placeholder ([your name]) rather than a fully fixed phrase, but overall it strongly meets the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: provide at least 3 distinct, diplomatically relevant Klingon phrases with English translations the answer should be: provide at least 3 distinct, diplomatically relevant Klingon phrases with English translations",
+          "score": 0.78,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides three distinct Klingon phrases with English translations, satisfying the quantity requirement. They are diplomatically relevant to a limited extent (self-identification and a positive intent), but one phrase is a generic declaration rather than clearly diplomatic, and the inclusion of placeholder text reduces polish.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: be ready to confirm or correct the user's repeated phrases the answer should be: be ready to confirm or correct the user's repeated phrases",
+          "score": 0.4,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The answer provides three phrases with English glosses and asks to repeat them back, but it does not actually show readiness to confirm or correct the user's repeated phrases. It lacks any explicit confirmation/correction behavior.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: keep the response practical and focused on first-contact use the answer should be: keep the response practical and focused on first-contact use",
+          "score": 0.92,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response is tight, practical, and focused on first-contact use. It gives three short phrases with English beside each and avoids theory. Minor issue: it includes a placeholder and a repetitive closing prompt, but overall it matches the criterion very well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9557904903000841,
+        "quality": 0.76
+      },
+      "overall_score": 0.7991580980600168,
+      "error": null
+    },
+    {
+      "turn_number": 4,
+      "user_message": "1) tlhIngan maH.\n2) jIH [your name].\n3) Qapla\u2019 wIHech.\n\nThose are the room-ready ones, right? Any of them sound off, rude, or too weak for Klingons? Confirm them, and if there\u2019s one better phrase for showing respect or goodwill, give it to me now. I need at least one phrase for greeting, one for goodwill, and one for de-escalation if things get tense.",
+      "agent_response": "maj. (Good.)\n\n**1) tlhIngan maH.** (We are Klingon.)  \n**Good.** (Good.)  \nIt is strong and clear, not rude. (It is strong and clear, not rude.)\n\n**2) jIH [your name].** (I am [your name].)  \n**Good pattern, but replace the bracket with your actual name.** (Good pattern, but replace the bracket with your actual name.)  \nAs written, it is only a template. (As written, it is only a template.)\n\n**3) Qapla\u2019 wIHech.** (We intend success.)  \n**Good.** (Good.)  \nThis works for goodwill. (This works for goodwill.)  \nIt sounds formal and purposeful, not weak. (It sounds formal and purposeful, not weak.)\n\n## Better options you should know\n**Greeting:** **nuqneH.** (What do you want?)  \nThis is the standard Klingon greeting, but it can feel sharp. (This is the standard Klingon greeting, but it can feel sharp.)  \nFor a formal room, **tlhIngan maH.** is safer. (For a formal room, \u201cWe are Klingon\u201d is safer.)\n\n**Goodwill:** **Qapla\u2019 wIHech.** (We intend success.)  \nThis is your best goodwill phrase from the set. (This is your best goodwill phrase from the set.)\n\n**De-escalation:** **jIQochbe\u2019.** (I do not disagree.)  \nThis is the best simple phrase for cooling tension. (This is the best simple phrase for cooling tension.)\n\n## Room-ready set\n- **tlhIngan maH.** (We are Klingon.)  \n- **Qapla\u2019 wIHech.** (We intend success.)  \n- **jIQochbe\u2019.** (I do not disagree.)  \n\nNow repeat them back exactly. (Now repeat them back exactly.)",
+      "completion_time_seconds": 2.5794047500239685,
+      "goal_progress": 0.86,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.9140198416658677,
+          "metric": "latency",
+          "passed": true,
+          "detail": "2.6s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer gives multiple specific, usable Klingon phrases and directly addresses greeting, goodwill, and de-escalation. It mostly avoids general culture commentary, though it includes a bit of explanatory framing. Overall it strongly meets the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: it confirms which phrases are appropriate for a formal first-contact setting and flags any that may sound rude or too blunt the answer should be: it confirms which phrases are appropriate for a formal first-contact setting and flags any that may sound rude or too blunt",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly confirms which phrases are appropriate for a formal first-contact setting, flags that nuqneH can sound sharp, and identifies jIH [your name] as a template rather than a complete phrase. It also provides better options for greeting, goodwill, and de-escalation, meeting the criterion very well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: it provides at least one practical alternative for respectful greeting, goodwill, and tense-situation handling the answer should be: it provides at least one practical alternative for respectful greeting, goodwill, and tense-situation handling",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides practical alternatives for all three needs: a respectful greeting ('tlhIngan maH.' / 'nuqneH.' with context), goodwill ('Qapla\u2019 wIHech.'), and tense-situation handling ('jIQochbe\u2019.'), and it explains which are safer or stronger. It slightly overstates 'nuqneH' as a greeting without fully emphasizing its usual nuance, but overall it satisfies the criterion well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: it acknowledges the user's attempted repetition and gives clear correction or confirmation in a concise, room-ready way the answer should be: it acknowledges the user's attempted repetition and gives clear correction or confirmation in a concise, room-ready way",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly acknowledges the user\u2019s attempted repetition, confirms/corrects each phrase, and stays concise and room-ready. It also provides the requested greeting, goodwill, and de-escalation options. Minor quibbles aside, it meets the criterion very well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9140198416658677,
+        "quality": 0.98
+      },
+      "overall_score": 0.9668039683331735,
+      "error": null
+    },
+    {
+      "turn_number": 5,
+      "user_message": "1) tlhIngan maH.\n2) Qapla\u2019 wIHech.\n3) jIQochbe\u2019.\n\nAre those all correct for the room? I need you to confirm which one is the greeting, which one shows goodwill, and which one I use if it gets tense. If any of them are wrong or too blunt, fix them now. Keep it short.",
+      "agent_response": "maj. (Good.)\n\n**1) tlhIngan maH.** (We are Klingon.)  \n**Greeting.** (Greeting.)  \nGood and formal enough for the room. (Good and formal enough for the room.)\n\n**2) Qapla\u2019 wIHech.** (We intend success.)  \n**Goodwill.** (Goodwill.)  \nGood, not blunt. (Good, not blunt.)\n\n**3) jIQochbe\u2019.** (I do not disagree.)  \n**De-escalation.** (De-escalation.)  \nCorrect, but cautious rather than warm. (Correct, but cautious rather than warm.)  \nIf you want a slightly stronger tension-breaker, use: **wa\u2019leS.** (One moment.)  \n\nSo the fixed room set is: (So the fixed room set is:)  \n- **tlhIngan maH.** (We are Klingon.)  \n- **Qapla\u2019 wIHech.** (We intend success.)  \n- **jIQochbe\u2019.** (I do not disagree.)  \n\nQapla\u2019. (Success.)",
+      "completion_time_seconds": 2.563493874971755,
+      "goal_progress": 0.86,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.9145502041676081,
+          "metric": "latency",
+          "passed": true,
+          "detail": "2.6s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.96,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer gives specific, usable Klingon phrases and clearly identifies which is the greeting, goodwill, and tense-response. It also corrects and confirms them succinctly. Minor issue: it adds some commentary and an odd extra suggestion ('wa\u2019leS') that isn't directly relevant, but overall it strongly meets the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: confirm each phrase and label it by function (greeting, goodwill, de-escalation) the answer should be: confirm each phrase and label it by function (greeting, goodwill, de-escalation)",
+          "score": 0.94,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does confirm each phrase and labels them by function as requested: greeting, goodwill, and de-escalation. It also gives brief corrections/qualifications and keeps it fairly short. The only minor issue is the extra suggestion 'wa\u2019leS' appears unrelated to the asked set and may be incorrect in context, but overall the criterion is met.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: correct any blunt or awkward wording and, if needed, offer a better formal Klingon greeting the answer should be: correct any blunt or awkward wording and, if needed, offer a better formal Klingon greeting",
+          "score": 0.35,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The response does identify the three phrases and roughly labels their uses, but it fails the criterion in important ways. It does not provide a better formal Klingon greeting, and it introduces an incorrect replacement ('wa\u2019leS') that is not an appropriate tension-breaker here. It also repeats awkward/parenthetical formatting instead of clearly correcting bluntness or awkward wording.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: keep the response concise and end with at least three usable phrases the student can use in the meeting the answer should be: keep the response concise and end with at least three usable phrases the student can use in the meeting",
+          "score": 0.78,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response is concise and it does end with usable phrases. It correctly identifies the three items and gives brief guidance, but it includes some awkward repetition and the suggested replacement \"wa\u2019leS\" is likely not the intended tension-breaker. Still, it mostly satisfies the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9145502041676081,
+        "quality": 0.7575000000000001
+      },
+      "overall_score": 0.7889100408335217,
+      "error": null
+    },
+    {
+      "turn_number": 6,
+      "user_message": "Good. One last check.\n\n1) tlhIngan maH.\n2) Qapla\u2019 wIHech.\n3) jIQochbe\u2019.\n\nNow add the best greeting if I want to be a little more formal than that, and give me one safer phrase for de-escalation than jIQochbe\u2019. Keep it tight. Then confirm all 5 phrases I should actually walk in with.",
+      "agent_response": "maj. (Good.)\n\n**Slightly more formal greeting:** **nuqneH.** (What do you want?)  \nIt is the standard Klingon greeting, but still sharp. (It is the standard Klingon greeting, but still sharp.)\n\n**Safer de-escalation phrase:** **wa\u2019leS.** (One moment.)  \nThis is safer and less confrontational than **jIQochbe\u2019.** (This is safer and less confrontational than \u201cI do not disagree.\u201d)\n\n## Walk-in set:  \n1. **nuqneH.** (What do you want?) \u2014 greeting  \n2. **tlhIngan maH.** (We are Klingon.) \u2014 formal identity / opening  \n3. **Qapla\u2019 wIHech.** (We intend success.) \u2014 goodwill  \n4. **jIQochbe\u2019.** (I do not disagree.) \u2014 tension / cautious de-escalation  \n5. **wa\u2019leS.** (One moment.) \u2014 safer pause / de-escalation  \n\nRepeat them back if you want me to test you. (Repeat them back if you want me to test you.)",
+      "completion_time_seconds": 2.1148423749837093,
+      "goal_progress": 0.92,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.9295052541672097,
+          "metric": "latency",
+          "passed": true,
+          "detail": "2.1s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.82,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does provide specific, usable Klingon phrases and directly addresses the request. However, it includes some extra commentary and the safer de-escalation choice is a bit questionable relative to the prompt, so it is not a perfect match.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: the reply gives the user a practical, room-ready set with at least 3 distinct Klingon phrases and English translations the answer should be: the reply gives the user a practical, room-ready set with at least 3 distinct Klingon phrases and English translations",
+          "score": 0.84,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides a practical set of 5 phrases and includes English translations for each. It also adds a more formal greeting and a safer de-escalation phrase as requested. However, it gives an odd or possibly incorrect explanation for nuqneH and wa\u2019leS, and it includes the original jIQochbe\u2019 in the final walk-in set instead of replacing it with the safer phrase, which slightly weakens compliance with the request.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: the reply confirms which phrases are correct and identifies greeting, goodwill, and de-escalation clearly the answer should be: the reply confirms which phrases are correct and identifies greeting, goodwill, and de-escalation clearly",
+          "score": 0.72,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response does identify the greeting, goodwill, and de-escalation roles clearly in the final list, and it confirms the five phrases to use. However, it does not fully satisfy the request because the suggested 'safer de-escalation' phrase is likely incorrect or at least not a good replacement for jIQochbe\u2019, and the explanation is a bit muddled. It also labels nuqneH as the standard greeting, which may be acceptable in context, but the answer is not especially tight.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: the reply corrects or replaces any blunt/off phrases with a safer diplomatic alternative and leaves the user with usable first-contact wording the answer should be: the reply corrects or replaces any blunt/off phrases with a safer diplomatic alternative and leaves the user with usable first-contact wording",
+          "score": 0.55,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does provide a more formal greeting and includes a safer alternative phrase, but it fails the criterion in a key way: it does not replace the blunt/off phrase with a safer diplomatic alternative. It still keeps jIQochbe\u2019 in the final walk-in set and labels wa\u2019leS as the de-escalation phrase, so the user is not left with a fully corrected set of usable first-contact wording. The response is also awkwardly repetitive.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9295052541672097,
+        "quality": 0.7324999999999999
+      },
+      "overall_score": 0.7719010508334418,
+      "error": null
+    },
+    {
+      "turn_number": 7,
+      "user_message": "1) nuqneH.\n2) tlhIngan maH.\n3) Qapla\u2019 wIHech.\n4) jIQochbe\u2019.\n5) wa\u2019leS.\n\nI\u2019ve got the walk-in set. Quick check: are these all usable in a tense diplomatic room, or is one still too blunt? Confirm the greeting, goodwill, and de-escalation ones specifically. Keep it short.",
+      "agent_response": "maj. (Good.)\n\n**1) nuqneH.** (What do you want?)  \n**Greeting.** (Greeting.)  \nUsable, but blunt. (Usable, but blunt.)  \nIn a tense diplomatic room, it can sound like a challenge. (In a tense diplomatic room, it can sound like a challenge.)\n\n**2) tlhIngan maH.** (We are Klingon.)  \n**Formal opening / identity.** (Formal opening / identity.)  \nUsable and strong. (Usable and strong.)\n\n**3) Qapla\u2019 wIHech.** (We intend success.)  \n**Goodwill.** (Goodwill.)  \nGood and safe. (Good and safe.)\n\n**4) jIQochbe\u2019.** (I do not disagree.)  \n**De-escalation, but still a little stiff.** (De-escalation, but still a little stiff.)  \nUsable if you need to avoid direct conflict. (Usable if you need to avoid direct conflict.)\n\n**5) wa\u2019leS.** (One moment.)  \n**Best de-escalation / pause.** (Best de-escalation / pause.)  \nThis is the safest one. (This is the safest one.)\n\n**Best three to stress:**  \n- **tlhIngan maH.** (We are Klingon.)  \n- **Qapla\u2019 wIHech.** (We intend success.)  \n- **wa\u2019leS.** (One moment.)  \n\nQapla\u2019! (Success!)",
+      "completion_time_seconds": 2.353351083002053,
+      "goal_progress": 0.9,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.9215549638999315,
+          "metric": "latency",
+          "passed": true,
+          "detail": "2.4s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.97,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides specific, usable Klingon phrases and directly addresses which are greeting, goodwill, and de-escalation. It is not just general commentary, though it includes brief labels and explanations. The content meets the criterion very well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: it confirms which phrases are appropriate for greeting, goodwill, and de-escalation in a formal Klingon first-contact scenario the answer should be: it confirms which phrases are appropriate for greeting, goodwill, and de-escalation in a formal Klingon first-contact scenario",
+          "score": 0.94,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer explicitly identifies the greeting, goodwill, and de-escalation phrases and briefly confirms their appropriateness in a tense diplomatic first-contact context. It also notes that 'nuqneH' is usable but blunt, which addresses the user's concern. The only minor issue is that it labels 'wa\u2019leS' as de-escalation/pause without clarifying any nuance, but overall it meets the criterion well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: it acknowledges any blunt or cautious phrasing and corrects or confirms it succinctly the answer should be: it acknowledges any blunt or cautious phrasing and corrects or confirms it succinctly",
+          "score": 0.78,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does acknowledge the bluntness of nuqneH and the stiffness of jIQochbe\u2019, and it confirms the goodwill/de-escalation items succinctly enough. However, it is a bit more verbose than requested and does not directly address the full 'confirm or correct' framing for each item as cleanly as it could.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: it leaves the student with at least 3 usable phrases they can plausibly say in the meeting the answer should be: it leaves the student with at least 3 usable phrases they can plausibly say in the meeting",
+          "score": 0.96,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly leaves the student with at least three usable phrases and identifies which are appropriate in a tense diplomatic room. It specifically confirms the greeting, goodwill, and de-escalation items and keeps the response short enough. Minor deduction only because it includes extra commentary and slightly ambiguous labeling, but it still satisfies the criterion well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9215549638999315,
+        "quality": 0.9125
+      },
+      "overall_score": 0.9143109927799863,
+      "error": null
+    },
+    {
+      "turn_number": 8,
+      "user_message": "Good. Give me the final 3 I should actually use in the room \u2014 one greeting, one goodwill phrase, one de-escalation phrase. Just the phrases and English, no extra commentary. Then I\u2019ll repeat them back.",
+      "agent_response": "**tlhIngan maH.** (We are Klingon.)\n\n**Qapla\u2019 wIHech.** (We intend success.)\n\n**wa\u2019leS.** (One moment.)",
+      "completion_time_seconds": 7.603872792038601,
+      "goal_progress": 0.93,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.7465375735987133,
+          "metric": "latency",
+          "passed": true,
+          "detail": "7.6s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.92,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response provides three specific Klingon phrases with English glosses, matching the request for usable phrases rather than cultural commentary. It is concise and in the requested format. The only minor issue is that the phrases do not clearly map to the requested categories of greeting, goodwill, and de-escalation, though they are still practical phrases.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: provide 3 distinct, diplomatically relevant Klingon phrases with English translations the answer should be: provide 3 distinct, diplomatically relevant Klingon phrases with English translations",
+          "score": 0.9,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer provides exactly three distinct Klingon phrases with English translations, and they are broadly diplomatically relevant: a greeting, a goodwill/success phrase, and a de-escalation/time-buying phrase. The only minor issue is that the first phrase is more of an identification statement than a direct greeting, but it still largely satisfies the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: confirm whether each repeated phrase is correct and label any that are too blunt or better suited as alternatives the answer should be: confirm whether each repeated phrase is correct and label any that are too blunt or better suited as alternatives",
+          "score": 0.2,
+          "metric": "quality",
+          "passed": false,
+          "detail": "The response provides three phrases with English translations, but it does not confirm whether each repeated phrase is correct or label any as too blunt or suggest alternatives. It also does not clearly match the requested categories of greeting, goodwill, and de-escalation.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: keep it concise and practical for a high-stakes first-contact scenario the answer should be: keep it concise and practical for a high-stakes first-contact scenario",
+          "score": 0.96,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response is concise, practical, and provides exactly three phrases with English glosses and no extra commentary, matching the high-stakes first-contact requirement very well. The only minor limitation is that the phrases are not explicitly labeled by function (greeting/goodwill/de-escalation), but they are still usable in context.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.7465375735987133,
+        "quality": 0.745
+      },
+      "overall_score": 0.7453075147197427,
+      "error": null
+    },
+    {
+      "turn_number": 9,
+      "user_message": "1) tlhIngan maH.\n2) Qapla\u2019 wIHech.\n3) wa\u2019leS.\n\nThose are the ones I\u2019m taking in. Confirm they\u2019re usable as greeting, goodwill, and de-escalation \u2014 and if they\u2019re all right, give me one last quick correction on any pronunciation pitfalls.",
+      "agent_response": "maj. (Good.)\n\n**1) tlhIngan maH.** (We are Klingon.) \u2014 **greeting / formal opening** (greeting / formal opening)  \nUsable and strong. (Usable and strong.)  \nPitfall: keep **tlh** tight and dry, not like English \u201ct.\u201d (Pitfall: keep \u201ctlh\u201d tight and dry, not like English \u201ct.\u201d)\n\n**2) Qapla\u2019 wIHech.** (We intend success.) \u2014 **goodwill** (goodwill)  \nUsable and good. (Usable and good.)  \nPitfall: say **Qapla\u2019** with the final stop cleanly. (Pitfall: say \u201cQapla\u2019\u201d with the final stop cleanly.)\n\n**3) wa\u2019leS.** (One moment.) \u2014 **de-escalation** (de-escalation)  \nUsable and safest of the three. (Usable and safest of the three.)  \nPitfall: keep the pause between **wa\u2019** and **leS** short. (Pitfall: keep the pause between \u201cwa\u2019\u201d and \u201cleS\u201d short.)\n\nQapla\u2019! (Success!)",
+      "completion_time_seconds": 2.256060375017114,
+      "goal_progress": 0.94,
+      "grades": [
+        {
+          "criterion": "completion time should be under 30",
+          "score": 0.9247979874994295,
+          "metric": "latency",
+          "passed": true,
+          "detail": "2.3s of 30.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.97,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer gives specific, usable Klingon phrases and briefly confirms their intended uses, with pronunciation pitfalls. It is not general cultural commentary. Minor issue: the glosses/labels are a bit awkward and not fully precise, but it still meets the criterion very well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: confirm each phrase in context as greeting/goodwill/de-escalation and note if any are too blunt or need a tweak the answer should be: confirm each phrase in context as greeting/goodwill/de-escalation and note if any are too blunt or need a tweak",
+          "score": 0.96,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer confirms each phrase in context as greeting/formal opening, goodwill, and de-escalation, and it notes pronunciation pitfalls for each. It does not explicitly flag any phrase as too blunt or needing a tweak, but overall it fully addresses the usability and correction request.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: acknowledge the student's repetition and correct pronunciation or wording if needed the answer should be: acknowledge the student's repetition and correct pronunciation or wording if needed",
+          "score": 0.74,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does acknowledge the phrases as usable and gives pronunciation pitfalls, which satisfies much of the criterion. It also effectively confirms their roles. However, it does not really focus on repeating the student's phrases back in a corrective way, and the wording corrections are minimal or absent.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        },
+        {
+          "criterion": "the answer should be: keep it brief and leave the student with confidence that the three phrases are usable in a tense diplomatic room the answer should be: keep it brief and leave the student with confidence that the three phrases are usable in a tense diplomatic room",
+          "score": 0.97,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response is brief, directly confirms all three phrases as usable in the intended diplomatic context, and gives a concise pronunciation note for each. It leaves the student with confidence and stays focused on the requested correction.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": null,
+          "stage_name": null
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9247979874994295,
+        "quality": 0.9099999999999999
+      },
+      "overall_score": 0.9129595974998859,
+      "error": null
+    }
+  ],
+  "grades": [
+    {
+      "criterion": "the answer should be: evaluating the full conversation \u2014 the tutor provided at least 3 distinct, diplomatically relevant Klingon phrases with English translations the answer should be: evaluating the full conversation \u2014 the tutor provided at least 3 distinct, diplomatically relevant Klingon phrases with English translations",
+      "score": 0.02,
+      "metric": "quality",
+      "passed": false,
+      "detail": "The answer mostly reproduces the conversation rather than evaluating it. It does not explicitly assess whether the tutor provided at least 3 distinct, diplomatically relevant Klingon phrases with English translations, nor does it summarize that criterion clearly. The final content is the raw dialogue, so the criterion is not meaningfully addressed.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": null,
+      "stage_name": null
+    },
+    {
+      "criterion": "the answer should be: evaluating the full conversation \u2014 when the student attempted to repeat phrases, the tutor acknowledged and confirmed or corrected them the answer should be: evaluating the full conversation \u2014 when the student attempted to repeat phrases, the tutor acknowledged and confirmed or corrected them",
+      "score": 1.0,
+      "metric": "quality",
+      "passed": true,
+      "detail": "The answer clearly evaluates the full conversation and repeatedly notes when the student repeats phrases, with the tutor confirming them as good/usable or correcting them when needed. It matches the criterion exactly.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": null,
+      "stage_name": null
+    },
+    {
+      "criterion": "the answer should be: evaluating the full conversation \u2014 the student left with phrases they could plausibly use in a high-stakes first-contact scenario the answer should be: evaluating the full conversation \u2014 the student left with phrases they could plausibly use in a high-stakes first-contact scenario",
+      "score": 0.98,
+      "metric": "quality",
+      "passed": true,
+      "detail": "The answer accurately reconstructs the full conversation and identifies the final usable phrases for a high-stakes first-contact scenario: a greeting, goodwill, and de-escalation. It clearly leaves the student with practical room-ready phrases and notes pronunciation pitfalls, which matches the criterion very well.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": null,
+      "stage_name": null
+    }
+  ]
+}

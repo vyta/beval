@@ -5,7 +5,7 @@ eval:
     case_pass: 0.7
 
   agents:
-    default: dt-coach
+    default: dt-coach-tcp
     definitions:
       - name: dt-coach
         description: >
@@ -15,6 +15,7 @@ eval:
           transport: stdio
           command: ["copilot", "--acp", "--stdio", "--allow-all"]
           cwd: ${AGENT_REPO_ROOT}
+          model: ${AGENT_MODEL:-claude-opus-4.6-1m}
         init_prompt: "Launch .github/agents/design-thinking/dt-coach.agent.md"
         timeout: 120
         retry:
@@ -30,6 +31,7 @@ eval:
           host: ${AGENT_HOST:-127.0.0.1}
           port: ${AGENT_PORT:-3000}
           cwd: ${AGENT_REPO_ROOT}
+          model: ${AGENT_MODEL:-claude-opus-4.6-1m}
         init_prompt: "Launch .github/agents/design-thinking/dt-coach.agent.md"
         timeout: 120
         retry:
@@ -42,6 +44,7 @@ eval:
       transport: tcp
       host: ${JUDGE_HOST:-127.0.0.1}
       port: ${JUDGE_PORT:-3001}
+      model: ${AGENT_MODEL:-claude-opus-4.6-1m}
     timeout: 60
 
   conversation:
@@ -51,7 +54,9 @@ eval:
         transport: tcp
         host: ${SIMULATOR_HOST:-127.0.0.1}
         port: ${SIMULATOR_PORT:-3002}
+        model: ${AGENT_MODEL:-claude-opus-4.6-1m}
       timeout: 60
+      max_criteria_per_turn: 1
 
     personas:
       - file: personas.yaml

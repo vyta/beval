@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections.abc import Callable
 from typing import Any
 
 from beval.adapters import AdapterInput, AdapterInterface
@@ -69,7 +70,16 @@ def _build_conversation_subject(
     for t in history:
         messages.append({"role": "user", "content": t.user_message})
         messages.append({"role": "assistant", "content": t.agent_response})
-    final_output = history[-1].agent_response if history else ""
+    # Serialize the full conversation as output so on-finish judges can evaluate
+    # the entire session arc, not just the last agent response.
+    turn_lines: list[str] = []
+    for t in history:
+        if t.user_message:
+            turn_lines.append(f"User: {t.user_message}")
+        agent_text = t.agent_response or ""
+        if agent_text.strip() and "operation cancelled" not in agent_text.lower():
+            turn_lines.append(f"Agent: {agent_text}")
+    final_output = "\n\n".join(turn_lines)
     return Subject(
         input=messages,
         output=final_output,
@@ -92,6 +102,8 @@ async def run_actor(
     adapter: AdapterInterface,
     simulator: UserSimulatorInterface,
     context: EvalContext,
+    on_turn: Callable[[str, int, str], None] | None = None,
+    on_turn_complete: Callable[[str, "TurnResult"], None] | None = None,
 ) -> ConversationResult:
     """Run a single actor: one persona pursuing one goal (§15.5.2).
 
@@ -139,12 +151,16 @@ async def run_actor(
                 conv_error = str(exc)
                 break
 
-            last_progress = dyn_case.progress
+            # Clamp progress to be monotonically non-decreasing
+            last_progress = max(last_progress, dyn_case.progress)
 
             # Goal achieved mid-loop (§15.5.2)
             if dyn_case.progress == 1.0:
                 termination_reason = "goal_achieved"
                 break
+
+            if on_turn:
+                on_turn(actor_id, turn_number, dyn_case.query)
 
             # Invoke agent — run sync adapter in thread pool to avoid blocking event loop  # noqa: E501
             adapter_input = AdapterInput(
@@ -183,6 +199,21 @@ async def run_actor(
                 subject, turn_number, persona.id, goal.id, actor_index, dyn_case.progress  # noqa: E501
             )
             all_then = goal.each_turn_then() + list(dyn_case.then)
+
+            # Skip AI grading for cancelled/empty agent responses — they're infra
+            # failures, not coaching quality signals.
+            _answer = subject.answer or ""
+            _is_cancelled = (
+                not _answer.strip()
+                or "operation cancelled" in _answer.lower()
+            )
+            if _is_cancelled:
+                logger.warning(
+                    "Skipping grades for %s turn %d — agent returned cancelled/empty response",
+                    actor_id, turn_number,
+                )
+                all_then = []
+
             grades: list[Grade] = [
                 resolve_grade(criterion, [], turn_subject, context)
                 for criterion in all_then
@@ -204,6 +235,8 @@ async def run_actor(
                     error=None,
                 )
             )
+            if on_turn_complete:
+                on_turn_complete(actor_id, history[-1])
             prior_subject = subject
 
     except asyncio.CancelledError:
@@ -236,8 +269,8 @@ async def run_actor(
     # goal_achievement_score (§15.8.3)
     goal_achievement_score = 1.0 if termination_reason == "goal_achieved" else last_progress  # noqa: E501
 
-    passed = overall_score >= context.config.case_pass_threshold
     goal_achieved = termination_reason == "goal_achieved"
+    passed = goal_achieved and overall_score >= context.config.case_pass_threshold
 
     return ConversationResult(
         id=actor_id,

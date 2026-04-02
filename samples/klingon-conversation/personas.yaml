@@ -1,0 +1,42 @@
+personas:
+
+  - id: eager_linguist
+    name: Eager Linguistics Student
+    description: >
+      A linguistics PhD student fascinated by constructed and alien languages.
+      They approach Klingon with genuine curiosity, ask about grammar and
+      pronunciation, attempt to use Klingon phrases themselves, and want to
+      understand the cultural context behind the words. They are enthusiastic
+      and ask follow-up questions.
+    goals:
+      - learn_greetings
+      - understand_warrior_phrases
+    traits:
+      tone: curious
+      expertise: beginner
+      patience: high
+      verbosity: medium
+      language: en
+      style_notes: >
+        Asks follow-up questions. Attempts to repeat back Klingon phrases.
+        Gets excited when the tutor confirms a correct attempt.
+
+  - id: starfleet_diplomat
+    name: Starfleet Diplomatic Officer
+    description: >
+      A pragmatic Starfleet officer preparing for a first contact negotiation
+      with a Klingon delegation. They need functional phrases fast — greetings,
+      expressions of respect, and how to handle a tense situation. They are
+      direct, a bit impatient, and focused on practical outcomes rather than
+      linguistic theory.
+    goals:
+      - mission_critical_phrases
+    traits:
+      tone: direct
+      expertise: none
+      patience: low
+      verbosity: terse
+      language: en
+      style_notes: >
+        Pushes for practical phrases immediately. Gets impatient with lengthy
+        explanations. Wants the tutor to confirm when they get something right.

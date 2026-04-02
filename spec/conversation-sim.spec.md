@@ -876,84 +876,123 @@ Required fields:
 
 ## 15.11 Progress Tracking
 
-### 15.11.1 ActorStatus
+### 15.11.1 Console dashboard
+
+Implementations MUST provide a live console progress display during active
+runs when stderr is a TTY, unless `--quiet` is set. When stderr is not a TTY
+(e.g., CI pipelines), implementations MUST fall back to per-turn line output.
+
+**TTY dashboard** — one row per persona×goal pair, updated after every completed
+turn. Aggregating by persona×goal rather than by actor keeps the table compact
+regardless of `actor_count`:
+
+```
+  Starting 3 conversation(s)...  transcripts → results/transcripts
+
+  Persona                       Goal                   Done    Act    Turn  Score            Goal%
+  ──────────────────────────────────────────────────────────────────────────────────────────────────
+  product_manager_new_to_dt     recover_from_confusi    0/1      1    3/10  --              ~30%
+  product_manager_new_to_dt     run_method1_session     1/1      0  5 turns [######--] 0.74   100%
+  team_lead_returning_user      transition_to_meth      0/1      1    2/15  --              ~15%
+  ──────────────────────────────────────────────────────────────────────────────────────────────────
+  Total: 1/3 done   Goal rate: 100%   Avg score: 0.74
+```
+
+Column semantics:
+
+| Column | While actors are running | When all actors for that row are done |
+|--------|--------------------------|---------------------------------------|
+| **Done** | completed / total actors | completed / total actors |
+| **Act** | count currently active | `0` |
+| **Turn** | `current/max` of most-advanced running actor | avg turns across completed actors (e.g. `5 turns`) |
+| **Score** | `--` until first actor completes, then avg | avg score bar + value |
+| **Goal%** | `~N%` live average goal_progress across running actors | achievement rate of completed actors |
+
+**Non-TTY fallback** — one line per event:
+
+```
+  → product_manager_new_to_dt:recover_from_confusion:1
+    [product_manager_new_to_dt:recover_from_confusion:1] turn 1: Hey, so I've been trying...
+    [product_manager_new_to_dt:recover_from_confusion:1] turn 2: Okay, that makes sense...
+  ✓ product_manager_new_to_dt:recover_from_confusion:1: score=0.74  turns=5  [goal_achieved]
+```
+
+A startup line MUST be printed to stderr before the run starts regardless of
+TTY mode:
+
+```
+  Starting N conversation(s)...  transcripts → <path>
+```
+
+### 15.11.2 Per-actor transcript files
+
+When `--output <dir>` is provided, implementations MUST write one JSON file
+per actor to `<dir>/transcripts/` using the filename
+`{persona_id}_{goal_id}_{actor_index}.json` (colons replaced with underscores).
+
+Transcripts MUST be written **incrementally** — the file is created as soon as
+the actor starts (with empty `turns` array) and updated after each event:
+
+1. **Actor start** — file created with `"status": "in_progress"` and `"turns": []`
+2. **Simulator generates query** — file updated with a pending turn entry
+   containing `user_message` and `"agent_response": null`
+3. **Turn completes** — file updated replacing the pending entry with the full
+   `TurnResult` including grades and scores
+4. **Actor completes** — file overwritten with the complete `ConversationResult`
+   (adds `termination_reason`, `goal_achieved`, `time_seconds`, on-finish grades)
+
+This allows monitoring a running conversation in real time using any JSON viewer
+or `tail -f`.
+
+**In-progress format** (during turns):
 
 ```json
 {
-  "actor_id": "casual_user:find_refund_policy:2",
-  "persona_id": "casual_user",
-  "goal_id": "find_refund_policy",
-  "actor_index": 2,
-  "state": "running",
-  "turn_count": 3,
-  "max_turns": 20,
-  "goal_progress": 0.5,
-  "current_score": 0.78,
-  "started_at": "2025-06-01T14:22:05Z",
-  "updated_at": "2025-06-01T14:22:18Z",
-  "error": null
+  "id": "product_manager_new_to_dt:recover_from_confusion:1",
+  "persona_id": "product_manager_new_to_dt",
+  "goal_id": "recover_from_confusion",
+  "actor_index": 1,
+  "status": "in_progress",
+  "turns": [
+    {
+      "turn_number": 1,
+      "user_message": "Hey, so I've been trying to use design thinking...",
+      "agent_response": "That feeling of confusion is actually the research working...",
+      "completion_time_seconds": 44.2,
+      "goal_progress": 0.0,
+      "grades": [
+        { "criterion": "completion time should be under 120",
+          "score": 0.63, "metric": "latency", "layer": "deterministic", ... },
+        { "criterion": "the answer should be: responds with empathy...",
+          "score": 0.85, "metric": "quality", "layer": "ai_judged", ... }
+      ],
+      "metric_scores": { "latency": 0.63, "quality": 0.85 },
+      "overall_score": 0.74
+    }
+  ]
 }
 ```
 
-Required fields:
+**Completed format** — same as `ConversationResult` (§15.10.2), with the
+`status` field absent (it is a beval-internal field not part of the schema).
 
-* `actor_id` (string): ConversationCase identity
-* `persona_id`, `goal_id` (string)
-* `actor_index` (integer)
-* `state` (string): `pending | running | completed | failed | cancelled`
-* `turn_count` (integer): turns completed so far
-* `max_turns` (integer): goal constraint value
-* `goal_progress` (Score): last `DynamicCase.progress` from `generate_case()`
-* `current_score` (Score): current `overall_score` including all graded turns
-* `started_at` (ISO 8601 or null)
-* `updated_at` (ISO 8601): last status update time
-* `error` (string or null)
+### 15.11.3 Grade sources per turn
 
-### 15.11.2 ConversationRunStatus
+Each turn accumulates grades from three sources:
 
-```json
-{
-  "run_id": "run-20250601-142200",
-  "state": "running",
-  "elapsed_seconds": 45.2,
-  "actors_total": 8,
-  "actors_running": 3,
-  "actors_completed": 4,
-  "actors_failed": 0,
-  "actors_cancelled": 0,
-  "actors_pending": 1,
-  "goal_achievement_rate_so_far": 0.75,
-  "current_overall_score": 0.81,
-  "actor_statuses": [...]
-}
-```
+1. **Static per-turn criteria** — `each turn` stage entries from the goal
+   definition (e.g., `completion time should be under 120`, a fixed coaching
+   style criterion)
+2. **Dynamic criteria** — `then` array generated by the simulator for that
+   specific user message (up to `max_criteria_per_turn`, default 3); each
+   criterion MUST start with the `"the answer should be: "` prefix so it is
+   dispatched to the AI judge grader
+3. **On-finish criteria** — `on finish` stage entries, evaluated once against
+   the full conversation subject after the last turn
 
-Required fields:
-
-* `run_id` (string): opaque identifier for the run
-* `state` (string): `running | completed | cancelled | failed`
-* `elapsed_seconds` (number)
-* `actors_total` (integer)
-* `actors_running`, `actors_completed`, `actors_failed`, `actors_cancelled`,
-  `actors_pending` (integers)
-* `goal_achievement_rate_so_far` (Score): fraction among completed actors
-* `current_overall_score` (Score): mean of completed actor scores
-* `actor_statuses` (ActorStatus array)
-
-### 15.11.3 Progress delivery
-
-Implementations MUST provide a console progress display (e.g., a live table
-of ActorStatus rows) during active runs, unless `--quiet` is set.
-
-Implementations SHOULD write `status.json` (ConversationRunStatus) to the
-configured `output.dir` directory and update it after each turn completes.
-The file path is `{output.dir}/conversation-status.json`.
-
-Implementations MAY expose an HTTP endpoint (e.g., `GET /status`) that returns
-the current ConversationRunStatus as JSON. The endpoint address MUST be printed
-at run start if enabled.
-
-Both console output and status.json writing are suppressible via `--quiet`.
+Grades for turns where the agent returned an empty or cancelled response are
+skipped (no AI judge calls are made) to avoid polluting quality metrics with
+infrastructure failures.
 
 ## 15.12 Run History
 

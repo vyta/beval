@@ -1,0 +1,52 @@
+eval:
+  mode: validation
+  thresholds:
+    grade_pass: 0.5
+    case_pass: 0.7
+
+  agents:
+    default: klingon-tutor
+    definitions:
+      - name: klingon-tutor
+        description: >
+          Klingon language tutor via A2A HTTP.
+          Run with: cd samples/klingon-agent && python server.py --port 8000
+        protocol: a2a
+        connection:
+          url: ${AGENT_URL:-http://127.0.0.1:8000}
+          streaming: false
+        timeout: 60
+        retry:
+          max_attempts: 2
+          backoff: 3.0
+
+  judge:
+    protocol: openai
+    model: ${FOUNDRY_MODEL:-o4-mini}
+    base_url: ${FOUNDRY_ENDPOINT}   # https://<resource>.services.ai.azure.com/api/projects/<project>/openai/v1
+    auth: entra_id
+    timeout: 60
+
+  conversation:
+    simulator:
+      protocol: openai
+      model: ${FOUNDRY_MODEL:-o4-mini}
+      base_url: ${FOUNDRY_ENDPOINT}   # https://<resource>.services.ai.azure.com/api/projects/<project>/openai/v1
+      auth: entra_id
+      timeout: 60
+      max_criteria_per_turn: 1
+
+    personas:
+      - file: personas.yaml
+
+    goals:
+      - file: goals.yaml
+
+    actor_count: 1
+    max_parallel_actors: 1
+    history_dir: .beval_history
+    history_retention_days: 30
+
+  output:
+    dir: results
+    format: json

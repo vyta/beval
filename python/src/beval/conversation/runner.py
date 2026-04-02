@@ -6,13 +6,64 @@ See spec/conversation-sim.spec.md for the normative specification.
 from __future__ import annotations
 
 import asyncio
+import dataclasses
 import datetime
+import json
 import logging
 import statistics
+import sys
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
+
+
+# ── ACP SDK noise suppression ─────────────────────────────────────────────────
+
+class _SuppressACPTaskDestroyed(logging.Filter):
+    """Drop 'Task was destroyed but it is pending!' from the asyncio logger.
+
+    These come from the ACP SDK's TaskSupervisor respawning background tasks
+    (Sender.loop, Connection.receive, Dispatcher.loop) after cancellation.
+    """
+    def filter(self, record: logging.LogRecord) -> bool:
+        return "Task was destroyed" not in record.getMessage()
+
+
+_acp_filters_installed = False
+
+
+def _install_acp_noise_filters() -> None:
+    """Install once-per-process filters to suppress ACP SDK cleanup noise."""
+    global _acp_filters_installed
+    if _acp_filters_installed:
+        return
+    _acp_filters_installed = True
+
+    # 1. Suppress "Task was destroyed" from asyncio logger
+    logging.getLogger("asyncio").addFilter(_SuppressACPTaskDestroyed())
+
+    # 2. Suppress "Exception ignored in: <coroutine>" for ACP SDK coroutines
+    _orig_hook = sys.unraisablehook
+
+    def _filtered_hook(args: sys.UnraisableHookArgs) -> None:
+        obj = args.object
+        if obj is not None:
+            qualname = getattr(obj, "__qualname__", "") or ""
+            # Suppress ACP SDK coroutine finalizer noise and the stdlib
+            # Queue.get/Queue.__anext__ wakeup failures that accompany it
+            if any(name in qualname for name in (
+                "MessageSender", "DefaultMessageDispatcher",
+                "Connection._receive", "_QueueIterator",
+                "Queue.get",  # stdlib asyncio queue woken up after loop close
+            )):
+                return
+        _orig_hook(args)
+
+    sys.unraisablehook = _filtered_hook
+
+if TYPE_CHECKING:
+    from beval.conversation.dashboard import _LiveDashboard
 
 from beval.adapters import create_adapter
 from beval.conversation.actor import run_actor
@@ -37,12 +88,14 @@ logger = logging.getLogger(__name__)
 
 def load_personas_and_goals(
     conv_config: dict[str, Any],
+    config_dir: Path | None = None,
 ) -> tuple[list[Persona], dict[str, Goal]]:
     """Load personas and goals from config sources (§15.3.2, §15.4.2).
 
     Returns (personas, goal_pool) where goal_pool is keyed by goal ID.
     Raises SystemExit(2) on invalid configuration.
     """
+    base_dir = config_dir or Path.cwd()
     goal_pool: dict[str, Goal] = {}
     persona_list: list[Persona] = []
 
@@ -50,6 +103,8 @@ def load_personas_and_goals(
     for source in conv_config.get("goals", []):
         if "file" in source:
             path = Path(source["file"])
+            if not path.is_absolute():
+                path = base_dir / path
             if not path.is_file():
                 logger.error("Goal file not found: %s", path)
                 raise SystemExit(2)
@@ -88,6 +143,8 @@ def load_personas_and_goals(
     for source in conv_config.get("personas", []):
         if "file" in source:
             path = Path(source["file"])
+            if not path.is_absolute():
+                path = base_dir / path
             if not path.is_file():
                 logger.error("Persona file not found: %s", path)
                 raise SystemExit(2)
@@ -142,11 +199,17 @@ def _build_conversations(
     personas: list[Persona],
     goal_pool: dict[str, Goal],
     actor_count: int,
+    persona_filter: str | None = None,
+    goal_filter: str | None = None,
 ) -> list[tuple[Persona, Goal, int]]:
     """Build the (persona, goal, actor_index) list using persona-centric pairing (§15.1)."""  # noqa: E501
     conversations = []
     for persona in personas:
+        if persona_filter and persona.id != persona_filter:
+            continue
         for goal_id in persona.goals:
+            if goal_filter and goal_id != goal_filter:
+                continue
             goal = goal_pool[goal_id]
             for actor_index in range(1, actor_count + 1):
                 conversations.append((persona, goal, actor_index))
@@ -176,6 +239,17 @@ def _make_cancelled_result(persona: Persona, goal: Goal, actor_index: int) -> Co
     )
 
 
+def _to_dict(obj: Any) -> Any:
+    """Recursively convert dataclasses and collections to JSON-serializable dicts."""
+    if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
+        return {k: _to_dict(v) for k, v in dataclasses.asdict(obj).items()}
+    if isinstance(obj, dict):
+        return {k: _to_dict(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_to_dict(i) for i in obj]
+    return obj
+
+
 async def _run_all_actors(
     conversations: list[tuple[Persona, Goal, int]],
     agent_def: dict[str, Any],
@@ -183,6 +257,8 @@ async def _run_all_actors(
     context: EvalContext,
     max_parallel_actors: int,
     run_timeout_seconds: float | None,
+    dashboard: "_LiveDashboard | None" = None,
+    transcript_dir: Path | None = None,
 ) -> list[ConversationResult]:
     """Run all actors concurrently with semaphore throttling (§15.7.2)."""
     sem = asyncio.Semaphore(max_parallel_actors)
@@ -191,14 +267,103 @@ async def _run_all_actors(
         persona: Persona, goal: Goal, actor_index: int
     ) -> ConversationResult:
         async with sem:
+            actor_id = f"{persona.id}:{goal.id}:{actor_index}"
+
+            if dashboard:
+                dashboard.on_actor_start(persona.id, goal.id)
+            else:
+                print(f"  → {actor_id}", file=sys.stderr, flush=True)
+
             adapter = create_adapter(agent_def)
             simulator: UserSimulatorInterface = load_simulator_from_config(
                 simulator_config
             )
+
+            safe_id = actor_id.replace(":", "_")
+            transcript_path = (
+                transcript_dir / f"{safe_id}.json" if transcript_dir is not None else None
+            )
+            turns_so_far: list[Any] = []
+
+            def _write_transcript(data: Any) -> None:
+                if transcript_path is None:
+                    return
+                try:
+                    with open(transcript_path, "w", encoding="utf-8") as f:
+                        json.dump(_to_dict(data), f, indent=2)
+                except OSError as exc:
+                    logger.warning(
+                        "Could not write transcript for %s: %s", actor_id, exc
+                    )
+
+            # Write stub immediately so the file exists as soon as actor starts
+            _write_transcript({
+                "id": actor_id,
+                "persona_id": persona.id,
+                "goal_id": goal.id,
+                "actor_index": actor_index,
+                "status": "in_progress",
+                "turns": [],
+            })
+
+            def on_turn(aid: str, turn: int, query: str) -> None:
+                if dashboard:
+                    dashboard.on_turn_start(persona.id, goal.id, turn)
+                else:
+                    preview = query[:70].replace("\n", " ")
+                    print(f"    [{aid}] turn {turn}: {preview}", file=sys.stderr, flush=True)
+                # Write user message immediately — before agent responds
+                _write_transcript({
+                    "id": actor_id,
+                    "persona_id": persona.id,
+                    "goal_id": goal.id,
+                    "actor_index": actor_index,
+                    "status": "in_progress",
+                    "turns": turns_so_far + [{
+                        "turn_number": turn,
+                        "user_message": query,
+                        "agent_response": None,
+                    }],
+                })
+
+            def on_turn_complete(aid: str, turn_result: Any) -> None:
+                turns_so_far.append(turn_result)
+                if dashboard:
+                    dashboard.on_turn_complete(
+                        persona.id, goal.id, turn_result.goal_progress
+                    )
+                _write_transcript({
+                    "id": actor_id,
+                    "persona_id": persona.id,
+                    "goal_id": goal.id,
+                    "actor_index": actor_index,
+                    "status": "in_progress",
+                    "turns": turns_so_far,
+                })
+
             try:
-                return await run_actor(
-                    persona, goal, actor_index, adapter, simulator, context
+                result = await run_actor(
+                    persona, goal, actor_index, adapter, simulator, context,
+                    on_turn=on_turn,
+                    on_turn_complete=on_turn_complete,
                 )
+
+                if dashboard:
+                    dashboard.on_actor_complete(persona.id, goal.id, result)
+                else:
+                    status = "✓" if result.goal_achieved else "✗"
+                    print(
+                        f"  {status} {actor_id}: score={result.overall_score:.2f}"
+                        f"  turns={result.turn_count}"
+                        f"  [{result.termination_reason}]",
+                        file=sys.stderr,
+                        flush=True,
+                    )
+
+                # Overwrite with the complete ConversationResult
+                _write_transcript(result)
+
+                return result
             finally:
                 try:
                     adapter.close()
@@ -229,6 +394,18 @@ async def _run_all_actors(
             results.append(_make_cancelled_result(persona, goal, actor_index))
         else:
             results.append(task.result())
+
+    # Cancel lingering ACP SDK background tasks (Sender.loop, Connection.receive,
+    # Dispatcher.loop). Loop up to 5 rounds since TaskSupervisor may respawn tasks.
+    loop = asyncio.get_running_loop()
+    loop.set_exception_handler(lambda _l, _ctx: None)  # silence cleanup warnings
+    for _ in range(5):
+        lingering = {t for t in asyncio.all_tasks() if t is not asyncio.current_task() and not t.done()}
+        if not lingering:
+            break
+        for t in lingering:
+            t.cancel()
+        await asyncio.gather(*lingering, return_exceptions=True)
 
     return results
 
@@ -292,6 +469,7 @@ class ConversationRunner:
         mode: EvaluationMode = EvaluationMode.DEV,
         config: RunConfig | None = None,
         evaluators: dict[str, Any] | None = None,
+        config_dir: Path | None = None,
     ) -> None:
         self._agent_def = agent_def
         self._simulator_config = simulator_config
@@ -299,10 +477,19 @@ class ConversationRunner:
         self._mode = mode
         self._config = config or RunConfig()
         self._evaluators = evaluators or {}
+        self._config_dir = config_dir
 
-    def run(self, *, label: str | None = None) -> ConversationRunResult:
+    def run(
+        self,
+        *,
+        label: str | None = None,
+        persona_filter: str | None = None,
+        goal_filter: str | None = None,
+        dashboard: "_LiveDashboard | None" = None,
+        transcript_dir: Path | None = None,
+    ) -> ConversationRunResult:
         """Load personas/goals, run all actors, return ConversationRunResult."""
-        personas, goal_pool = load_personas_and_goals(self._conv_config)
+        personas, goal_pool = load_personas_and_goals(self._conv_config, self._config_dir)
 
         actor_count = int(self._conv_config.get("actor_count", 1))
         max_parallel = int(self._conv_config.get("max_parallel_actors", 1))
@@ -310,7 +497,9 @@ class ConversationRunner:
         if run_timeout is not None:
             run_timeout = float(run_timeout)
 
-        conversations = _build_conversations(personas, goal_pool, actor_count)
+        conversations = _build_conversations(
+            personas, goal_pool, actor_count, persona_filter, goal_filter
+        )
         if not conversations:
             logger.error("No conversations to run — check personas and goals configuration.")  # noqa: E501
             raise SystemExit(2)
@@ -321,16 +510,35 @@ class ConversationRunner:
             config=self._config,
         )
 
-        results = asyncio.run(
-            _run_all_actors(
-                conversations,
-                self._agent_def,
-                self._simulator_config,
-                context,
-                max_parallel,
-                run_timeout,
-            )
-        )
+        async def _run() -> list[ConversationResult]:
+            try:
+                return await _run_all_actors(
+                    conversations,
+                    self._agent_def,
+                    self._simulator_config,
+                    context,
+                    max_parallel,
+                    run_timeout,
+                    dashboard=dashboard,
+                    transcript_dir=transcript_dir,
+                )
+            finally:
+                # Close evaluators (e.g. ACPJudge) while the loop is still running
+                for evaluator in self._evaluators.values():
+                    if callable(getattr(evaluator, "close", None)):
+                        try:
+                            evaluator.close()
+                        except Exception:  # noqa: BLE001, S110
+                            pass
+
+        # Suppress ACP SDK cleanup noise. The SDK's TaskSupervisor keeps background
+        # tasks (Sender.loop, Connection.receive, Dispatcher.loop) alive past loop
+        # close, producing "Task was destroyed" log messages and "Exception ignored"
+        # unraisable warnings. Install permanent per-process filters targeting only
+        # those sources so all other asyncio warnings remain visible.
+        _install_acp_noise_filters()
+
+        results = asyncio.run(_run())
 
         summary = _build_summary(results, self._config)
         timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(

@@ -20,45 +20,38 @@ logger = logging.getLogger(__name__)
 # ── Prompt templates (§15.6.3.1) ──────────────────────────────────────────
 
 _SIM_SYSTEM_TEMPLATE = """\
-You are a simulated user in a conversation evaluation scenario.
+You are a creative writing assistant helping script a conversation for a chatbot test.
 
-Persona:
-{persona_description}
+Write the next message for this person:
 
-Traits:
-{traits}
+Profile: {persona_description}
 
-Your goal:
-{objective}
+Personality: {traits}
+
+Goal for this conversation: {objective}
 {completion_criteria}
-Instructions:
-- Stay in character as described by the persona
-- Generate your next message to the agent, pursuing your goal naturally
-- Also generate 1–3 evaluation criteria specific to your message — what a
-  good response to your exact question should contain or address
-- Estimate how much of the goal has been achieved so far (0.0 = nothing, 1.0 = fully done)
-- If progress is 1.0, query is ignored — the conversation will end
-- Do NOT break character or reveal that you are a simulator
+Also provide up to {max_criteria} brief notes on what a helpful AI response to \
+this message should address, and estimate how close the person is to achieving \
+their goal (0.0 = just started, 1.0 = fully achieved — set to 1.0 only when done).
+Progress should only increase or stay the same across turns, never go down.
 
-You MUST respond with a JSON object containing exactly:
-- "progress": number 0.0–1.0 — fraction of the goal achieved based on the conversation so far
-- "query": string — the user message to send (stay in character); ignored when progress == 1.0
-- "then": array of strings — criterion strings to evaluate the agent's response \
-to this specific message. Use the same style as static then clauses (e.g., \
-"the agent addressed the international shipping aspect of the question"). \
-These are dispatched through the §4 grader registry. May be empty when progress == 1.0.\
+Reply with a JSON object containing:
+- "progress": number between 0.0 and 1.0
+- "query": the person's next message (written in their voice)
+- "then": array of evaluation notes, each beginning with "the answer should be: " \
+(e.g., "the answer should be: the response gives specific examples"). \
+Empty array is fine when progress is 1.0.\
 """
 
 _SIM_USER_HISTORY_TEMPLATE = """\
 Conversation so far:
 
 {history}
-Generate your next turn. Respond with JSON only.\
+What is your next message?\
 """
 
 _SIM_USER_FIRST_TEMPLATE = """\
-This is the start of the conversation. Open the conversation with your first \
-message to pursue your goal. Respond with JSON only.\
+Start the conversation with your opening message.\
 """
 
 
@@ -78,12 +71,14 @@ def _format_history(history: list[TurnResult]) -> str:
     parts = []
     for t in history:
         parts.append(f"User: {t.user_message}")
-        parts.append(f"<agent_response>\n{t.agent_response}\n</agent_response>")
+        parts.append(f"Assistant: {t.agent_response}")
         parts.append("")
     return "\n".join(parts)
 
 
-def _build_system_message(persona: Persona, goal: Goal) -> str:
+def _build_system_message(
+    persona: Persona, goal: Goal, max_criteria: int = 3
+) -> str:
     on_finish = goal.on_finish_then()
     if on_finish:
         numbered = "\n".join(f"{i + 1}. {c}" for i, c in enumerate(on_finish))
@@ -95,6 +90,7 @@ def _build_system_message(persona: Persona, goal: Goal) -> str:
         traits=_format_traits(persona),
         objective=goal.given.objective or "(no objective specified)",
         completion_criteria=completion_criteria,
+        max_criteria=max_criteria,
     )
 
 
@@ -186,6 +182,7 @@ class OpenAISimulator(UserSimulatorInterface):
         auth: str | None = None,
         max_answer_chars: int | None = None,
         timeout: float = 30,
+        max_criteria_per_turn: int = 3,
     ) -> None:
         try:
             from openai import AzureOpenAI, OpenAI  # noqa: F401
@@ -199,6 +196,7 @@ class OpenAISimulator(UserSimulatorInterface):
         self._model = model
         self._max_answer_chars = max_answer_chars
         self._timeout = timeout
+        self._max_criteria_per_turn = max_criteria_per_turn
 
         # Reuse the same client-creation logic as LLMJudge
         from openai import AzureOpenAI, OpenAI
@@ -219,7 +217,7 @@ class OpenAISimulator(UserSimulatorInterface):
         history: list[TurnResult],
         context: EvalContext,
     ) -> DynamicCase:
-        system_msg = _build_system_message(persona, goal)
+        system_msg = _build_system_message(persona, goal, self._max_criteria_per_turn)
 
         # Optionally truncate agent responses to keep prompt size bounded
         if self._max_answer_chars is not None and history:
@@ -245,15 +243,33 @@ class OpenAISimulator(UserSimulatorInterface):
         return _parse_dynamic_case(raw)
 
     def _call_llm(self, system_msg: str, user_msg: str) -> str:
-        response = self._client.chat.completions.create(
-            model=self._model,
-            messages=[
+        kwargs: dict[str, Any] = {
+            "model": self._model,
+            "messages": [
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg},
             ],
-            max_completion_tokens=1024,
-        )
-        return response.choices[0].message.content or ""
+            "max_completion_tokens": 8192,  # reasoning models use tokens for thinking before output
+        }
+        try:
+            kwargs["response_format"] = {"type": "json_object"}
+            response = self._client.chat.completions.create(**kwargs)
+        except Exception as exc:  # noqa: BLE001
+            # response_format not supported — log and retry without it
+            logger.debug("response_format not supported (%s), retrying without", exc)
+            del kwargs["response_format"]
+            response = self._client.chat.completions.create(**kwargs)
+
+        choice = response.choices[0]
+        finish_reason = getattr(choice, "finish_reason", None)
+        content = choice.message.content or ""
+        if not content:
+            raise ValueError(
+                f"Simulator returned empty content "
+                f"(model={self._model}, finish_reason={finish_reason!r}, "
+                f"usage={getattr(response, 'usage', None)})"
+            )
+        return content
 
 
 # ── ACP simulator (§15.6.4) ───────────────────────────────────────────────
@@ -269,9 +285,11 @@ class ACPSimulator(UserSimulatorInterface):
         connection: dict[str, Any],
         *,
         timeout: float = 30,
+        max_criteria_per_turn: int = 3,
     ) -> None:
         self._connection = connection
         self._timeout = timeout
+        self._max_criteria_per_turn = max_criteria_per_turn
         self._transport = connection.get("transport", "stdio")
         self._conn: Any = None
         self._process: Any = None
@@ -341,6 +359,15 @@ class ACPSimulator(UserSimulatorInterface):
             )
             self._session_id = resp.session_id
 
+            model = self._connection.get("model")
+            if model:
+                await asyncio.wait_for(
+                    self._conn.set_session_model(
+                        model_id=model, session_id=self._session_id
+                    ),
+                    timeout=self._timeout,
+                )
+
     async def generate_case(
         self,
         persona: Persona,
@@ -360,20 +387,46 @@ class ACPSimulator(UserSimulatorInterface):
         await self._ensure_connected()
 
         # Combined prompt: system message + separator + user message (§15.6.4.1)
-        system_msg = _build_system_message(persona, goal)
+        system_msg = _build_system_message(persona, goal, self._max_criteria_per_turn)
         user_msg = _build_user_message(history)
         combined = f"{system_msg}\n\n---\n\n{user_msg}"
 
-        self._client.clear()
-        await asyncio.wait_for(
-            self._conn.prompt(
-                prompt=[text_block(combined)],
-                session_id=self._session_id,
-            ),
-            timeout=self._timeout,
-        )
-        raw = "".join(self._client.chunks)
-        return _parse_dynamic_case(raw)
+        max_retries = 3
+        last_exc: Exception | None = None
+        for attempt in range(max_retries):
+            if attempt > 0:
+                wait = 2.0 * attempt
+                logger.warning(
+                    "Simulator retry %d/%d after %.1fs (last error: %s)",
+                    attempt,
+                    max_retries - 1,
+                    wait,
+                    last_exc,
+                )
+                await asyncio.sleep(wait)
+
+            self._client.clear()
+            await asyncio.wait_for(
+                self._conn.prompt(
+                    prompt=[text_block(combined)],
+                    session_id=self._session_id,
+                ),
+                timeout=self._timeout,
+            )
+            raw = "".join(self._client.chunks)
+            try:
+                return _parse_dynamic_case(raw)
+            except ValueError as exc:
+                logger.warning(
+                    "Simulator parse error (attempt %d/%d): %s | raw=%r",
+                    attempt + 1,
+                    max_retries,
+                    exc,
+                    raw[:500],
+                )
+                last_exc = exc
+
+        raise ValueError(f"Simulator failed after {max_retries} attempts: {last_exc}")
 
     async def close(self) -> None:
         try:
@@ -411,6 +464,7 @@ def load_simulator_from_config(simulator_config: dict[str, Any]) -> UserSimulato
             auth=resolved.get("auth"),
             max_answer_chars=resolved.get("max_answer_chars"),
             timeout=float(resolved.get("timeout", 30)),
+            max_criteria_per_turn=int(resolved.get("max_criteria_per_turn", 3)),
         )
 
     if protocol == "acp":
@@ -422,6 +476,7 @@ def load_simulator_from_config(simulator_config: dict[str, Any]) -> UserSimulato
         return ACPSimulator(
             connection,
             timeout=float(resolved.get("timeout", 30)),
+            max_criteria_per_turn=int(resolved.get("max_criteria_per_turn", 3)),
         )
 
     raise ValueError(

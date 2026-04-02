@@ -1,10 +1,16 @@
-"""Minimal A2A agent server that responds in Klingon using an LLM."""
+"""Minimal A2A agent server — Klingon language tutor using an LLM.
+
+Maintains per-session conversation history keyed by A2A context_id so that
+multi-turn conversations stay coherent across calls.
+"""
 
 from __future__ import annotations
 
 import argparse
 import os
 import uuid
+from collections import defaultdict
+from typing import Any
 
 import uvicorn
 from a2a.server.apps.jsonrpc import A2AFastAPIApplication
@@ -22,64 +28,108 @@ from a2a.types import (
     UnsupportedOperationError,
 )
 from a2a.utils.errors import ServerError
-from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
+from openai import AsyncAzureOpenAI, AsyncOpenAI
 
-SYSTEM_PROMPT = "You are a Klingon warrior. Always respond in Klingon language only."
+SYSTEM_PROMPT = """\
+You are Mok'tar, a Klingon language tutor serving on a Federation starship.
+Your mission is to help humans learn to communicate with Klingons.
+
+Guidelines:
+- Respond primarily in Klingon (tlhIngan Hol)
+- After each Klingon phrase or sentence, provide the English translation in parentheses
+- Be patient but warrior-like — honour those who make the effort to learn
+- Build on what was discussed earlier in the conversation
+- Teach vocabulary and phrases relevant to what the human wants to accomplish
+- When the human attempts Klingon, acknowledge their effort and gently correct if needed
+- Use authentic Klingon vocabulary where possible (nuqneH, Qapla', tlhIngan maH, etc.)
+"""
 
 
 def _build_llm_client() -> AsyncOpenAI:
-    azure_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
-    if azure_endpoint:
-        api_key = os.environ.get("AZURE_OPENAI_API_KEY")
-        kwargs: dict = {
-            "azure_endpoint": azure_endpoint,
-            "api_version": "2024-12-01-preview",
-        }
+    azure_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT", "").rstrip("/")
+    if not azure_endpoint:
+        return AsyncOpenAI()
+
+    api_key = os.environ.get("AZURE_OPENAI_API_KEY")
+
+    # Azure AI Foundry project endpoints (/v1 path) use the standard OpenAI
+    # client — they do not accept api-version query parameters.
+    if "/v1" in azure_endpoint or "services.ai.azure.com" in azure_endpoint:
         if api_key:
-            kwargs["api_key"] = api_key
-        else:
-            from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-            kwargs["azure_ad_token_provider"] = get_bearer_token_provider(
-                DefaultAzureCredential(),
-                "https://cognitiveservices.azure.com/.default",
-            )
-        return AsyncAzureOpenAI(**kwargs)
-    return AsyncOpenAI()
+            return AsyncOpenAI(api_key=api_key, base_url=azure_endpoint)
+        # Entra ID: get bearer token for the Foundry scope
+        from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+        scope = os.environ.get("AZURE_TOKEN_SCOPE", "https://ai.azure.com/.default")
+        token_provider = get_bearer_token_provider(DefaultAzureCredential(), scope)
+        return AsyncOpenAI(
+            api_key="placeholder",
+            base_url=azure_endpoint,
+            default_headers={"Authorization": f"Bearer {token_provider()}"},
+        )
+
+    # Classic Azure OpenAI (openai.azure.com / cognitiveservices.azure.com)
+    # — uses AzureOpenAI with api-version.
+    kwargs: dict[str, Any] = {
+        "azure_endpoint": azure_endpoint,
+        "api_version": os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview"),
+    }
+    if api_key:
+        kwargs["api_key"] = api_key
+    else:
+        from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+        scope = os.environ.get("AZURE_TOKEN_SCOPE", "https://cognitiveservices.azure.com/.default")
+        kwargs["azure_ad_token_provider"] = get_bearer_token_provider(
+            DefaultAzureCredential(), scope
+        )
+    return AsyncAzureOpenAI(**kwargs)
 
 
 def _get_model() -> str:
-    return os.environ.get("KLINGON_MODEL", "gpt-4o-mini")
+    return os.environ.get("KLINGON_MODEL", "o4-mini")
+
+
+def _extract_text(message: Message) -> str:
+    parts = []
+    for part in message.parts:
+        if hasattr(part, "root") and hasattr(part.root, "text"):
+            parts.append(part.root.text)
+        elif hasattr(part, "text"):
+            parts.append(part.text)
+    return "".join(parts)
 
 
 class KlingonRequestHandler(RequestHandler):
     def __init__(self) -> None:
         self.client = _build_llm_client()
         self.model = _get_model()
+        # Per-session history: context_id → list of {"role": ..., "content": ...}
+        self._history: dict[str, list[dict[str, str]]] = defaultdict(list)
 
     async def on_message_send(
         self, params: MessageSendParams, context: ServerCallContext | None = None
     ) -> Message:
-        # Extract user text from message parts
-        user_text = ""
-        for part in params.message.parts:
-            if hasattr(part, "root") and hasattr(part.root, "text"):
-                user_text += part.root.text
-            elif hasattr(part, "text"):
-                user_text += part.text
+        user_text = _extract_text(params.message)
+        context_id = params.message.context_id or str(uuid.uuid4())
+
+        # Append user turn to session history
+        self._history[context_id].append({"role": "user", "content": user_text})
+
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}] + self._history[context_id]
 
         response = await self.client.chat.completions.create(
             model=self.model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_text},
-            ],
+            messages=messages,
         )
-        llm_response = response.choices[0].message.content or ""
+        reply = response.choices[0].message.content or ""
+
+        # Append assistant turn to session history
+        self._history[context_id].append({"role": "assistant", "content": reply})
 
         return Message(
             message_id=str(uuid.uuid4()),
             role=Role.agent,
-            parts=[Part(root=TextPart(text=llm_response))],
+            parts=[Part(root=TextPart(text=reply))],
+            context_id=context_id,
         )
 
     async def on_message_send_stream(self, params):
@@ -109,42 +159,42 @@ class KlingonRequestHandler(RequestHandler):
 
 def build_app(port: int = 8000):
     agent_card = AgentCard(
-        name="Klingon Agent",
-        description="An agent that responds exclusively in the Klingon language.",
+        name="Klingon Language Tutor",
+        description=(
+            "Mok'tar — a Klingon language tutor who teaches tlhIngan Hol "
+            "through multi-turn conversation with English translations."
+        ),
         url=f"http://127.0.0.1:{port}",
-        version="1.0.0",
+        version="2.0.0",
         defaultInputModes=["text/plain"],
         defaultOutputModes=["text/plain"],
         skills=[
             AgentSkill(
-                id="klingon-translation",
-                name="Klingon Translation",
-                description="Responds to any input in Klingon language.",
-                tags=["klingon", "translation"],
+                id="klingon-tutoring",
+                name="Klingon Language Tutoring",
+                description=(
+                    "Teaches tlhIngan Hol through interactive conversation. "
+                    "Provides Klingon phrases with English translations and "
+                    "builds vocabulary across a multi-turn session."
+                ),
+                tags=["klingon", "language", "tutoring"],
             )
         ],
         capabilities=AgentCapabilities(),
     )
 
     handler = KlingonRequestHandler()
-
-    server = A2AFastAPIApplication(
-        agent_card=agent_card,
-        http_handler=handler,
-    )
+    server = A2AFastAPIApplication(agent_card=agent_card, http_handler=handler)
     return server.build(agent_card_url="/.well-known/agent-card.json")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Klingon A2A Agent Server")
+    parser = argparse.ArgumentParser(description="Klingon Language Tutor A2A Agent")
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on")
     args = parser.parse_args()
-
     app = build_app(port=args.port)
-
     config = uvicorn.Config(app, host="0.0.0.0", port=args.port)
-    server = uvicorn.Server(config)
-    server.run()
+    uvicorn.Server(config).run()
 
 
 if __name__ == "__main__":

@@ -147,7 +147,7 @@ class TestPromptBuilding:
 
     def test_user_message_empty_history(self):
         msg = _build_user_message([])
-        assert "start of the conversation" in msg.lower()
+        assert "opening message" in msg.lower() or "start" in msg.lower()
 
     def test_user_message_with_history(self):
         history = [
@@ -165,7 +165,7 @@ class TestPromptBuilding:
         ]
         msg = _build_user_message(history)
         assert "Hello" in msg
-        assert "<agent_response>" in msg
+        assert "Assistant:" in msg
         assert "Hi there!" in msg
 
 
@@ -536,3 +536,204 @@ class TestParallelActors:
 
         # Semaphore of 1 means at most 1 actor active at a time
         assert peak_active == 1
+
+
+# ── on_turn_complete callback ─────────────────────────────────────────────────
+
+
+class TestOnTurnComplete:
+    def _run_with_callback(self, persona, goal, sim, adapter=None):
+        if adapter is None:
+            adapter = MockAdapter()
+        calls: list[tuple[str, Any]] = []
+
+        def callback(actor_id: str, turn_result: Any) -> None:
+            calls.append((actor_id, turn_result))
+
+        result = asyncio.run(
+            run_actor(persona, goal, 1, adapter, sim, make_context(),
+                      on_turn_complete=callback)
+        )
+        return result, calls
+
+    def test_called_once_per_successful_turn(self):
+        persona = make_persona()
+        goal = make_goal(given=GoalGiven(objective="t", max_turns=3))
+        sim = MockSimulator([
+            DynamicCase(query="turn1", then=(), progress=0.3),
+            DynamicCase(query="turn2", then=(), progress=0.6),
+            DynamicCase(query="turn3", then=(), progress=0.9),
+        ])
+        result, calls = self._run_with_callback(persona, goal, sim)
+        assert result.termination_reason == "terminated_max_turns"
+        assert len(calls) == 3
+
+    def test_not_called_on_simulator_error(self):
+        persona = make_persona()
+        goal = make_goal()
+
+        class ErrorSim:
+            async def generate_case(self, *a, **kw):
+                raise RuntimeError("sim failed")
+            async def close(self): pass
+
+        _, calls = self._run_with_callback(persona, goal, ErrorSim())
+        assert calls == []
+
+    def test_not_called_on_agent_error(self):
+        persona = make_persona()
+        goal = make_goal()
+        sim = MockSimulator([DynamicCase(query="hi", then=(), progress=0.5)])
+
+        class ErrorAdapter:
+            def invoke(self, *a, **kw): raise RuntimeError("agent failed")
+            def close(self): pass
+
+        _, calls = self._run_with_callback(persona, goal, sim, adapter=ErrorAdapter())
+        assert calls == []
+
+    def test_callback_receives_correct_actor_id(self):
+        persona = make_persona(id="myp")
+        goal = make_goal(id="myg")
+        sim = MockSimulator([DynamicCase(query="hi", then=(), progress=0.5),
+                             DynamicCase(query="", then=(), progress=1.0)])
+        _, calls = self._run_with_callback(persona, goal, sim)
+        assert len(calls) == 1
+        assert calls[0][0] == "myp:myg:1"
+
+    def test_callback_receives_fully_populated_turn_result(self):
+        persona = make_persona()
+        goal = make_goal()
+        sim = MockSimulator([DynamicCase(query="hello", then=(), progress=0.5),
+                             DynamicCase(query="", then=(), progress=1.0)])
+        _, calls = self._run_with_callback(persona, goal, sim)
+        assert len(calls) == 1
+        tr = calls[0][1]
+        assert tr.turn_number == 1
+        assert tr.user_message == "hello"
+        assert tr.agent_response == "Agent reply."
+        assert tr.error is None
+
+    def test_not_called_when_progress_1_first(self):
+        """If simulator immediately returns progress=1.0, no turns are sent."""
+        persona = make_persona()
+        goal = make_goal()
+        sim = MockSimulator([DynamicCase(query="", then=(), progress=1.0)])
+        _, calls = self._run_with_callback(persona, goal, sim)
+        assert calls == []
+
+
+# ── Transcript files ──────────────────────────────────────────────────────────
+
+
+class TestTranscriptFiles:
+    def _run_all(self, conversations, transcript_dir=None):
+        from unittest.mock import patch
+
+        class QuickSim:
+            async def generate_case(self, *a, **kw):
+                return DynamicCase(query="", then=(), progress=1.0)
+            async def close(self): pass
+
+        class QuickAdapter:
+            def invoke(self, *a, **kw):
+                from beval.types import Subject
+                return Subject(input="q", output="a", completion_time=0.0)
+            def close(self): pass
+
+        context = make_context()
+        with patch("beval.conversation.runner.load_simulator_from_config",
+                   return_value=QuickSim()), \
+             patch("beval.conversation.runner.create_adapter",
+                   return_value=QuickAdapter()):
+            return asyncio.run(
+                _run_all_actors(
+                    conversations,
+                    agent_def={"name": "mock", "protocol": "acp", "connection": {}},
+                    simulator_config={},
+                    context=context,
+                    max_parallel_actors=1,
+                    run_timeout_seconds=None,
+                    transcript_dir=transcript_dir,
+                )
+            )
+
+    def test_no_files_when_transcript_dir_is_none(self, tmp_path):
+        persona = make_persona()
+        goal = make_goal()
+        convs = _build_conversations([persona], {goal.id: goal}, 1)
+        self._run_all(convs, transcript_dir=None)
+        assert list(tmp_path.iterdir()) == []
+
+    def test_creates_one_file_per_actor(self, tmp_path):
+        persona = make_persona()
+        goal = make_goal()
+        convs = _build_conversations([persona], {goal.id: goal}, actor_count=2)
+        self._run_all(convs, transcript_dir=tmp_path)
+        files = sorted(tmp_path.iterdir())
+        assert len(files) == 2
+
+    def test_filename_uses_safe_actor_id(self, tmp_path):
+        persona = make_persona(id="my_persona", goals=["my_goal"])
+        goal = make_goal(id="my_goal")
+        convs = _build_conversations([persona], {goal.id: goal}, 1)
+        self._run_all(convs, transcript_dir=tmp_path)
+        names = [f.name for f in tmp_path.iterdir()]
+        assert "my_persona_my_goal_1.json" in names
+
+    def test_transcript_is_valid_json(self, tmp_path):
+        import json
+        persona = make_persona()
+        goal = make_goal()
+        convs = _build_conversations([persona], {goal.id: goal}, 1)
+        self._run_all(convs, transcript_dir=tmp_path)
+        f = next(tmp_path.iterdir())
+        data = json.loads(f.read_text())
+        assert data["persona_id"] == "test_user"
+        assert data["goal_id"] == "test_goal"
+        assert "turns" in data
+
+    def test_transcript_contains_turn_data(self, tmp_path):
+        import json
+        persona = make_persona()
+        goal = make_goal(given=GoalGiven(objective="t", max_turns=2))
+
+        class TwoTurnSim:
+            _count = 0
+            async def generate_case(self, *a, **kw):
+                self._count += 1
+                if self._count == 1:
+                    return DynamicCase(query="hello", then=(), progress=0.5)
+                return DynamicCase(query="", then=(), progress=1.0)
+            async def close(self): pass
+
+        from unittest.mock import patch
+
+        class QuickAdapter:
+            def invoke(self, *a, **kw):
+                from beval.types import Subject
+                return Subject(input="q", output="agent says hi", completion_time=0.0)
+            def close(self): pass
+
+        context = make_context()
+        with patch("beval.conversation.runner.load_simulator_from_config",
+                   return_value=TwoTurnSim()), \
+             patch("beval.conversation.runner.create_adapter",
+                   return_value=QuickAdapter()):
+            asyncio.run(
+                _run_all_actors(
+                    _build_conversations([persona], {goal.id: goal}, 1),
+                    agent_def={"name": "mock", "protocol": "acp", "connection": {}},
+                    simulator_config={},
+                    context=context,
+                    max_parallel_actors=1,
+                    run_timeout_seconds=None,
+                    transcript_dir=tmp_path,
+                )
+            )
+
+        f = next(tmp_path.iterdir())
+        data = json.loads(f.read_text())
+        assert len(data["turns"]) == 1
+        assert data["turns"][0]["user_message"] == "hello"
+        assert data["turns"][0]["agent_response"] == "agent says hi"

@@ -506,8 +506,8 @@ class TestACPJudge:
         judge = ACPJudge({"transport": "stdio", "command": ["copilot"]}, timeout=30)
         judge.close()  # Should not raise
 
-    def test_combined_prompt_contains_answer_tags(self):
-        """ACP judge prompt uses <answer> tags (§14.2.3)."""
+    def test_combined_prompt_contains_answer(self):
+        """ACP judge prompt includes criterion, input, and answer."""
         from beval.judge import _ACP_JUDGE_PROMPT_TEMPLATE
 
         prompt = _ACP_JUDGE_PROMPT_TEMPLATE.format(
@@ -515,10 +515,9 @@ class TestACPJudge:
             input="What is Python?",
             answer="Python is a language.",
         )
-        assert "<answer>" in prompt
-        assert "</answer>" in prompt
         assert "Python is a language." in prompt
         assert "the answer should be concise" in prompt
+        assert "What is Python?" in prompt
 
 
 class TestACPJudgeClient:

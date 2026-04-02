@@ -14,23 +14,27 @@ goals:
         problem frame and a natural session close. The session should feel
         like a real coaching conversation, not a quiz.
       max_turns: 20
-      timeout_seconds: 600
+      timeout_seconds: 1800
     stages:
       - when: "each turn"
         then:
-          - "response time should be under 120"
+          - "completion time should be under 120"
           - "the answer should be: responds conversationally and stays in
             coaching mode — does not lecture or produce artifacts for the user"
       - when: "on finish"
         then:
-          - "the agent helped the user articulate a real human problem rather
-            than accepting the solution assumption at face value"
-          - "the agent maintained the Think/Speak/Empower philosophy throughout
-            the conversation"
-          - "the agent asked open-ended questions rather than prescribing
-            solutions or issuing directives"
-          - "the conversation ended with a clear problem frame or a natural
-            transition prompt"
+          - "the answer should be: evaluating the full conversation —
+            the agent helped the user articulate a real human problem
+            rather than accepting the solution assumption at face value"
+          - "the answer should be: evaluating the full conversation —
+            the agent maintained the Think/Speak/Empower philosophy
+            throughout, asking questions and reflecting rather than prescribing"
+          - "the answer should be: evaluating the full conversation —
+            the agent consistently used open-ended questions rather than
+            issuing directives or solving the problem for the user"
+          - "the answer should be: evaluating the full conversation —
+            by the end the user had arrived at a clear problem frame or
+            a natural transition prompt to the next method"
 
   # ── Goal 2: Recover from confusion ─────────────────────────────────────
   - id: recover_from_confusion
@@ -46,21 +50,24 @@ goals:
         track without making you feel foolish. By the end you should feel
         re-oriented and know your next concrete step.
       max_turns: 10
-      timeout_seconds: 300
+      timeout_seconds: 900
     stages:
       - when: "each turn"
         then:
-          - "response time should be under 120"
+          - "completion time should be under 120"
           - "the answer should be: responds with curiosity and empathy rather
             than defensiveness or methodology lectures"
       - when: "on finish"
         then:
-          - "the agent responded to the user's expressed confusion with empathy
-            and normalization, not with a methodology lecture"
-          - "the agent used progressive hints — starting broad and getting more
-            specific only if the user remained stuck"
-          - "by the end of the conversation the user had a clear, manageable
-            next step to take"
+          - "the answer should be: evaluating the full conversation —
+            when the user expressed confusion the agent responded with
+            empathy and normalization, not with a methodology lecture"
+          - "the answer should be: evaluating the full conversation —
+            the agent used progressive guidance, starting broad and only
+            getting more specific when the user remained stuck"
+          - "the answer should be: evaluating the full conversation —
+            by the end the user had a clear, concrete, manageable next
+            step and felt re-oriented rather than overwhelmed"
 
   # ── Goal 3: Method transition ───────────────────────────────────────────
   - id: transition_to_method2
@@ -76,19 +83,24 @@ goals:
         user research approach for Method 2 — specifically who to interview
         and what to explore. End with a concrete research plan outline.
       max_turns: 15
-      timeout_seconds: 450
+      timeout_seconds: 1200
     stages:
       - when: "each turn"
         then:
-          - "response time should be under 120"
+          - "completion time should be under 120"
           - "the answer should be: acknowledges context and builds on prior
             session knowledge rather than starting from scratch"
       - when: "on finish"
         then:
-          - "the agent explicitly confirmed the method transition and briefly
-            recapped the key Method 1 accomplishment"
-          - "the agent helped the user plan a research approach for Method 2
-            including who to interview and what questions to explore"
-          - "the agent maintained continuity from the previous session rather
-            than treating this as a fresh start"
-          - "the conversation ended with a concrete next step for the user"
+          - "the answer should be: evaluating the full conversation —
+            the agent explicitly confirmed the method transition and
+            recapped the key Method 1 insight at some point in the session"
+          - "the answer should be: evaluating the full conversation —
+            the agent helped the user build a concrete research plan for
+            Method 2, including participant groups and interview themes"
+          - "the answer should be: evaluating the full conversation —
+            the agent demonstrated continuity from the prior session
+            rather than treating this as a fresh start"
+          - "the answer should be: evaluating the full conversation —
+            by the end the user had a concrete next step or research
+            plan they could act on"

@@ -11,6 +11,7 @@ import time
 from typing import Any
 
 from beval.adapters import AdapterInput, AdapterInterface
+from beval.judge import _cancel_all_tasks
 from beval.types import Subject
 
 
@@ -139,11 +140,13 @@ class ACPAdapter(AdapterInterface):
     def close(self) -> None:
         """Release ACP connection resources."""
         if self._loop is not None and not self._loop.is_closed():
+            coro = self._close_async()
             try:
-                self._loop.run_until_complete(self._close_async())
-            except Exception:  # noqa: BLE001, S110
-                pass  # Best-effort cleanup
+                self._loop.run_until_complete(coro)
+            except Exception:  # noqa: BLE001
+                coro.close()  # prevent "coroutine never awaited" warning
             finally:
+                _cancel_all_tasks(self._loop)
                 self._loop.close()
                 self._loop = None
 

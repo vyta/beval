@@ -344,6 +344,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Results output format.",
     )
     converse_run.add_argument(
+        "--persona",
+        type=str,
+        default=None,
+        help="Run only the persona with this ID.",
+    )
+    converse_run.add_argument(
+        "--goal",
+        type=str,
+        default=None,
+        help="Run only the goal with this ID.",
+    )
+    converse_run.add_argument(
         "--judge-model",
         type=str,
         default=None,
@@ -783,10 +795,7 @@ class _Spinner:
             idx += 1
 
 
-def _score_bar(score: float, width: int = 10) -> str:
-    """Render a score as a block bar like [########--]."""
-    filled = round(score * width)
-    return "[" + "#" * filled + "-" * (width - filled) + "]"
+from beval.conversation.dashboard import _score_bar  # noqa: E402
 
 
 def _truncate(text: str, max_len: int = 60) -> str:
@@ -1181,6 +1190,15 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
     from beval.conversation.runner import ConversationRunner
     from beval.types import EvaluationMode, RunConfig
 
+    # Suppress log noise when dashboard is active (TTY); keep WARNING otherwise
+    use_dashboard = sys.stderr.isatty() and not getattr(args, "quiet", False)
+    log_level = logging.ERROR if use_dashboard else logging.WARNING
+    if not logging.root.handlers:
+        logging.basicConfig(level=log_level, stream=sys.stderr,
+                            format="  [%(levelname)s] %(message)s")
+    else:
+        logging.root.setLevel(log_level)
+
     # Load config file
     file_config = _load_config_file(getattr(args, "config", None))
     conv_config: dict[str, Any] = file_config.get("conversation", {})
@@ -1293,6 +1311,8 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
                 return EXIT_INPUT_ERROR
 
     # ── Run ───────────────────────────────────────────────────────────────
+    config_file = getattr(args, "config", None)
+    config_dir = Path(config_file).resolve().parent if config_file else None
     runner = ConversationRunner(
         agent_def=agent_def,
         simulator_config=simulator_config,
@@ -1300,16 +1320,64 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
         mode=mode,
         config=config,
         evaluators=evaluators,
+        config_dir=config_dir,
     )
 
     label = getattr(args, "label", None)
+    output_path = getattr(args, "output", None)
+
+    # ── Transcript dir ────────────────────────────────────────────────────
+    transcript_dir: Path | None = None
+    if output_path:
+        _op = Path(output_path)
+        # Treat as directory if no file extension (e.g. "results/") or already a dir
+        base = _op if not _op.suffix else _op.parent
+        transcript_dir = base / "transcripts"
+        transcript_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Conversation list (always computed for count + dashboard) ──────────
+    from beval.conversation.runner import _build_conversations, load_personas_and_goals
+    _personas, _goal_pool = load_personas_and_goals(conv_config, config_dir)
+    _actor_count = int(conv_config.get("actor_count", 1))
+    _convs = _build_conversations(
+        _personas, _goal_pool, _actor_count,
+        persona_filter=getattr(args, "persona", None),
+        goal_filter=getattr(args, "goal", None),
+    )
+    n_convs = len(_convs)
+
+    # ── Dashboard ─────────────────────────────────────────────────────────
+    dashboard = None
+    if use_dashboard:
+        from beval.conversation.dashboard import _LiveDashboard
+        seen: dict[tuple[str, str], int] = {}
+        counts: dict[tuple[str, str], int] = {}
+        for _p, _g, _ in _convs:
+            key = (_p.id, _g.id)
+            seen[key] = _g.given.max_turns
+            counts[key] = counts.get(key, 0) + 1
+        _rows = [(pid, gid, counts[(pid, gid)], mt) for (pid, gid), mt in seen.items()]
+        dashboard = _LiveDashboard(_rows)
+    print(f"\n  Starting {n_convs} conversation(s)..."
+          + (f"  transcripts → {transcript_dir}" if transcript_dir else ""),
+          file=sys.stderr, flush=True)
+
     try:
-        result = runner.run(label=label)
+        result = runner.run(
+            label=label,
+            persona_filter=getattr(args, "persona", None),
+            goal_filter=getattr(args, "goal", None),
+            dashboard=dashboard,
+            transcript_dir=transcript_dir,
+        )
     except SystemExit:
         raise
     except Exception as exc:  # noqa: BLE001
         print(f"Error: {exc}", file=sys.stderr)
         return EXIT_INTERNAL_ERROR
+    finally:
+        if dashboard:
+            dashboard.finish()
 
     # ── Output ────────────────────────────────────────────────────────────
     def _to_dict(obj: Any) -> Any:
@@ -1320,8 +1388,6 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
         return obj
 
     result_dict = _to_dict(result)
-
-    output_path = getattr(args, "output", None)
     if output_path:
         p = Path(output_path)
         if p.is_dir():

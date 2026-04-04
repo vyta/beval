@@ -117,21 +117,7 @@ copilot --acp --port 3002 --allow-all
 cd python && uv sync --extra acp
 
 uv run beval -c ../samples/dt-coach-conversation/eval.config.yaml \
-  converse run
-```
-
-Save results to file:
-
-```bash
-uv run beval -c ../samples/dt-coach-conversation/eval.config.yaml \
   converse run --output ../samples/dt-coach-conversation/results/
-```
-
-Run 3 independent actors per (persona, goal) pair to measure consistency:
-
-```bash
-uv run beval -c ../samples/dt-coach-conversation/eval.config.yaml \
-  converse run --actor-count 3 --max-parallel 3
 ```
 
 Each actor replays the same goal from scratch with a different simulated

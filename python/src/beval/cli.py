@@ -1265,15 +1265,16 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
 
     # ── Build RunConfig ───────────────────────────────────────────────────
     thresholds = file_config.get("thresholds", {})
-    grade_pass_threshold = thresholds.get("grade_pass") or file_config.get(
-        "grade_pass_threshold", 0.5
-    )
-    case_pass_threshold = thresholds.get("case_pass") or file_config.get(
-        "case_pass_threshold", 0.7
-    )
+    pass_score = float(thresholds.get("pass_score", 0.7))
     config = RunConfig(
-        grade_pass_threshold=float(grade_pass_threshold),
-        case_pass_threshold=float(case_pass_threshold),
+        grade_pass_threshold=pass_score,
+        case_pass_threshold=pass_score,
+        pass_score=pass_score,
+        case_pass_rate=float(thresholds.get("case_pass_rate", 0.9)),
+        turn_pass_rate=float(thresholds.get("turn_pass_rate", 0.9)),
+        conversation_pass_rate=float(thresholds.get("conversation_pass_rate", 0.9)),
+        run_pass_rate=float(thresholds.get("run_pass_rate", 1.0)),
+        min_satisfaction=float(thresholds["min_satisfaction"]) if "min_satisfaction" in thresholds else None,
     )
 
     # ── Evaluation mode ───────────────────────────────────────────────────
@@ -1350,17 +1351,23 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
     dashboard = None
     if use_dashboard:
         from beval.conversation.dashboard import _LiveDashboard
-        seen: dict[tuple[str, str], int] = {}
+        _max_turns = int(conv_config.get("max_turns", 20))
         counts: dict[tuple[str, str], int] = {}
         for _p, _g, _ in _convs:
             key = (_p.id, _g.id)
-            seen[key] = _g.given.max_turns
             counts[key] = counts.get(key, 0) + 1
-        _rows = [(pid, gid, counts[(pid, gid)], mt) for (pid, gid), mt in seen.items()]
+        _rows = [(pid, gid, cnt, _max_turns) for (pid, gid), cnt in counts.items()]
         dashboard = _LiveDashboard(_rows)
     print(f"\n  Starting {n_convs} conversation(s)..."
           + (f"  transcripts → {transcript_dir}" if transcript_dir else ""),
           file=sys.stderr, flush=True)
+
+    # ── Feedback path ──────────────────────────────────────────────────────
+    feedback_path: Path | None = None
+    if output_path:
+        _op2 = Path(output_path)
+        fb_base = _op2 if not _op2.suffix else _op2.parent
+        feedback_path = fb_base / "feedback.json"
 
     try:
         result = runner.run(
@@ -1369,6 +1376,7 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
             goal_filter=getattr(args, "goal", None),
             dashboard=dashboard,
             transcript_dir=transcript_dir,
+            feedback_path=feedback_path,
         )
     except SystemExit:
         raise
@@ -1397,22 +1405,63 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
             _json.dump(result_dict, f, indent=2)
         if not args.quiet:
             print(f"\n  Results saved to: {p}", file=sys.stderr)
+            if feedback_path and feedback_path.exists():
+                print(f"  Feedback saved to: {feedback_path}", file=sys.stderr)
     else:
         print(_json.dumps(result_dict, indent=2))
 
     # Console summary
     s = result.summary
     if not args.quiet:
+        sat_str = f"  Sat: {s.avg_satisfaction:.2f}" if s.avg_satisfaction is not None else ""
         print(
             f"\n  Score: {s.overall_score:.2f}  "
             f"Goal rate: {s.goal_achievement_rate:.0%}  "
             f"Passed: {s.passed}/{s.total}  "
-            f"Turns: {s.total_turns}",
+            f"Turns: {s.total_turns}"
+            f"{sat_str}",
             file=sys.stderr,
         )
 
-    # Exit code: fail if any conversation failed
-    return EXIT_PASS if result.summary.failed == 0 and result.summary.errored == 0 else EXIT_FAIL  # noqa: E501
+        # Failure details
+        failed_convs = [c for c in result.conversations if not c.passed]
+        if failed_convs:
+            print(f"\n  Failed conversations ({len(failed_convs)}):", file=sys.stderr)
+            for conv in failed_convs:
+                print(f"\n    {conv.id}  (score={conv.overall_score:.2f}, {conv.termination_reason})", file=sys.stderr)
+                # Turn-level failures
+                failed_turns = [t for t in conv.turns if t.grades and not t.passed]
+                if failed_turns:
+                    for t in failed_turns:
+                        failing_grades = [g for g in t.grades if not g.passed]
+                        for g in failing_grades:
+                            crit = g.criterion[:72]
+                            print(f"      turn {t.turn_number}: {g.score:.2f} — {crit}", file=sys.stderr)
+                # Conversation-level failures
+                failing_conv_grades = [g for g in conv.grades if not g.passed]
+                for g in failing_conv_grades:
+                    crit = g.criterion[:72]
+                    print(f"      conv:     {g.score:.2f} — {crit}", file=sys.stderr)
+
+    # Exit code: pass if run pass rate threshold is met
+    if result.summary.total > 0:
+        rate = result.summary.passed / result.summary.total
+        if rate < config.run_pass_rate:
+            return EXIT_FAIL
+        if (
+            config.min_satisfaction is not None
+            and result.summary.avg_satisfaction is not None
+            and result.summary.avg_satisfaction < config.min_satisfaction
+        ):
+            if not args.quiet:
+                print(
+                    f"  FAIL: avg satisfaction {result.summary.avg_satisfaction:.2f}"
+                    f" < min_satisfaction {config.min_satisfaction:.2f}",
+                    file=sys.stderr,
+                )
+            return EXIT_FAIL
+        return EXIT_PASS
+    return EXIT_PASS
 
 
 def main(argv: list[str] | None = None) -> int:

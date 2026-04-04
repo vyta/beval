@@ -37,8 +37,9 @@ class _PersonaGoalRow:
     persona_id: str
     goal_id: str
     total_actors: int   # actor_count for this pair
-    max_turns: int      # goal.given.max_turns
+    max_turns: int      # from eval.conversation.max_turns config
     done: int = 0       # actors that have completed (any termination)
+    failed: int = 0     # actors that completed with passed=False
     running: int = 0    # actors currently active
     score_sum: float = 0.0
     goals_achieved: int = 0
@@ -47,6 +48,8 @@ class _PersonaGoalRow:
     turns_sum: int = 0     # total turns across all completed actors
     running_progress_sum: float = 0.0  # sum of latest goal_progress for running actors
     running_progress_count: int = 0    # how many running actors have reported progress
+    satisfaction_sum: float = 0.0
+    satisfaction_count: int = 0
 
     @property
     def avg_score(self) -> float | None:
@@ -60,6 +63,11 @@ class _PersonaGoalRow:
     def avg_running_progress(self) -> float | None:
         return (self.running_progress_sum / self.running_progress_count
                 if self.running_progress_count > 0 else None)
+
+    @property
+    def avg_satisfaction(self) -> float | None:
+        return (self.satisfaction_sum / self.satisfaction_count
+                if self.satisfaction_count > 0 else None)
 
 
 class _LiveDashboard:
@@ -134,6 +142,11 @@ class _LiveDashboard:
                 row.achievement_score_sum += result.goal_achievement_score
                 if result.goal_achieved:
                     row.goals_achieved += 1
+                if not getattr(result, "passed", True):
+                    row.failed += 1
+                if getattr(result, "feedback", None) is not None:
+                    row.satisfaction_sum += result.feedback.satisfaction
+                    row.satisfaction_count += 1
                 if row.running == 0:
                     row.last_turn = 0
                     row.running_progress_sum = 0.0
@@ -164,10 +177,10 @@ class _LiveDashboard:
 
         # Header
         lines.append(
-            f"  {'Persona':<28}  {'Goal':<22}  {'Done':>9}  {'Act':>4}"
-            f"  {'Turn':>6}  {'Score':<14}  {'Goal%':>6}"
+            f"  {'Persona':<28}  {'Goal':<22}  {'Done':>9}  {'Fail':>4}"
+            f"  {'Act':>4}  {'Turn':>6}  {'Score':<14}  {'Sat':>5}  {'Goal%':>6}"
         )
-        lines.append("  " + "─" * 98)
+        lines.append("  " + "─" * 111)
 
         for key in self._row_keys:
             row = self._rows[key]
@@ -202,24 +215,36 @@ class _LiveDashboard:
             # Show live goal progress for running actors (overrides done rate)
             if row.running > 0 and row.avg_running_progress is not None:
                 goal_pct = f"~{row.avg_running_progress:.0%}"
+            sat_cell = f"{row.avg_satisfaction:.2f}" if row.avg_satisfaction is not None else "--"
+            fail_cell = _color(f"{row.failed:>4}", _RED) if row.failed > 0 else f"{'0':>4}"
             lines.append(
                 f"  {persona_short:<28}  {goal_short:<22}  {done_cell:>9}"
-                f"  {row.running:>4}  {turn_cell:>6}  {score_cell:<14}  {goal_pct:>6}"
+                f"  {fail_cell}  {row.running:>4}  {turn_cell:>6}  {score_cell:<14}"
+                f"  {sat_cell:>5}  {goal_pct:>6}"
             )
 
-        lines.append("  " + "─" * 98)
+        lines.append("  " + "─" * 111)
 
         # Summary
         total_done = sum(r.done for r in self._rows.values())
         total_all = sum(r.total_actors for r in self._rows.values())
+        total_failed = sum(r.failed for r in self._rows.values())
         total_achieved = sum(r.goals_achieved for r in self._rows.values())
         total_score = sum(r.score_sum for r in self._rows.values())
         avg = total_score / total_done if total_done > 0 else 0.0
         goal_rate = total_achieved / total_done if total_done > 0 else 0.0
+        total_sat_sum = sum(r.satisfaction_sum for r in self._rows.values())
+        total_sat_count = sum(r.satisfaction_count for r in self._rows.values())
+        sat_str = ""
+        if total_sat_count > 0:
+            sat_str = f"   Avg sat: {total_sat_sum / total_sat_count:.2f}"
+        total_passed = total_done - total_failed
         lines.append(
             f"  Total: {total_done}/{total_all} done"
+            f"   Passed: {total_passed}/{total_done}"
             f"   Goal rate: {goal_rate:.0%}"
             f"   Avg score: {avg:.2f}"
+            f"{sat_str}"
         )
 
         return lines

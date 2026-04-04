@@ -25,6 +25,7 @@ Agent source: [`samples/klingon-agent/server.py`](../klingon-agent/server.py)
 | `eval.config.yaml` | A2A agent + Azure AI Foundry judge and simulator |
 | `personas.yaml` | Linguistics student and Starfleet diplomat |
 | `goals.yaml` | Three Klingon learning goals |
+| `criteria.yaml` | Evaluation criteria matched to goals by tags |
 
 ## Personas
 
@@ -116,10 +117,10 @@ Simulator (Azure AI Foundry)       Klingon Tutor (A2A HTTP)
       │   — that's how Klingons greet"      │
       │ ◀───────────────────────────────────│
       │                                     │
-      │  grade(turn criteria)               │
+      │  grade(query criteria)              │
       │  ...repeat up to max_turns          │
       │                                     │
-      │  grade(on finish criteria)          │
+      │  grade(conversation criteria)       │
 ```
 
 The agent carries `context_id` in every `Message` response. beval's
@@ -131,6 +132,6 @@ remembers which phrases it taught and can build vocabulary progressively.
 
 | Layer | Source | What it grades |
 |-------|--------|----------------|
-| Deterministic | `each turn` → `completion time should be under 30` | Latency (30s for a simple LLM call) |
-| AI-judged (per turn) | `each turn` goal criteria + 1 dynamic simulator criterion | Does each response teach something useful with a translation? |
-| AI-judged (conversation) | `on finish` criteria | Did the full session deliver on the learning goal? |
+| Deterministic | `latency` criteria → `completion time should be under 30` | Latency (30s for a simple LLM call) |
+| AI-judged (per turn) | per-goal query criteria + 1 dynamic simulator criterion | Does each response teach something useful with a translation? |
+| AI-judged (conversation) | per-goal conversation criteria | Did the full session deliver on the learning goal? |

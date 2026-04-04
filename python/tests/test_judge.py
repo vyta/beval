@@ -64,7 +64,7 @@ class TestLLMJudge:
         )
 
         assert grade.score == 0.85
-        assert grade.passed is True
+        assert grade.passed is False  # provisional; grader registry sets real value
         assert grade.layer == GraderLayer.AI_JUDGED
         assert "Good answer" in grade.detail
         assert grade.skipped is not True
@@ -434,7 +434,7 @@ class TestACPJudge:
             )
 
         assert grade.score == 0.8
-        assert grade.passed is True
+        assert grade.passed is False  # provisional; grader registry sets real value
         assert grade.detail == "Good answer."
         assert grade.skipped is not True
 

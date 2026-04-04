@@ -4,93 +4,33 @@ goals:
   - id: learn_greetings
     name: Learn Klingon greetings and farewells
     tags: [greetings, beginner, core]
-    given:
-      objective: >
-        You want to learn how to greet a Klingon, ask how they are, and say
-        goodbye. Start by asking for a basic greeting, then practice it by
-        trying to use it yourself. Ask about cultural context — why do Klingons
-        greet the way they do? By the end you should be able to say hello,
-        ask how someone is doing, and say farewell in Klingon with confidence.
-      max_turns: 15
-      timeout_seconds: 600
-    stages:
-      - when: "each turn"
-        then:
-          - "completion time should be under 30"
-          - "the answer should be: provides Klingon phrases with English
-            translations in parentheses, not Klingon-only responses"
-      - when: "on finish"
-        then:
-          - "the answer should be: evaluating the full conversation —
-            the tutor taught at least one authentic Klingon greeting phrase
-            (e.g. nuqneH, Qapla', or similar) with its correct translation"
-          - "the answer should be: evaluating the full conversation —
-            the tutor maintained continuity, building on earlier exchanges
-            rather than repeating itself"
-          - "the answer should be: evaluating the full conversation —
-            by the end the student had enough to attempt a Klingon greeting
-            and received feedback on their attempt"
+    objective: >
+      You want to learn how to greet a Klingon, ask how they are, and say
+      goodbye. Start by asking for a basic greeting, then practice it by
+      trying to use it yourself. Ask about cultural context — why do Klingons
+      greet the way they do? By the end you should be able to say hello,
+      ask how someone is doing, and say farewell in Klingon with confidence.
 
   # ── Goal 2: Warrior phrases ──────────────────────────────────────────────
   - id: understand_warrior_phrases
     name: Learn phrases of Klingon warrior culture
     tags: [culture, intermediate, core]
-    given:
-      objective: >
-        You want to understand the phrases Klingons use to express honor,
-        courage, and battle readiness. Ask about "Qapla'", what it means
-        in context, and related expressions of Klingon warrior philosophy.
-        Ask the tutor to teach you how to say you fight with honor. By the
-        end you should understand at least 3 warrior-culture phrases and
-        their cultural significance.
-      max_turns: 15
-      timeout_seconds: 600
-    stages:
-      - when: "each turn"
-        then:
-          - "completion time should be under 30"
-          - "the answer should be: stays in character as a Klingon tutor,
-            uses authentic Klingon vocabulary, and provides translations"
-      - when: "on finish"
-        then:
-          - "the answer should be: evaluating the full conversation —
-            the tutor explained the cultural meaning behind Klingon phrases,
-            not just the literal translation"
-          - "the answer should be: evaluating the full conversation —
-            at least 2-3 distinct warrior-culture phrases were introduced
-            with both Klingon text and English translation"
-          - "the answer should be: evaluating the full conversation —
-            the tutor's character remained consistent and warrior-like
-            throughout, fitting the Klingon cultural persona"
+    objective: >
+      You want to understand the phrases Klingons use to express honor,
+      determination, and cultural pride. Ask about "Qapla'", what it means
+      in context, and related expressions of Klingon philosophy. Ask the
+      tutor to teach you how to say you act with honor. By the end you
+      should understand at least 3 culturally significant Klingon phrases
+      and when to use them.
 
   # ── Goal 3: Mission-critical phrases ────────────────────────────────────
   - id: mission_critical_phrases
     name: Learn phrases for a diplomatic encounter
     tags: [diplomacy, practical, core]
-    given:
-      objective: >
-        You have 30 minutes before a diplomatic meeting with a Klingon
-        delegation and need to learn practical phrases fast. You want to
-        know how to greet them respectfully, express goodwill, and show
-        cultural awareness. Be direct — ask for the most important phrases,
-        try repeating them, and get confirmation you are saying them correctly.
-        End with at least 3 usable phrases for the meeting.
-      max_turns: 15
-      timeout_seconds: 600
-    stages:
-      - when: "each turn"
-        then:
-          - "completion time should be under 30"
-          - "the answer should be: gives specific, usable Klingon phrases
-            rather than general commentary about Klingon culture"
-      - when: "on finish"
-        then:
-          - "the answer should be: evaluating the full conversation —
-            the tutor provided at least 3 distinct, diplomatically relevant
-            Klingon phrases with English translations"
-          - "the answer should be: evaluating the full conversation —
-            when the student attempted to repeat phrases, the tutor
-            acknowledged and confirmed or corrected them"
-          - "the answer should be: evaluating the full conversation —
-            the student left with phrases they could plausibly use in
-            a high-stakes first-contact scenario"
+    objective: >
+      You have 30 minutes before a friendly meeting with a Klingon
+      delegation and need to learn practical phrases fast. You want to
+      know how to greet them respectfully, express goodwill, and show
+      cultural awareness. Be direct — ask for the most important phrases,
+      try repeating them, and get confirmation you are saying them correctly.
+      End with at least 3 usable phrases for the meeting.

@@ -11,7 +11,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any
 
-from beval.conversation.types import DynamicCase, Goal, Persona, TurnResult
+from beval.conversation.types import DynamicCase, Goal, Persona, TurnResult, UserFeedback
 from beval.types import EvalContext
 
 logger = logging.getLogger(__name__)
@@ -30,14 +30,20 @@ Personality: {traits}
 
 Goal for this conversation: {objective}
 {completion_criteria}
-Also provide up to {max_criteria} brief notes on what a helpful AI response to \
-this message should address, and estimate how close the person is to achieving \
+Estimate how close the person is to achieving \
 their goal (0.0 = just started, 1.0 = fully achieved — set to 1.0 only when done).
 Progress should only increase or stay the same across turns, never go down.
 
 Reply with a JSON object containing:
 - "progress": number between 0.0 and 1.0
-- "query": the person's next message (written in their voice)
+- "query": the person's next message (written in their voice)\
+"""
+
+_SIM_DYNAMIC_CRITERIA_ADDENDUM = """
+Also provide up to {max_criteria} brief notes on what a helpful AI response to \
+this message should address.
+
+Include in the JSON object:
 - "then": array of evaluation notes, each beginning with "the answer should be: " \
 (e.g., "the answer should be: the response gives specific examples"). \
 Empty array is fine when progress is 1.0.\
@@ -52,6 +58,36 @@ What is your next message?\
 
 _SIM_USER_FIRST_TEMPLATE = """\
 Start the conversation with your opening message.\
+"""
+
+# ── Feedback prompt templates ────────────────────────────────────────────
+
+_FEEDBACK_SYSTEM_TEMPLATE = """\
+You just finished a conversation with an AI assistant. Stay in character as \
+this person and rate the experience.
+
+Profile: {persona_description}
+
+Personality: {traits}
+
+Your goal was: {objective}
+
+Reply with a JSON object containing:
+- "satisfaction": number between 0.0 (terrible) and 1.0 (excellent)\
+"""
+
+_FEEDBACK_TEXT_ADDENDUM = """
+- "text": a brief sentence explaining your rating, in your own voice\
+"""
+
+_FEEDBACK_USER_TEMPLATE = """\
+Here is the full conversation:
+
+{history}
+
+The conversation ended because: {termination_reason}
+
+Rate your experience.\
 """
 
 
@@ -79,19 +115,23 @@ def _format_history(history: list[TurnResult]) -> str:
 def _build_system_message(
     persona: Persona, goal: Goal, max_criteria: int = 3
 ) -> str:
-    on_finish = goal.on_finish_then()
-    if on_finish:
-        numbered = "\n".join(f"{i + 1}. {c}" for i, c in enumerate(on_finish))
+    on_finish_criteria: list[str] = []
+    for ev in goal.conversation_evals:
+        on_finish_criteria.extend(ev.then)
+    if on_finish_criteria:
+        numbered = "\n".join(f"{i + 1}. {c}" for i, c in enumerate(on_finish_criteria))
         completion_criteria = f"\nCompletion criteria (for reference):\n{numbered}\n"
     else:
         completion_criteria = ""
-    return _SIM_SYSTEM_TEMPLATE.format(
+    prompt = _SIM_SYSTEM_TEMPLATE.format(
         persona_description=persona.description,
         traits=_format_traits(persona),
-        objective=goal.given.objective or "(no objective specified)",
+        objective=goal.objective or "(no objective specified)",
         completion_criteria=completion_criteria,
-        max_criteria=max_criteria,
     )
+    if max_criteria > 0:
+        prompt += _SIM_DYNAMIC_CRITERIA_ADDENDUM.format(max_criteria=max_criteria)
+    return prompt
 
 
 def _build_user_message(history: list[TurnResult]) -> str:
@@ -148,6 +188,67 @@ def _parse_dynamic_case(raw: str) -> DynamicCase:
     return DynamicCase(query=query, then=then, progress=progress)
 
 
+def _parse_feedback(raw: str) -> UserFeedback:
+    """Parse feedback response into UserFeedback. Raises ValueError on fatal errors."""
+    text = raw.strip()
+
+    # Strip markdown code fences
+    if text.startswith("```"):
+        lines = text.split("\n")[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        text = "\n".join(lines)
+
+    # Extract the first JSON object
+    start = text.find("{")
+    if start != -1:
+        depth = 0
+        for i, ch in enumerate(text[start:], start):
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    text = text[start : i + 1]
+                    break
+
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON from feedback: {raw[:200]}") from exc
+
+    satisfaction = float(data.get("satisfaction", 0.0))
+    satisfaction = max(0.0, min(1.0, satisfaction))
+    feedback_text = data.get("text")
+    if feedback_text is not None:
+        feedback_text = str(feedback_text).strip() or None
+
+    return UserFeedback(satisfaction=satisfaction, text=feedback_text)
+
+
+def _build_feedback_messages(
+    persona: Persona,
+    goal: Goal,
+    history: list[TurnResult],
+    termination_reason: str,
+    include_text: bool,
+) -> tuple[str, str]:
+    """Build system + user messages for the feedback prompt."""
+    system_msg = _FEEDBACK_SYSTEM_TEMPLATE.format(
+        persona_description=persona.description,
+        traits=_format_traits(persona),
+        objective=goal.objective or "(no objective specified)",
+    )
+    if include_text:
+        system_msg += _FEEDBACK_TEXT_ADDENDUM
+
+    user_msg = _FEEDBACK_USER_TEMPLATE.format(
+        history=_format_history(history),
+        termination_reason=termination_reason,
+    )
+    return system_msg, user_msg
+
+
 # ── Simulator ABC ──────────────────────────────────────────────────────────
 
 class UserSimulatorInterface(ABC):
@@ -167,6 +268,18 @@ class UserSimulatorInterface(ABC):
     async def close(self) -> None:  # noqa: B027
         """Release resources. No-op by default."""
 
+    async def generate_feedback(  # noqa: B027
+        self,
+        persona: Persona,
+        goal: Goal,
+        history: list[TurnResult],
+        termination_reason: str,
+        *,
+        include_text: bool = False,
+    ) -> UserFeedback | None:
+        """Generate post-conversation feedback. Returns None by default."""
+        return None
+
 
 # ── OpenAI simulator (§15.6.3) ────────────────────────────────────────────
 
@@ -182,7 +295,7 @@ class OpenAISimulator(UserSimulatorInterface):
         auth: str | None = None,
         max_answer_chars: int | None = None,
         timeout: float = 30,
-        max_criteria_per_turn: int = 3,
+        max_dynamic_criteria_per_turn: int = 3,
     ) -> None:
         try:
             from openai import AzureOpenAI, OpenAI  # noqa: F401
@@ -196,7 +309,7 @@ class OpenAISimulator(UserSimulatorInterface):
         self._model = model
         self._max_answer_chars = max_answer_chars
         self._timeout = timeout
-        self._max_criteria_per_turn = max_criteria_per_turn
+        self._max_dynamic_criteria_per_turn = max_dynamic_criteria_per_turn
 
         # Reuse the same client-creation logic as LLMJudge
         from openai import AzureOpenAI, OpenAI
@@ -217,7 +330,7 @@ class OpenAISimulator(UserSimulatorInterface):
         history: list[TurnResult],
         context: EvalContext,
     ) -> DynamicCase:
-        system_msg = _build_system_message(persona, goal, self._max_criteria_per_turn)
+        system_msg = _build_system_message(persona, goal, self._max_dynamic_criteria_per_turn)
 
         # Optionally truncate agent responses to keep prompt size bounded
         if self._max_answer_chars is not None and history:
@@ -240,7 +353,17 @@ class OpenAISimulator(UserSimulatorInterface):
 
         user_msg = _build_user_message(truncated)
         raw = await asyncio.to_thread(self._call_llm, system_msg, user_msg)
-        return _parse_dynamic_case(raw)
+        result = _parse_dynamic_case(raw)
+        # Enforce max_dynamic_criteria_per_turn — LLMs may ignore "up to 0" instructions
+        if self._max_dynamic_criteria_per_turn == 0:
+            result = DynamicCase(query=result.query, then=(), progress=result.progress)
+        elif len(result.then) > self._max_dynamic_criteria_per_turn:
+            result = DynamicCase(
+                query=result.query,
+                then=result.then[: self._max_dynamic_criteria_per_turn],
+                progress=result.progress,
+            )
+        return result
 
     def _call_llm(self, system_msg: str, user_msg: str) -> str:
         kwargs: dict[str, Any] = {
@@ -271,6 +394,25 @@ class OpenAISimulator(UserSimulatorInterface):
             )
         return content
 
+    async def generate_feedback(
+        self,
+        persona: Persona,
+        goal: Goal,
+        history: list[TurnResult],
+        termination_reason: str,
+        *,
+        include_text: bool = False,
+    ) -> UserFeedback | None:
+        system_msg, user_msg = _build_feedback_messages(
+            persona, goal, history, termination_reason, include_text,
+        )
+        try:
+            raw = await asyncio.to_thread(self._call_llm, system_msg, user_msg)
+            return _parse_feedback(raw)
+        except Exception:  # noqa: BLE001
+            logger.warning("Feedback generation failed for %s", persona.id)
+            return None
+
 
 # ── ACP simulator (§15.6.4) ───────────────────────────────────────────────
 
@@ -285,11 +427,11 @@ class ACPSimulator(UserSimulatorInterface):
         connection: dict[str, Any],
         *,
         timeout: float = 30,
-        max_criteria_per_turn: int = 3,
+        max_dynamic_criteria_per_turn: int = 3,
     ) -> None:
         self._connection = connection
         self._timeout = timeout
-        self._max_criteria_per_turn = max_criteria_per_turn
+        self._max_dynamic_criteria_per_turn = max_dynamic_criteria_per_turn
         self._transport = connection.get("transport", "stdio")
         self._conn: Any = None
         self._process: Any = None
@@ -387,7 +529,7 @@ class ACPSimulator(UserSimulatorInterface):
         await self._ensure_connected()
 
         # Combined prompt: system message + separator + user message (§15.6.4.1)
-        system_msg = _build_system_message(persona, goal, self._max_criteria_per_turn)
+        system_msg = _build_system_message(persona, goal, self._max_dynamic_criteria_per_turn)
         user_msg = _build_user_message(history)
         combined = f"{system_msg}\n\n---\n\n{user_msg}"
 
@@ -415,7 +557,17 @@ class ACPSimulator(UserSimulatorInterface):
             )
             raw = "".join(self._client.chunks)
             try:
-                return _parse_dynamic_case(raw)
+                result = _parse_dynamic_case(raw)
+                # Enforce max_dynamic_criteria_per_turn
+                if self._max_dynamic_criteria_per_turn == 0:
+                    result = DynamicCase(query=result.query, then=(), progress=result.progress)
+                elif len(result.then) > self._max_dynamic_criteria_per_turn:
+                    result = DynamicCase(
+                        query=result.query,
+                        then=result.then[: self._max_dynamic_criteria_per_turn],
+                        progress=result.progress,
+                    )
+                return result
             except ValueError as exc:
                 logger.warning(
                     "Simulator parse error (attempt %d/%d): %s | raw=%r",
@@ -441,6 +593,40 @@ class ACPSimulator(UserSimulatorInterface):
         self._session_id = None
         self._ctx_manager = None
 
+    async def generate_feedback(
+        self,
+        persona: Persona,
+        goal: Goal,
+        history: list[TurnResult],
+        termination_reason: str,
+        *,
+        include_text: bool = False,
+    ) -> UserFeedback | None:
+        try:
+            from acp import text_block  # type: ignore[import-untyped]
+        except ImportError:
+            return None
+
+        await self._ensure_connected()
+        system_msg, user_msg = _build_feedback_messages(
+            persona, goal, history, termination_reason, include_text,
+        )
+        combined = f"{system_msg}\n\n---\n\n{user_msg}"
+        try:
+            self._client.clear()
+            await asyncio.wait_for(
+                self._conn.prompt(
+                    prompt=[text_block(combined)],
+                    session_id=self._session_id,
+                ),
+                timeout=self._timeout,
+            )
+            raw = "".join(self._client.chunks)
+            return _parse_feedback(raw)
+        except Exception:  # noqa: BLE001
+            logger.warning("Feedback generation failed for %s", persona.id)
+            return None
+
 
 # ── Factory ────────────────────────────────────────────────────────────────
 
@@ -464,7 +650,10 @@ def load_simulator_from_config(simulator_config: dict[str, Any]) -> UserSimulato
             auth=resolved.get("auth"),
             max_answer_chars=resolved.get("max_answer_chars"),
             timeout=float(resolved.get("timeout", 30)),
-            max_criteria_per_turn=int(resolved.get("max_criteria_per_turn", 3)),
+            max_dynamic_criteria_per_turn=int(resolved.get(
+                "max_dynamic_criteria_per_turn",
+                resolved.get("max_criteria_per_turn", 3),
+            )),
         )
 
     if protocol == "acp":
@@ -476,7 +665,10 @@ def load_simulator_from_config(simulator_config: dict[str, Any]) -> UserSimulato
         return ACPSimulator(
             connection,
             timeout=float(resolved.get("timeout", 30)),
-            max_criteria_per_turn=int(resolved.get("max_criteria_per_turn", 3)),
+            max_dynamic_criteria_per_turn=int(resolved.get(
+                "max_dynamic_criteria_per_turn",
+                resolved.get("max_criteria_per_turn", 3),
+            )),
         )
 
     raise ValueError(

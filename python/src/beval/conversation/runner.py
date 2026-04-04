@@ -75,9 +75,9 @@ from beval.conversation.types import (
     ConversationResult,
     ConversationRunResult,
     ConversationRunSummary,
+    EvaluationCriteria,
     Goal,
-    GoalGiven,
-    GoalStage,
+    GoalEval,
     Persona,
     PersonaTraits,
 )
@@ -118,25 +118,25 @@ def load_personas_and_goals(
             goal_id = g["id"]
             if goal_id in goal_pool:
                 logger.warning("Duplicate goal id '%s'; last definition wins.", goal_id)
-            raw_given = g.get("given") or {}
-            given = GoalGiven(
-                objective=raw_given.get("objective", ""),
-                max_turns=int(raw_given.get("max_turns", 20)),
-                timeout_seconds=float(raw_given.get("timeout_seconds", 600)),
-            )
-            stages = []
-            for s in g.get("stages") or []:
-                when = s.get("when", "")
-                if when.lower() not in ("each turn", "on finish"):
-                    logger.error("Unknown goal stage 'when' value: %r", when)
-                    raise SystemExit(2)
-                stages.append(GoalStage(when=when, then=list(s.get("then") or [])))
+            objective = g.get("objective", "")
+            query_evals: list[GoalEval] = []
+            conversation_evals: list[GoalEval] = []
+            evals_block = g.get("evals") or {}
+            for ev in evals_block.get("query") or []:
+                query_evals.append(
+                    GoalEval(when=ev.get("when", ""), then=list(ev.get("then") or []))
+                )
+            for ev in evals_block.get("conversation") or []:
+                conversation_evals.append(
+                    GoalEval(when=ev.get("when", ""), then=list(ev.get("then") or []))
+                )
             goal_pool[goal_id] = Goal(
                 id=goal_id,
                 name=g["name"],
                 tags=list(g.get("tags") or []),
-                given=given,
-                stages=stages,
+                objective=objective,
+                query_evals=query_evals,
+                conversation_evals=conversation_evals,
             )
 
     # Load personas
@@ -193,6 +193,76 @@ def load_personas_and_goals(
                 raise SystemExit(2)
 
     return persona_list, goal_pool
+
+
+def load_criteria(
+    conv_config: dict[str, Any],
+    config_dir: Path | None = None,
+) -> list[EvaluationCriteria]:
+    """Load evaluation criteria from config sources.
+
+    Returns a list of EvaluationCriteria.
+    Raises SystemExit(2) on invalid configuration.
+    """
+    base_dir = config_dir or Path.cwd()
+    criteria_list: list[EvaluationCriteria] = []
+
+    for source in conv_config.get("criteria", []):
+        if "file" in source:
+            path = Path(source["file"])
+            if not path.is_absolute():
+                path = base_dir / path
+            if not path.is_file():
+                logger.error("Criteria file not found: %s", path)
+                raise SystemExit(2)
+            with open(path, encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+            raw_criteria = data.get("criteria", [])
+        else:
+            raw_criteria = [source]
+
+        for c in raw_criteria:
+            evals_block = c.get("evals") or {}
+            query_evals: list[GoalEval] = []
+            conversation_evals: list[GoalEval] = []
+            for ev in evals_block.get("query") or []:
+                query_evals.append(
+                    GoalEval(when=ev.get("when", ""), then=list(ev.get("then") or []))
+                )
+            for ev in evals_block.get("conversation") or []:
+                conversation_evals.append(
+                    GoalEval(when=ev.get("when", ""), then=list(ev.get("then") or []))
+                )
+            criteria_list.append(EvaluationCriteria(
+                id=c["id"],
+                name=c.get("name", c["id"]),
+                tags=list(c.get("tags") or []),
+                query_evals=query_evals,
+                conversation_evals=conversation_evals,
+            ))
+
+    return criteria_list
+
+
+def _merge_criteria_into_goals(
+    goal_pool: dict[str, Goal],
+    criteria_list: list[EvaluationCriteria],
+) -> None:
+    """Merge tag-matched criteria evals into each goal's eval lists (in-place).
+
+    A criteria applies to a goal when their tag sets intersect.
+    Inline goal evals appear first; criteria evals are appended in pool order.
+    """
+    for goal in goal_pool.values():
+        if not goal.tags:
+            continue
+        goal_tag_set = set(goal.tags)
+        for criteria in criteria_list:
+            if not criteria.tags:
+                continue
+            if goal_tag_set & set(criteria.tags):
+                goal.query_evals.extend(criteria.query_evals)
+                goal.conversation_evals.extend(criteria.conversation_evals)
 
 
 def _build_conversations(
@@ -257,11 +327,16 @@ async def _run_all_actors(
     context: EvalContext,
     max_parallel_actors: int,
     run_timeout_seconds: float | None,
+    max_turns: int = 20,
+    timeout_seconds: float = 600.0,
+    feedback_text_rate: float = 0.0,
     dashboard: "_LiveDashboard | None" = None,
     transcript_dir: Path | None = None,
+    feedback_path: Path | None = None,
 ) -> list[ConversationResult]:
     """Run all actors concurrently with semaphore throttling (§15.7.2)."""
     sem = asyncio.Semaphore(max_parallel_actors)
+    feedback_entries: list[dict[str, Any]] = []
 
     async def bounded(
         persona: Persona, goal: Goal, actor_index: int
@@ -344,8 +419,11 @@ async def _run_all_actors(
             try:
                 result = await run_actor(
                     persona, goal, actor_index, adapter, simulator, context,
+                    max_turns=max_turns,
+                    timeout_seconds=timeout_seconds,
                     on_turn=on_turn,
                     on_turn_complete=on_turn_complete,
+                    feedback_text_rate=feedback_text_rate,
                 )
 
                 if dashboard:
@@ -362,6 +440,24 @@ async def _run_all_actors(
 
                 # Overwrite with the complete ConversationResult
                 _write_transcript(result)
+
+                # Append feedback incrementally
+                if feedback_path is not None and result.feedback is not None:
+                    feedback_entries.append({
+                        "conversation_id": result.id,
+                        "persona_id": result.persona_id,
+                        "goal_id": result.goal_id,
+                        "actor_index": result.actor_index,
+                        "satisfaction": result.feedback.satisfaction,
+                        "text": result.feedback.text,
+                        "goal_achieved": result.goal_achieved,
+                        "termination_reason": result.termination_reason,
+                    })
+                    try:
+                        with open(feedback_path, "w", encoding="utf-8") as f:
+                            json.dump(feedback_entries, f, indent=2)
+                    except OSError as exc:
+                        logger.warning("Could not write feedback: %s", exc)
 
                 return result
             finally:
@@ -443,6 +539,9 @@ def _build_summary(
             metric_counts[m] = metric_counts.get(m, 0) + 1
     metrics = {m: metric_sums[m] / metric_counts[m] for m in metric_sums}
 
+    sat_scores = [r.feedback.satisfaction for r in results if r.feedback is not None]
+    avg_satisfaction = statistics.mean(sat_scores) if sat_scores else None
+
     return ConversationRunSummary(
         overall_score=overall_score,
         goal_achievement_rate=goal_achievement_rate,
@@ -454,6 +553,7 @@ def _build_summary(
         total_turns=total_turns,
         mean_turns_to_goal=mean_turns_to_goal,
         metrics=metrics,
+        avg_satisfaction=avg_satisfaction,
     )
 
 
@@ -487,12 +587,19 @@ class ConversationRunner:
         goal_filter: str | None = None,
         dashboard: "_LiveDashboard | None" = None,
         transcript_dir: Path | None = None,
+        feedback_path: Path | None = None,
     ) -> ConversationRunResult:
         """Load personas/goals, run all actors, return ConversationRunResult."""
         personas, goal_pool = load_personas_and_goals(self._conv_config, self._config_dir)
+        criteria = load_criteria(self._conv_config, self._config_dir)
+        if criteria:
+            _merge_criteria_into_goals(goal_pool, criteria)
 
         actor_count = int(self._conv_config.get("actor_count", 1))
         max_parallel = int(self._conv_config.get("max_parallel_actors", 1))
+        max_turns = int(self._conv_config.get("max_turns", 20))
+        timeout_seconds = float(self._conv_config.get("timeout_seconds", 600))
+        feedback_text_rate = float(self._conv_config.get("feedback_text_rate", 0.0))
         run_timeout = self._conv_config.get("run_timeout_seconds")
         if run_timeout is not None:
             run_timeout = float(run_timeout)
@@ -519,8 +626,12 @@ class ConversationRunner:
                     context,
                     max_parallel,
                     run_timeout,
+                    max_turns=max_turns,
+                    timeout_seconds=timeout_seconds,
+                    feedback_text_rate=feedback_text_rate,
                     dashboard=dashboard,
                     transcript_dir=transcript_dir,
+                    feedback_path=feedback_path,
                 )
             finally:
                 # Close evaluators (e.g. ACPJudge) while the loop is still running
@@ -548,8 +659,11 @@ class ConversationRunner:
         return ConversationRunResult(
             mode=self._mode.value,
             config={
-                "grade_pass_threshold": self._config.grade_pass_threshold,
-                "case_pass_threshold": self._config.case_pass_threshold,
+                "pass_score": self._config.pass_score,
+                "case_pass_rate": self._config.case_pass_rate,
+                "turn_pass_rate": self._config.turn_pass_rate,
+                "conversation_pass_rate": self._config.conversation_pass_rate,
+                "run_pass_rate": self._config.run_pass_rate,
             },
             summary=summary,
             conversations=results,

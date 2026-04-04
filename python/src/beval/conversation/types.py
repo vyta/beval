@@ -36,20 +36,22 @@ class Persona:
 
 
 @dataclass
-class GoalGiven:
-    """Setup block for a goal — objective and circuit-breaker constraints (§15.4.1)."""
+class GoalEval:
+    """A when/then evaluation block (§15.4.1)."""
 
-    objective: str = ""
-    max_turns: int = 20
-    timeout_seconds: float = 600.0
+    when: str
+    then: list[str] = field(default_factory=list)
 
 
 @dataclass
-class GoalStage:
-    """A when/then evaluation stage in a Goal (§15.4.1)."""
+class EvaluationCriteria:
+    """Reusable evaluation criteria matched to goals by tag intersection."""
 
-    when: str  # "each turn" | "on finish"
-    then: list[str] = field(default_factory=list)
+    id: str
+    name: str
+    tags: list[str] = field(default_factory=list)
+    query_evals: list[GoalEval] = field(default_factory=list)
+    conversation_evals: list[GoalEval] = field(default_factory=list)
 
 
 @dataclass
@@ -59,22 +61,9 @@ class Goal:
     id: str
     name: str
     tags: list[str] = field(default_factory=list)
-    given: GoalGiven = field(default_factory=GoalGiven)
-    stages: list[GoalStage] = field(default_factory=list)
-
-    def each_turn_then(self) -> list[str]:
-        """Criterion strings from the 'each turn' stage."""
-        for stage in self.stages:
-            if stage.when.lower() == "each turn":
-                return stage.then
-        return []
-
-    def on_finish_then(self) -> list[str]:
-        """Criterion strings from the 'on finish' stage."""
-        for stage in self.stages:
-            if stage.when.lower() == "on finish":
-                return stage.then
-        return []
+    objective: str = ""
+    query_evals: list[GoalEval] = field(default_factory=list)
+    conversation_evals: list[GoalEval] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -92,6 +81,14 @@ class DynamicCase:
 
 
 @dataclass(frozen=True)
+class UserFeedback:
+    """Post-conversation feedback from the simulated user persona."""
+
+    satisfaction: float
+    text: str | None = None
+
+
+@dataclass(frozen=True)
 class TurnResult:
     """Recorded outcome of one conversation turn (§15.10.1)."""
 
@@ -103,6 +100,7 @@ class TurnResult:
     grades: tuple[Grade, ...]
     metric_scores: dict[str, float]
     overall_score: float
+    passed: bool
     error: str | None
 
 
@@ -127,6 +125,7 @@ class ConversationResult:
     error: str | None
     turns: list[TurnResult]
     grades: list[Grade]
+    feedback: UserFeedback | None = None
 
 
 @dataclass
@@ -143,6 +142,7 @@ class ConversationRunSummary:
     total_turns: int
     mean_turns_to_goal: float | None
     metrics: dict[str, float]
+    avg_satisfaction: float | None = None
 
 
 @dataclass

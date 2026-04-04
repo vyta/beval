@@ -1,0 +1,208 @@
+{
+  "id": "eager_linguist:learn_greetings:2",
+  "name": "Eager Linguistics Student \u2192 Learn Klingon greetings and farewells (actor 2)",
+  "category": "eager_linguist/learn_greetings",
+  "persona_id": "eager_linguist",
+  "goal_id": "learn_greetings",
+  "actor_index": 2,
+  "overall_score": 0.96310343848333,
+  "goal_achievement_score": 1.0,
+  "passed": true,
+  "goal_achieved": true,
+  "termination_reason": "goal_achieved",
+  "turn_count": 3,
+  "time_seconds": 60.46838895899418,
+  "metric_scores": {
+    "latency": 0.9324137539333202,
+    "quality": 0.9733333333333333
+  },
+  "error": null,
+  "turns": [
+    {
+      "turn_number": 1,
+      "user_message": "Hi! I\u2019m excited to learn some basic Klingon greetings. What\u2019s the simplest way to say hello, and how do Klingons usually ask \u201chow are you?\u201d I\u2019d also love to know if the greeting has any cultural context\u2014why do Klingons greet the way they do? If possible, I\u2019d like to try repeating it back myself.",
+      "agent_response": "nuqneH! (What do you want?)\n\nbatlh bIghoS. (You come with honor.)\n\n**Simplest greeting:**  \n**nuqneH** (What do you want?) is the most common Klingon greeting.  \nIt is not a friendly \u201chello\u201d in the Human sense; it is more like \u201cState your business.\u201d  \nKlingons often value purpose over small talk. (Klingons value purpose over small talk.)\n\n**\u201cHow are you?\u201d**  \nThere is no perfect everyday equivalent used exactly like Human greetings.  \nA common way to ask something similar is: **bIqelbe\u2019be\u2019jaj?**? (Actually, that is not a standard phrase.)  \nMore useful beginner Klingon would be:  \n- **tlhIH tlhInganpu\u2019?** (Are you Klingons?) \u2014 not \u201chow are you,\u201d but a basic way to address a group.  \n- **bIQuch\u2019a\u2019?** (Are you happy?)  \n- **bIHoHbe\u2019\u2018a\u2019?** (Are you not dead?) \u2014 a very Klingon-flavored check-in, but use carefully.  \nFor everyday conversation, Klingons more often ask about status, readiness, or condition than \u201cHow are you?\u201d in the Human style. (Klingons more often ask about status, readiness, or condition than \u201cHow are you?\u201d)\n\n**Cultural context:**  \nKlingon greetings are direct because Klingon culture respects strength, clarity, and usefulness. (Klingon greetings are direct because Klingon culture respects strength, clarity, and usefulness.)  \nA greeting is not usually empty politeness; it should serve a purpose. (A greeting is not usually empty politeness; it should serve a purpose.)  \nThat is why **nuqneH** fits Klingon culture well. (That is why nuqneH fits Klingon culture well.)\n\n**Try repeating after me:**  \n1. **nuqneH** (What do you want?)  \n2. **Qapla\u2019** (Success!)  \n3. **bIQuch\u2019a\u2019?** (Are you happy?)  \n\nIf you want, write back with your attempt, and I will correct it like a proper trainer on a warship. (If you want, write back with your attempt, and I will correct it like a proper trainer on a warship.)",
+      "completion_time_seconds": 6.076522125003976,
+      "goal_progress": 0.1,
+      "grades": [
+        {
+          "criterion": "completion time should be under 60",
+          "score": 0.8987246312499337,
+          "metric": "latency",
+          "passed": true,
+          "detail": "6.1s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer is clearly about Klingon greetings, directly addressing the user\u2019s request for hello, a how-are-you equivalent, cultural context, and a phrase to repeat back. It stays on topic throughout.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: provides Klingon phrases with English translations in parentheses, not Klingon-only responses",
+          "score": 0.78,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does provide Klingon phrases with English translations in parentheses, satisfying the main format requirement. However, it includes some questionable or possibly incorrect Klingon phrases and explanations, which weakens usefulness. It is not Klingon-only, so it meets the criterion overall.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.8987246312499337,
+        "quality": 0.89
+      },
+      "overall_score": 0.8929082104166447,
+      "passed": true,
+      "error": null
+    },
+    {
+      "turn_number": 2,
+      "user_message": "nuqneH! I\u2019m trying it out: nuqneH. Am I saying that correctly? And if I wanted to ask something closer to \u201chow are you?\u201d, would bIQuch\u2019a\u2019? be the right choice for a beginner? Also, when would a Klingon use Qapla\u2019\u2014is it more like hello, goodbye, or just a general wish of success? I\u2019m curious about the cultural nuance here, too: does using nuqneH imply you\u2019re interrupting someone or asking permission to speak?",
+      "agent_response": "batlh bIHeghbe\u2019! (You are not dishonored!)\n\n**nuqneH** \u2014 ghaH, bIjatlhchu\u2019 law\u2019! (You say it correctly, yes, mostly!)  \nYour **nuqneH** looks good. (Your nuqneH looks good.)  \nJust remember the **q** in Klingon is a hard back-of-the-throat sound, not like English \u201ck.\u201d (Just remember the q in Klingon is a hard back-of-the-throat sound, not like English \u201ck.\u201d)\n\n**bIQuch\u2019a\u2019?** \u2014 HIja\u2019, lurgh lugh law\u2019! (Yes, that is basically the right direction!)  \nIt means **\u201cAre you happy?\u201d** or **\u201cAre you pleased?\u201d** (It means \u201cAre you happy?\u201d or \u201cAre you pleased?\u201d)  \nFor a beginner, it is a reasonable way to ask something close to **\u201cHow are you?\u201d** if you want a simple emotional check-in. (For a beginner, it is a reasonable way to ask something close to \u201cHow are you?\u201d if you want a simple emotional check-in.)  \nBut it is not a perfect match; Klingon often prefers questions about readiness, health, or condition. (But it is not a perfect match; Klingon often prefers questions about readiness, health, or condition.)\n\n**Qapla\u2019** \u2014 pIj **\u201csuccess\u201d** luj! (Often \u201csuccess\u201d is the best translation!)  \nIt is **not** a normal \u201chello\u201d or \u201cgoodbye.\u201d (It is not a normal \u201chello\u201d or \u201cgoodbye.\u201d)  \nIt is a wish for success, commonly used at the end of a conversation, a challenge, or encouragement. (It is a wish for success, commonly used at the end of a conversation, a challenge, or encouragement.)  \nSo you can think of it like: **\u201cGood luck!\u201d \u201cMay you succeed!\u201d** (So you can think of it like: \u201cGood luck!\u201d \u201cMay you succeed!\u201d)\n\n**nuqneH** has cultural weight. (nuqneH has cultural weight.)  \nIt can feel like: **\u201cState your purpose.\u201d** (It can feel like: \u201cState your purpose.\u201d)  \nSo yes, it can imply you are interrupting or that you are requesting attention. (So yes, it can imply you are interrupting or that you are requesting attention.)  \nIt is direct, efficient, and very Klingon. (It is direct, efficient, and very Klingon.)  \nAmong Klingons, that is not rude by itself; it is expected. (Among Klingons, that is not rude by itself; it is expected.)\n\n**Useful beginner pattern:**  \n- **nuqneH** (What do you want?)  \n- **bIQuch\u2019a\u2019?** (Are you happy?)  \n- **Qapla\u2019!** (Success!)  \n\nIf you wish, I can give you a tiny 3-line Klingon greeting exchange to practice repeating. (If you wish, I can give you a tiny 3-line Klingon greeting exchange to practice repeating.)",
+      "completion_time_seconds": 3.7636589579997235,
+      "goal_progress": 0.4,
+      "grades": [
+        {
+          "criterion": "completion time should be under 60",
+          "score": 0.9372723507000046,
+          "metric": "latency",
+          "passed": true,
+          "detail": "3.8s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer is clearly about the Klingon phrases the user asked about\u2014nuqneH, bIQuch\u2019a\u2019, Qapla\u2019, and the cultural nuance of nuqneH. It stays on-topic and does not drift into unrelated content.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: provides Klingon phrases with English translations in parentheses, not Klingon-only responses",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer clearly provides Klingon phrases with English translations in parentheses throughout, and it is not Klingon-only. It directly addresses the criterion well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9372723507000046,
+        "quality": 0.99
+      },
+      "overall_score": 0.9724241169000015,
+      "passed": true,
+      "error": null
+    },
+    {
+      "turn_number": 3,
+      "user_message": "This is great \u2014 I think I\u2019m getting it. Could you give me that tiny 3-line greeting exchange to practice? I\u2019d like to try using nuqneH, ask bIQuch\u2019a\u2019? in context, and then end with Qapla\u2019 correctly. Also, could you give me a quick pronunciation tip for that throatier Klingon q so I can repeat it more accurately?",
+      "agent_response": "HIja\u2019! (Yes!)\n\nHere is a tiny 3-line practice exchange: (Here is a tiny 3-line practice exchange:)\n\n1. **nuqneH** (What do you want?)  \n2. **bIQuch\u2019a\u2019?** (Are you happy?)  \n3. **Qapla\u2019!** (Success!)\n\nA simple way to use it: (A simple way to use it:)  \n**A:** nuqneH. (What do you want?)  \n**B:** bIQuch\u2019a\u2019? (Are you happy?)  \n**A:** Qapla\u2019! (Success!)\n\n**Pronunciation tip for Klingon q:** (Pronunciation tip for Klingon q:)  \nThe **q** is not like English **k**. (The q is not like English k.)  \nSay it farther back in the throat, with the back of the tongue against the soft palate. (Say it farther back in the throat, with the back of the tongue against the soft palate.)  \nIt should sound strong and a little harsh, like a deep, clipped stop. (It should sound strong and a little harsh, like a deep, clipped stop.)  \nIf you know the difference between **k** and **q** in Arabic or some other languages, think of the Klingon **q** as even more back and forceful. (If you know the difference between k and q in Arabic or some other languages, think of the Klingon q as even more back and forceful.)\n\nTry saying: (Try saying:)  \n**nuqneH** (What do you want?)  \nand then write it back to me. (and then write it back to me.)\n\nQapla\u2019! (Success!)",
+      "completion_time_seconds": 2.3253432089986745,
+      "goal_progress": 0.75,
+      "grades": [
+        {
+          "criterion": "completion time should be under 60",
+          "score": 0.9612442798500221,
+          "metric": "latency",
+          "passed": true,
+          "detail": "2.3s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer stays directly on topic: it provides a tiny 3-line Klingon greeting exchange using nuqneH, bIQuch\u2019a\u2019, and Qapla\u2019, and includes a pronunciation tip for the Klingon q as requested.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: provides Klingon phrases with English translations in parentheses, not Klingon-only responses",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer includes Klingon phrases with English translations in parentheses throughout, and it is not Klingon-only. It directly satisfies the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9612442798500221,
+        "quality": 1.0
+      },
+      "overall_score": 0.987081426616674,
+      "passed": true,
+      "error": null
+    }
+  ],
+  "grades": [
+    {
+      "criterion": "the conversation should be: the tutor taught at least one authentic Klingon greeting phrase (e.g. nuqneH, Qapla', or similar) with its correct translation",
+      "score": 1.0,
+      "metric": "quality",
+      "passed": true,
+      "detail": "The conversation includes multiple authentic Klingon greeting phrases, such as 'nuqneH' and 'Qapla\u2019', each with correct translations ('What do you want?' and 'Success!'). This fully satisfies the criterion.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": 1,
+      "stage_name": "the conversation finishes"
+    },
+    {
+      "criterion": "the conversation should be: the tutor generally built on earlier exchanges rather than repeating the same material verbatim (some overlap is acceptable)",
+      "score": 1.0,
+      "metric": "quality",
+      "passed": true,
+      "detail": "The tutor clearly builds on earlier exchanges: it first introduces the greetings, then responds to the user\u2019s follow-up questions by refining the meanings of bIQuch\u2019a\u2019, Qapla\u2019, and nuqneH, and finally provides a practice exchange and pronunciation tip that extends the prior material rather than repeating it verbatim. Some overlap is present, but it is used appropriately for reinforcement.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": 1,
+      "stage_name": "the conversation finishes"
+    },
+    {
+      "criterion": "the conversation should be: by the end the student had enough to attempt a Klingon greeting and received feedback on their attempt",
+      "score": 1.0,
+      "metric": "quality",
+      "passed": true,
+      "detail": "The conversation clearly ends with the student having enough material to attempt a Klingon greeting: they are given nuqneH, bIQuch\u2019a\u2019?, Qapla\u2019, a pronunciation tip, and direct encouragement to write back their attempt. The agent also had already provided feedback on the student's prior attempt, satisfying both parts of the criterion.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": 1,
+      "stage_name": "the conversation finishes"
+    }
+  ],
+  "feedback": {
+    "satisfaction": 0.74,
+    "text": "I liked how the tutor matched my curiosity and helped me practice nuqneH, bIQuch\u2019a\u2019, and Qapla\u2019, but a few of the Klingon explanations felt a bit shaky or overconfident for a beginner."
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "id": "eager_linguist:understand_warrior_phrases:2",
+  "name": "Eager Linguistics Student \u2192 Learn phrases of Klingon warrior culture (actor 2)",
+  "category": "eager_linguist/understand_warrior_phrases",
+  "persona_id": "eager_linguist",
+  "goal_id": "understand_warrior_phrases",
+  "actor_index": 2,
+  "overall_score": 0.9308637789333335,
+  "goal_achievement_score": 1.0,
+  "passed": true,
+  "goal_achieved": true,
+  "termination_reason": "goal_achieved",
+  "turn_count": 2,
+  "time_seconds": 49.67157466700155,
+  "metric_scores": {
+    "latency": 0.8688870052000008,
+    "quality": 0.9485714285714285
+  },
+  "error": null,
+  "turns": [
+    {
+      "turn_number": 1,
+      "user_message": "Hi! I\u2019m really interested in how Klingons talk about honor and determination, not just the literal translations. Could you explain what **Qapla\u2019** means in context\u2014when do Klingons actually use it, and what does it say about their worldview?\n\nAlso, I\u2019d love to learn how to say something like **\u201cI act with honor\u201d** in Klingon. If there are a few related phrases about honor, pride, or perseverance, could you teach me those too? I\u2019d especially like to understand the cultural meaning behind them, not just the vocabulary.\n\nI\u2019ll try repeating them back if you give me the Klingon words!",
+      "agent_response": "nuqneH! (What do you want?)\n\nQapla\u2019 (Success / victory) is more than a \u201cword for good luck.\u201d (Qapla\u2019 is more than a \u201cword for good luck.\u201d)  \ntlhInganpu\u2019 QaQ wIghajbe\u2019; Qapla\u2019 wIghaj. (Klingons do not seek \u201cbeing nice\u201d; we seek success.)  \n\nIn Klingon culture, **Qapla\u2019** is often used as a battle-cry, a send-off, or a statement of confidence that a task will be completed well. (In Klingon culture, **Qapla\u2019** is often used as a battle-cry, a send-off, or a statement of confidence that a task will be completed well.)  \nIt carries the feeling of: \u201cMay you succeed,\u201d \u201cGo and do it well,\u201d or \u201cVictory is what matters.\u201d (It carries the feeling of: \u201cMay you succeed,\u201d \u201cGo and do it well,\u201d or \u201cVictory is what matters.\u201d)  \nIt reflects a worldview where results, courage, and honorable action matter more than comfort or polite softness. (It reflects a worldview where results, courage, and honorable action matter more than comfort or polite softness.)\n\nFor **\u201cI act with honor\u201d**, a natural Klingon way to say it is: (For **\u201cI act with honor\u201d**, a natural Klingon way to say it is:)\n\n**jIHvaD maja\u2019be\u2019; jIHmo\u2019 vItlhobbe\u2019.** (This is not the best way.)  \n\nA better Klingon-style phrase is: (A better Klingon-style phrase is:)  \n**jIH jIHvaD jIQap.** (I succeed for myself.)  \n\nBut that still does not directly mean \u201cwith honor.\u201d (But that still does not directly mean \u201cwith honor.\u201d)  \nA more useful phrase is: **jIHvaD batlh vIchev.** (I place honor for myself / I uphold honor for myself.)  \nHere, **batlh** means \u201chonor,\u201d \u201cdignity,\u201d or \u201crespect,\u201d and **vIchev** means \u201cI arrange / I set / I establish it.\u201d (Here, **batlh** means \u201chonor,\u201d \u201cdignity,\u201d or \u201crespect,\u201d and **vIchev** means \u201cI arrange / I set / I establish it.\u201d)  \nThis is not a perfect English-to-Klingon mirror, but it sounds more Klingon in spirit: honor is something you uphold by action. (This is not a perfect English-to-Klingon mirror, but it sounds more Klingon in spirit: honor is something you uphold by action.)\n\nA very important Klingon word is **batlh**. (A very important Klingon word is **batlh**.)  \nYou can say: **batlh vIjej** (I earn honor) or **batlh vIchenmoH** (I create/bring about honor), depending on context. (You can say: **batlh vIjej** (I earn honor) or **batlh vIchenmoH** (I create/bring about honor), depending on context.)  \nA Klingon does not merely \u201cfeel honorable\u201d; a Klingon proves honor through deeds. (A Klingon does not merely \u201cfeel honorable\u201d; a Klingon proves honor through deeds.)\n\nHere are some related phrases to learn: (Here are some related phrases to learn:)\n\n- **batlh!** (Honor!)  \n- **Qapla\u2019!** (Success!)  \n- **maj.** (Good.)  \n- **majQa\u2019!** (Excellent! Well done!)  \n- **Heghlu\u2019meH QaQ jajvam.** (Today is a good day to die.)  \n- **Qo\u2019noS batlh.** (Honor of Kronos / the Klingon Empire\u2019s honor.)  \n- **jIpe\u2019be\u2019.** (I am not arrogant / I do not boast.)  \n- **jIghoj.** (I learn.)  \n- **jIlegh.** (I see / I understand by seeing.)  \n\nA useful cultural note: Klingon \u201chonor\u201d is not about being gentle or agreeable. (A useful cultural note: Klingon \u201chonor\u201d is not about being gentle or agreeable.)  \nIt is about courage, competence, loyalty, and facing hardship without weakness. (It is about courage, competence, loyalty, and facing hardship without weakness.)  \nPerseverance is often expressed through action: keep going, endure, and accomplish the task. (Perseverance is often expressed through action: keep going, endure, and accomplish the task.)\n\nTry repeating these first: (Try repeating these first:)\n\n1. **Qapla\u2019!** (Success!)  \n2. **batlh!** (Honor!)  \n3. **majQa\u2019!** (Well done!)  \n4. **jIghoj.** (I learn.)  \n\nIf you want, I can next teach you a few **fully Klingon sentences about honor and determination** that sound more natural than direct translation. (If you want, I can next teach you a few **fully Klingon sentences about honor and determination** that sound more natural than direct translation.)  \nQapla\u2019! (Success!)",
+      "completion_time_seconds": 9.489824459000374,
+      "goal_progress": 0.1,
+      "grades": [
+        {
+          "criterion": "completion time should be under 60",
+          "score": 0.8418362590166604,
+          "metric": "latency",
+          "passed": true,
+          "detail": "9.5s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response stays on topic throughout: it discusses Klingon usage of Qapla\u2019, explains honor and perseverance in Klingon cultural context, and provides related Klingon phrases. It does not drift to an unrelated subject.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
+          "score": 0.72,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer does stay in a Klingon tutor voice, uses several authentic Klingon words and phrases, and provides translations and cultural notes. However, some phrasing is shaky or likely inaccurate as Klingon, especially the suggested translation for 'I act with honor,' and it includes some dubious or awkward examples. It meets the spirit of the criterion but not fully with reliable authenticity.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.8418362590166604,
+        "quality": 0.86
+      },
+      "overall_score": 0.85394541967222,
+      "passed": true,
+      "error": null
+    },
+    {
+      "turn_number": 2,
+      "user_message": "That\u2019s super helpful \u2014 thanks! I want to make sure I\u2019m understanding the cultural side, not just the dictionary glosses.\n\nA couple of questions:\n1. In what kinds of situations would a Klingon say **Qapla\u2019!** versus **majQa\u2019!**?\n2. Could you explain **batlh** a bit more in context? I\u2019m trying to understand whether it means more like \u201chonor,\u201d \u201cdignity,\u201d or \u201cacting honorably.\u201d\n3. What\u2019s a good Klingon sentence for **\u201cI act with honor\u201d** or **\u201cI do this honorably\u201d** that a beginner could actually use?\n\nLet me try repeating the ones you gave me: **Qapla\u2019! batlh! majQa\u2019! jIghoj.** Did I get the pronunciation and the feeling right?",
+      "agent_response": "majQa\u2019! (Excellent! Well done!)\n\nYou repeated them well. (You repeated them well.)  \n**Qapla\u2019! batlh! majQa\u2019! jIghoj.** (Success! Honor! Excellent! I learn.)  \nThe feeling is strong and very Klingon. (The feeling is strong and very Klingon.)  \nSmall pronunciation note: **Qapla\u2019** should end sharply, with a hard stop on the apostrophe. (Small pronunciation note: **Qapla\u2019** should end sharply, with a hard stop on the apostrophe.)\n\n1. **Qapla\u2019!** versus **majQa\u2019!** (1. **Qapla\u2019!** versus **majQa\u2019!**)  \n**Qapla\u2019!** is for success, victory, completion, and a warrior\u2019s confidence. ( **Qapla\u2019!** is for success, victory, completion, and a warrior\u2019s confidence.)  \nA Klingon says it when sending someone off, ending an encounter, or affirming that a mission should succeed. (A Klingon says it when sending someone off, ending an encounter, or affirming that a mission should succeed.)  \nIt can feel like \u201cGo well and win.\u201d (It can feel like \u201cGo well and win.\u201d)\n\n**majQa\u2019!** is praise for something done well. ( **majQa\u2019!** is praise for something done well.)  \nUse it when someone has spoken well, learned well, fought well, or completed a task skillfully. (Use it when someone has spoken well, learned well, fought well, or completed a task skillfully.)  \nIt is more like \u201cWell done!\u201d or \u201cExcellent!\u201d than a farewell. (It is more like \u201cWell done!\u201d or \u201cExcellent!\u201d than a farewell.)\n\nSo: (So:)  \n- **Qapla\u2019!** = wish for success / victory / completion ( **Qapla\u2019!** = wish for success / victory / completion )  \n- **majQa\u2019!** = praise for performance ( **majQa\u2019!** = praise for performance )\n\n2. **batlh** in context (2. **batlh** in context)  \n**batlh** is a very rich word. ( **batlh** is a very rich word.)  \nIt can mean **honor**, **dignity**, **respect**, and also the manner of acting honorably. (It can mean **honor**, **dignity**, **respect**, and also the manner of acting honorably.)  \nIn Klingon thinking, honor is not just a feeling inside you. (In Klingon thinking, honor is not just a feeling inside you.)  \nIt is something others can see in your deeds, your restraint, your courage, and your loyalty. (It is something others can see in your deeds, your restraint, your courage, and your loyalty.)\n\nSo **batlh** can be: (So **batlh** can be:)  \n- a quality: \u201chonor\u201d ( a quality: \u201chonor\u201d )  \n- a way of behaving: \u201chonorably\u201d ( a way of behaving: \u201chonorably\u201d )  \n- a value to protect: \u201cdignity / respect\u201d ( a value to protect: \u201cdignity / respect\u201d )\n\n3. A beginner-friendly sentence for \u201cI act with honor\u201d (3. A beginner-friendly sentence for \u201cI act with honor\u201d)  \nA simple and useful sentence is: (A simple and useful sentence is:)  \n\n**batlh vIchegh.** (I return with honor / I come back honorably.)  \n\nBut for \u201cI act honorably,\u201d a better beginner sentence is: (But for \u201cI act honorably,\u201d a better beginner sentence is:)  \n\n**batlh vIta\u2019.** (I do it honorably / I perform it with honor.)  \n\nWhy this works: (Why this works:)  \n- **batlh** = honor ( **batlh** = honor )  \n- **vIta\u2019** = \u201cI do it\u201d ( **vIta\u2019** = \u201cI do it\u201d )\n\nIf you want to say \u201cI do this honorably,\u201d you can often say: (If you want to say \u201cI do this honorably,\u201d you can often say:)  \n**batlh vIta\u2019** (I do it honorably)  \nor more strongly: (or more strongly:)  \n**batlh vIta\u2019 \u2019e\u2019 vIneH.** (I want to do it honorably.)  \n\nIf you want to sound more like a Klingon warrior, you can also say: (If you want to sound more like a Klingon warrior, you can also say:)  \n**batlh bIchegh!** (Return with honor!)  \n**batlh yIta\u2019!** (Do it honorably!)  \n\nA note of caution: perfect one-to-one English-to-Klingon matches are rare. (A note of caution: perfect one-to-one English-to-Klingon matches are rare.)  \nKlingon often prefers short, forceful statements over abstract moral phrases. (Klingon often prefers short, forceful statements over abstract moral phrases.)  \nSo **batlh yIta\u2019!** is a very good \u201cwarrior-style\u201d command if you want to tell yourself or someone else to act honorably. (So **batlh yIta\u2019!** is a very good \u201cwarrior-style\u201d command if you want to tell yourself or someone else to act honorably.)\n\nTry these: (Try these:)  \n- **batlh vIta\u2019.** (I do it honorably.)  \n- **batlh yIta\u2019!** (Do it honorably!)  \n- **Qapla\u2019!** (Success!)  \n- **majQa\u2019!** (Well done!)  \n\nIf you want, I can next give you a tiny set of **honor-and-discipline Klingon phrases** with pronunciation help. (If you want, I can next give you a tiny set of **honor-and-discipline Klingon phrases** with pronunciation help.)  \nQapla\u2019! (Success!)",
+      "completion_time_seconds": 6.243734916999529,
+      "goal_progress": 0.72,
+      "grades": [
+        {
+          "criterion": "completion time should be under 60",
+          "score": 0.8959377513833412,
+          "metric": "latency",
+          "passed": true,
+          "detail": "6.2s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer stays entirely on the Klingon vocabulary and usage the user asked about, including Qapla\u2019, majQa\u2019, batlh, and example sentences. It is topically relevant and does not drift to an unrelated subject.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer stays in character as a Klingon tutor, uses authentic Klingon vocabulary such as Qapla\u2019, majQa\u2019, batlh, and provides translations for each phrase. It also addresses the cultural nuance asked about. Minor issue: a couple of glosses/phrases may be a bit awkward or not fully precise, but overall it strongly meets the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.8959377513833412,
+        "quality": 0.99
+      },
+      "overall_score": 0.9586459171277805,
+      "passed": true,
+      "error": null
+    }
+  ],
+  "grades": [
+    {
+      "criterion": "the conversation should be: the tutor explained the cultural meaning behind Klingon phrases, not just the literal translation",
+      "score": 0.97,
+      "metric": "quality",
+      "passed": true,
+      "detail": "The answer clearly explains the cultural context and worldview behind Klingon phrases like Qapla\u2019 and batlh, not just literal glosses. It distinguishes usage situations, discusses honor as action and social value, and offers context-rich examples. The only slight weakness is that some Klingon phrasing may be inaccurate or awkward, but it still meets the criterion very well.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": 1,
+      "stage_name": "the conversation finishes"
+    },
+    {
+      "criterion": "the conversation should be: at least 2-3 distinct culturally significant phrases were introduced with both Klingon text and English translation",
+      "score": 1.0,
+      "metric": "quality",
+      "passed": true,
+      "detail": "The answer includes multiple culturally significant Klingon phrases with both Klingon text and English translations, clearly meeting the requirement. Examples include Qapla\u2019, majQa\u2019, batlh, Heghlu\u2019meH QaQ jajvam, and others, each paired with English glosses and contextual explanation.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": 1,
+      "stage_name": "the conversation finishes"
+    },
+    {
+      "criterion": "the conversation should be: the tutor's character remained consistent throughout, fitting the Klingon cultural persona",
+      "score": 0.97,
+      "metric": "quality",
+      "passed": true,
+      "detail": "The tutor\u2019s voice stays consistently Klingon-like throughout, using Klingon greetings, directness, and honor-focused framing without drifting into a contradictory persona. It maintains the cultural persona well while explaining the phrases.",
+      "layer": "ai_judged",
+      "skipped": false,
+      "stage": 1,
+      "stage_name": "the conversation finishes"
+    }
+  ],
+  "feedback": {
+    "satisfaction": 0.86,
+    "text": "I\u2019m pretty satisfied \u2014 I got a clear feel for Qapla\u2019, majQa\u2019, and batlh, and I liked that the explanation focused on cultural context as well as usable phrases."
+  }
+}

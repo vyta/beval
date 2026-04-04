@@ -24,9 +24,9 @@ personas:
   - id: starfleet_diplomat
     name: Starfleet Diplomatic Officer
     description: >
-      A pragmatic Starfleet officer preparing for a first contact negotiation
+      A pragmatic Starfleet officer preparing for a friendly first meeting
       with a Klingon delegation. They need functional phrases fast — greetings,
-      expressions of respect, and how to handle a tense situation. They are
+      expressions of respect, and how to make a good impression. They are
       direct, a bit impatient, and focused on practical outcomes rather than
       linguistic theory.
     goals:

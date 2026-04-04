@@ -45,7 +45,8 @@ Evaluation modes (§6), grader registry (§4), scoring (§5), and exit codes
 | Entity | Description |
 |---|---|
 | `Persona` | Reusable description of a simulated user's identity, tone, and constraints |
-| `Goal` | Objective with circuit-breaker constraints, tags, and `when/then` evaluation stages |
+| `Goal` | Objective with tags and typed `when/then` evaluation blocks (`query` and `conversation`) |
+| `EvaluationCriteria` | Reusable evaluation criteria matched to goals by tag intersection |
 | `ConversationCase` | A single run of one persona pursuing one goal; identity `{persona_id}:{goal_id}:{actor_index}` |
 | `Turn` | One user-message / agent-response exchange |
 | `Actor` | Running instance of a ConversationCase with its own adapter, simulator, and history |
@@ -53,7 +54,7 @@ Evaluation modes (§6), grader registry (§4), scoring (§5), and exit codes
 | `ConversationResult` | Aggregated result for one ConversationCase (mirrors CaseResult shape) |
 | `ConversationRunResult` | Top-level result artifact for a full conversation simulation run |
 | `UserSimulator` | AI-powered Case generator: produces a `DynamicCase` per turn including query, criteria, and goal progress |
-| `DynamicCase` | Output of `generate_case()`: the turn query, dynamic `then` criteria, and `progress` (0.0–1.0); merged with static goal criteria and executed by the existing case runner |
+| `DynamicCase` | Output of `generate_case()`: the turn query, dynamic `then` criteria, and `progress` (0.0–1.0); merged with goal query evals and executed by the existing case runner |
 | `ActorStatus` | Real-time status of a running actor for progress display |
 | `ConversationRunStatus` | Aggregate status of the running simulation for progress display |
 
@@ -124,9 +125,10 @@ exit code 2.
 
 ### 15.4.1 Goal schema
 
-Goal structure mirrors the static Case as closely as possible: `given` carries
-setup context, `stages` holds `when/then` evaluation blocks, and `tags` provides
-filtering labels.
+Goal structure mirrors the static Case as closely as possible: `objective`
+describes the simulated user's mission, `evals` holds typed `when/then`
+evaluation blocks grouped by scope (`query` for per-turn, `conversation` for
+whole-conversation), and `tags` provides filtering labels and criteria matching.
 
 ```yaml
 # goals.yaml
@@ -134,22 +136,22 @@ goals:
   - id: find_refund_policy
     name: Find Refund Policy
     tags: [customer-support, high-priority]
-    given:
-      objective: >
-        Find the company's refund policy, including the time limit for returns
-        and the conditions under which refunds are granted.
-      max_turns: 30
-      timeout_seconds: 300
-    stages:
-      - when: "each turn"
-        then:
-          - "the response should not contain sorry, I cannot help"
-          - "response time should be under 10"
-      - when: "on finish"
-        then:
-          - "the agent describes at least one condition for refund eligibility"
-          - "the agent provided accurate policy information"
-          - "number of turns should be under 30"
+    objective: >
+      Find the company's refund policy, including the time limit for returns
+      and the conditions under which refunds are granted.
+    evals:
+      query:
+        - when: "the agent processes the request"
+          then:
+            - "completion time should be under 10"
+        - when: "the agent responds"
+          then:
+            - "the response should not contain sorry, I cannot help"
+      conversation:
+        - when: "the conversation finishes"
+          then:
+            - "the agent describes at least one condition for refund eligibility"
+            - "the agent provided accurate policy information"
 ```
 
 Required fields:
@@ -159,35 +161,101 @@ Required fields:
 
 Optional fields:
 
-* `tags` (array of string): labels for filtering and categorization, same as
-  Case tags
-* `given` (object): setup block
-  * `objective` (string): prose description of what the simulated user is
-    trying to accomplish. Passed verbatim to the simulator prompt.
-  * `max_turns` (integer, default `20`): **circuit breaker** — hard turn limit
-    that terminates the loop. Produces no grade. Soft turn-count criteria belong
-    in the `on finish` stage `then` clauses.
-  * `timeout_seconds` (number, default `600`): **circuit breaker** — hard
-    wall-clock timeout that terminates the loop. Produces no grade.
-* `stages` (array): evaluation lifecycle hooks. Each entry has:
-  * `when` (string): one of two well-known values (case-insensitive):
-    * `"each turn"` — `then` clauses applied to TurnSubject after every agent
-      response, via the §4 grader registry
-    * `"on finish"` — `then` clauses applied to ConversationSubject after the
-      conversation ends, via the §4 grader registry.
-  * `then` (array of string): criterion strings dispatched through the §4
-    grader registry by prefix matching, identical to static Case `then` clauses.
-    Each item MUST be a single string.
+* `tags` (array of string): labels for filtering, categorization, and
+  criteria matching (§15.4.3). Same semantics as Case tags.
+* `objective` (string): prose description of what the simulated user is
+  trying to accomplish. Passed verbatim to the simulator prompt.
+* `evals` (object): evaluation blocks grouped by scope.
+  * `query` (array): per-turn evaluation stages. Each entry has:
+    * `when` (string): free-form stage label (e.g., `"the agent responds"`,
+      `"the agent processes the request"`)
+    * `then` (array of string): criterion strings dispatched through the §4
+      grader registry by prefix matching, identical to static Case `then` clauses.
+  * `conversation` (array): whole-conversation evaluation stages. Each entry
+    has the same `when`/`then` structure. These are applied once against the
+    ConversationSubject after all turns complete.
 
-Unrecognized `when` values MUST produce exit code 2. A goal with no `stages`
-entry is valid; grading relies entirely on the simulator's `progress` signal
-and the `on finish` stage graders.
+  Each `query` or `conversation` entry is one evaluation stage. Multiple entries
+  create multi-stage evaluation — the same Subject is graded with updated
+  `stage`/`stage_name` metadata for each stage, mirroring the static case
+  multi-stage pattern (no adapter re-invocation).
+
+A goal with no `evals` entry is valid; evaluation relies on criteria matched
+by tags (§15.4.3), the simulator's `progress` signal, and the no-evals pass
+rule (§15.8.4).
 
 ### 15.4.2 Goal loading
 
 Goals follow the same loading precedence as personas (§15.3.2).
 Implementations MUST reject duplicate `id` values within a single file with
 exit code 2.
+
+### 15.4.3 EvaluationCriteria
+
+**EvaluationCriteria** are reusable evaluation blocks defined in separate YAML
+files and matched to goals by tag intersection.
+
+```yaml
+# criteria/coaching.yaml
+criteria:
+  - id: latency_checks
+    name: Latency Checks
+    tags: [core]
+    evals:
+      query:
+        - when: "the agent responds"
+          then:
+            - "completion time should be under 120"
+
+  - id: coaching_finish
+    name: Coaching Finish Quality
+    tags: [core]
+    evals:
+      conversation:
+        - when: "the conversation finishes"
+          then:
+            - "the agent maintained coaching tone throughout"
+```
+
+Required fields:
+
+* `id` (string): unique within a file
+* `name` (string): human-readable label
+
+Optional fields:
+
+* `tags` (array of string): labels for tag-intersection matching
+* `evals` (object): same structure as goal `evals` — `query` and
+  `conversation` arrays of `when`/`then` stages
+
+**Tag matching**: a criteria applies to a goal when
+`set(criteria.tags) & set(goal.tags)` is non-empty. Both the criteria and
+the goal must have at least one tag for matching to occur.
+
+**Merge order**: inline goal evals always appear first. Criteria evals are
+appended in pool order (the order they appear in the loaded criteria list).
+
+**Configuration**: criteria files are referenced in the `eval.conversation`
+block:
+
+```yaml
+eval:
+  conversation:
+    criteria:
+      - file: criteria/coaching.yaml
+```
+
+Criteria follow the same file/inline loading pattern as personas and goals.
+
+### 15.4.4 No-evals pass rule
+
+When no evaluation criteria apply to a conversation (no inline goal evals,
+no tag-matched criteria evals, and no dynamic criteria from the simulator),
+the conversation passes if no errors occurred:
+
+* If `termination_reason` is `agent_error` or `simulator_error`:
+  `overall_score = 0.0`
+* Otherwise: `overall_score = 1.0`
 
 ## 15.5 Conversation Lifecycle
 
@@ -214,8 +282,8 @@ history = []
 termination_reason = None
 prior_subject = None
 
-for turn_number = 1, 2, ..., goal.given.max_turns:
-    if elapsed > goal.given.timeout_seconds:
+for turn_number = 1, 2, ..., config.max_turns:
+    if elapsed > config.timeout_seconds:
         termination_reason = terminated_timeout
         break
     if cancelled:
@@ -242,9 +310,15 @@ for turn_number = 1, 2, ..., goal.given.max_turns:
 
     # Construct TurnSubject (subject + stage metadata — see §15.8.1)
     turn_subject = TurnSubject(subject, stage=turn_number, persona_id=..., goal_id=..., ...)
-    # Merge static goal criteria + dynamic case criteria, run via existing case runner
-    all_then = goal.stages["each turn"].then + dyn_case.then
-    grades = run_case_graders(all_then, turn_subject, context)  # §4 registry — see §15.8.1
+    # Multi-stage per-turn grading: each query eval is one stage
+    grades = []
+    for stage_num, eval in enumerate(goal.query_evals, 1):
+        stage_subject = turn_subject.with_stage(stage=stage_num, stage_name=eval.when)
+        grades += run_case_graders(eval.then, stage_subject, context)
+    # Append dynamic criteria from simulator to last stage
+    if dyn_case.then:
+        dyn_subject = turn_subject.with_stage(stage=last_stage_num, stage_name=last_stage_name)
+        grades += run_case_graders(dyn_case.then, dyn_subject, context)
 
     turn_result = TurnResult(turn_number=turn_number, user_message=user_message,
                              agent_response=subject.output, grades=grades, ...)
@@ -258,7 +332,10 @@ else:
 adapter.close()    # ACP: session closes here
 # Conversation-level grading via existing case runner (see §15.8.2)
 conv_subject = ConversationSubject(history, ...)
-conversation_grades = run_case_graders(goal.stages["on finish"].then, conv_subject, context)
+conv_grades = []
+for stage_num, eval in enumerate(goal.conversation_evals, 1):
+    stage_subject = conv_subject.with_stage(stage=stage_num, stage_name=eval.when)
+    conv_grades += run_case_graders(eval.then, stage_subject, context)
 ```
 
 Key behaviors:
@@ -332,7 +409,7 @@ UserSimulatorInterface:
 DynamicCase:
   query:     string      # the user message to send (ignored when progress == 1.0)
   then:      string[]    # dynamic, query-specific criterion strings for this turn;
-                         # merged with goal.stages["each turn"].then before grading
+                         # appended to the last query eval stage before grading
   progress:  float       # 0.0–1.0: estimated fraction of goal achieved so far.
                          # 1.0 = goal fully achieved; loop breaks without sending query.
 ```
@@ -343,8 +420,9 @@ processes). The base interface provides a no-op default.
 The simulator is an **AI-powered Case generator**. Each turn it produces a
 `DynamicCase` carrying the next query, query-specific grader criteria, and a
 goal progress estimate. The runner breaks the loop when `progress == 1.0`;
-otherwise it merges the static goal criteria from `goal.stages["each turn"].then`
-with `dyn_case.then` and executes via the existing §4 grader registry.
+otherwise it runs the goal's `query_evals` as multi-stage evaluation and
+appends `dyn_case.then` criteria to the last stage, executing all via the
+existing §4 grader registry.
 `dyn_case.then` MAY be empty `[]` for simulators that contribute only the query.
 
 ### 15.6.3 Built-in `openai` simulator
@@ -386,10 +464,10 @@ Traits:
 {persona.traits formatted as key: value lines}
 
 Your goal:
-{goal.given.objective}
+{goal.objective}
 
 Completion criteria (for reference):
-{goal.stages["on finish"].then as a numbered list, or omit if empty}
+{goal.conversation_evals[*].then flattened as a numbered list, or omit if empty}
 
 Instructions:
 - Stay in character as described by the persona
@@ -604,14 +682,19 @@ loop is:
 for each turn:
     dyn_case = simulator.generate_case(...)           # AI generates the Case
     if dyn_case.progress == 1.0: break                # goal achieved — early exit
-    all_then = goal.stages["each turn"].then          # static goal criteria
-             + dyn_case.then                          # dynamic per-turn criteria
-    grades   = run_case_graders(all_then, turn_subj)  # existing case runner (§4)
+    # Multi-stage per-turn grading
+    for stage_num, eval in enumerate(goal.query_evals, 1):
+        stage_subj = turn_subj.with_stage(stage=stage_num, stage_name=eval.when)
+        grades += run_case_graders(eval.then, stage_subj)  # existing case runner (§4)
+    # Append dynamic criteria to last stage
+    if dyn_case.then:
+        grades += run_case_graders(dyn_case.then, last_stage_subj)
 
 after all turns:
-    conv_grades = run_case_graders(                   # existing case runner (§4)
-                      goal.stages["on finish"].then,
-                      conv_subject)
+    # Multi-stage conversation grading
+    for stage_num, eval in enumerate(goal.conversation_evals, 1):
+        stage_subj = conv_subject.with_stage(stage=stage_num, stage_name=eval.when)
+        conv_grades += run_case_graders(eval.then, stage_subj)  # existing case runner (§4)
 ```
 
 The simulator's only role is Case generation per turn (`generate_case`).
@@ -627,29 +710,41 @@ adapter's returned Subject with the following additions:
 * `stage_name`: `"turn {turn_number}"` (e.g., `"turn 3"`)
 * `metadata` additions: `persona_id`, `goal_id`, `actor_index`, `goal_progress`
 
-Per-turn grades are produced by running a merged criterion list through the
-existing case runner pipeline (§4 grader registry):
+Per-turn grades are produced by multi-stage evaluation through the existing
+case runner pipeline (§4 grader registry). Each `GoalEval` in
+`goal.query_evals` is one stage:
 
 ```
-all_then = goal.stages["each turn"].then   # static — same every turn
-         + dyn_case.then                   # dynamic — specific to this query
+for stage_num, eval in enumerate(goal.query_evals, 1):
+    stage_subject = turn_subject.with_stage(stage=stage_num, stage_name=eval.when)
+    grades += run_case_graders(eval.then, stage_subject, context)
 ```
 
-`goal.stages["each turn"].then` are the static criteria defined in the goal.
-`dyn_case.then` are the query-specific criteria generated by
-`simulator.generate_case()` for this turn (e.g., "the agent addressed the
-international shipping aspect of the question").
+This mirrors the static case multi-stage pattern: the same Subject is graded
+multiple times with different `stage`/`stage_name` metadata — no adapter
+re-invocation occurs.
 
-Both sets are dispatched identically through the §4 grader registry —
-no new evaluation infrastructure is involved. The simulator acts as an
-AI-powered Case generator; grading is always handled by the existing case
-runner. Mode gating (§6) applies equally to all criteria in `all_then`.
+Dynamic criteria from `dyn_case.then` (generated by the simulator for this
+specific query) are appended to the last stage. If no static query evals
+exist, dynamic criteria form a standalone stage with `stage_name="dynamic"`.
+
+Both static and dynamic criteria are dispatched identically through the §4
+grader registry — no new evaluation infrastructure is involved. The simulator
+acts as an AI-powered Case generator; grading is always handled by the
+existing case runner. Mode gating (§6) applies equally to all criteria.
 
 ### 15.8.2 Conversation-level evaluation
 
 After the conversation terminates, the framework constructs a
-**ConversationSubject** (§15.5.5) and passes it to all
-`goal.stages["on finish"].then` criterion strings via the §4 grader registry.
+**ConversationSubject** (§15.5.5) and runs multi-stage evaluation against
+`goal.conversation_evals`. Each `GoalEval` is one stage, mirroring the
+per-turn pattern:
+
+```
+for stage_num, eval in enumerate(goal.conversation_evals, 1):
+    stage_subject = conv_subject.with_stage(stage=stage_num, stage_name=eval.when)
+    conv_grades += run_case_graders(eval.then, stage_subject, context)
+```
 
 ### 15.8.3 goal_achievement_score
 
@@ -669,26 +764,66 @@ produced before the loop ended:
 ### 15.8.4 ConversationResult.overall_score
 
 ```text
-overall_score = mean(
-    [grade.score for grade in all per_turn grades (non-skipped)] +
-    [grade.score for grade in all conversation grades (non-skipped)]
-)
+if all_grades is non-empty:
+    overall_score = mean(
+        [grade.score for grade in all per_turn grades (non-skipped)] +
+        [grade.score for grade in all conversation grades (non-skipped)]
+    )
+elif termination_reason in (agent_error, simulator_error):
+    overall_score = 0.0
+else:
+    overall_score = 1.0    # no-evals pass rule (§15.4.4)
 ```
 
-If all grades are skipped (e.g., in `dev` mode with no deterministic per-turn
-graders), `overall_score` defaults to `goal_achievement_score`.
+`overall_score` is an **informational metric** (mean of all grade scores).
+It is retained for reporting and trend analysis but does NOT determine
+`passed`. See §15.8.5 for the pass/fail logic.
+
+When no grades exist and no errors occurred, the conversation passes by
+default. This supports goals that rely entirely on external criteria or
+tag-matched EvaluationCriteria that may not yet be defined.
 
 ### 15.8.5 ConversationResult.passed
 
+Pass/fail is determined by **pass-rate thresholds** at two levels, both of
+which must be satisfied:
+
 ```text
-passed = (overall_score >= case_pass_threshold)
+# 1. Grade passes when its score meets the pass_score threshold
+grade.passed = (grade.score >= pass_score)          # default: 0.7
+
+# 2. A turn-case passes when enough of its grades pass
+turn.passed = (count(passing grades) / count(grades) >= case_pass_rate)
+                                                     # default: 0.9
+# If a turn has no grades: turn.passed = true        (no-evals pass rule)
+
+# 3. Conversation passes when BOTH rates are met:
+turns_with_grades = [t for t in turns if t.grades]
+turn_rate = count(passed turns) / count(turns_with_grades)  # or 1.0 if empty
+conv_rate = count(passing conv grades) / count(conv grades) # or 1.0 if empty
+
+if termination_reason in (agent_error, simulator_error):
+    passed = false
+else:
+    passed = (turn_rate >= turn_pass_rate) AND (conv_rate >= conversation_pass_rate)
+                                                     # defaults: 0.9, 0.9
 ```
 
-Uses the same `case_pass_threshold` (§5.3) as static evaluation.
+#### Threshold configuration
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `pass_score` | 0.7 | Minimum grade score to pass |
+| `case_pass_rate` | 0.9 | Fraction of grades that must pass for a turn-case to pass |
+| `turn_pass_rate` | 0.9 | Fraction of turn-cases that must pass in a conversation |
+| `conversation_pass_rate` | 0.9 | Fraction of conversation-level grades that must pass |
+| `run_pass_rate` | 1.0 | Fraction of conversations that must pass for exit code 0 |
+
+These are set under `eval.thresholds` in the config file (§15.9.1).
 
 ### 15.8.6 Grader inheritance
 
-`per_turn` and `conversation` criterion strings are dispatched through the
+`query` and `conversation` criterion strings are dispatched through the
 same §4 grader registry as static `then` clauses. No new grader machinery is
 needed. Mode definitions (§6.1) control which grader layers are active for
 conversation runs identically to static runs.
@@ -718,15 +853,20 @@ eval:
       # OR inline:
       - id: simple_query
         name: Simple Query
-        given:
-          objective: Get a direct answer to a factual question.
-        stages:
-          - when: "on finish"
-            then:
-              - "the agent provides a direct factual answer"
+        objective: Get a direct answer to a factual question.
+        evals:
+          conversation:
+            - when: "the conversation finishes"
+              then:
+                - "the agent provides a direct factual answer"
+
+    criteria:
+      - file: criteria/coaching.yaml         # path to criteria library file
 
     actor_count: 3                # default: 1
     max_parallel_actors: 5        # default: 1
+    max_turns: 20                 # default: 20; circuit breaker — hard turn limit
+    timeout_seconds: 600          # default: 600; circuit breaker — wall-clock timeout per conversation
     history_dir: .beval_history   # default: .beval_history
     history_retention_days: 30    # default: 30 (0 = keep forever)
     run_timeout_seconds: 3600     # default: none
@@ -762,6 +902,7 @@ declared in each persona's `goals` field are executed.
   "grades": [...],
   "metric_scores": { "quality": 0.9 },
   "overall_score": 0.9,
+  "passed": true,
   "error": null
 }
 ```
@@ -775,7 +916,8 @@ Required fields:
 * `goal_progress` (Score): `DynamicCase.progress` value for this turn
 * `grades` (Grade array): per-turn grades
 * `metric_scores` (object): per-metric averages for this turn
-* `overall_score` (Score): mean of non-skipped per-turn grades
+* `overall_score` (Score): mean of non-skipped per-turn grades (informational)
+* `passed` (boolean): whether the turn-case passed (see §15.8.5)
 * `error` (string or null): error message if the turn errored
 
 ### 15.10.2 ConversationResult
@@ -832,7 +974,13 @@ Required fields:
   "label": "support-agent-v2",
   "timestamp": "2025-06-01T14:22:00Z",
   "mode": "validation",
-  "config": { "grade_pass_threshold": 0.5, "case_pass_threshold": 0.7 },
+  "config": {
+    "pass_score": 0.7,
+    "case_pass_rate": 0.9,
+    "turn_pass_rate": 0.9,
+    "conversation_pass_rate": 0.9,
+    "run_pass_rate": 1.0
+  },
   "summary": {
     "overall_score": 0.81,
     "goal_achievement_rate": 0.75,
@@ -891,9 +1039,9 @@ regardless of `actor_count`:
 
   Persona                       Goal                   Done    Act    Turn  Score            Goal%
   ──────────────────────────────────────────────────────────────────────────────────────────────────
-  product_manager_new_to_dt     recover_from_confusi    0/1      1    3/10  --              ~30%
+  product_manager_new_to_dt     recover_from_confusi    0/1      1    3/20  --              ~30%
   product_manager_new_to_dt     run_method1_session     1/1      0  5 turns [######--] 0.74   100%
-  team_lead_returning_user      transition_to_meth      0/1      1    2/15  --              ~15%
+  team_lead_returning_user      transition_to_meth      0/1      1    2/20  --              ~15%
   ──────────────────────────────────────────────────────────────────────────────────────────────────
   Total: 1/3 done   Goal rate: 100%   Avg score: 0.74
 ```
@@ -980,15 +1128,16 @@ or `tail -f`.
 
 Each turn accumulates grades from three sources:
 
-1. **Static per-turn criteria** — `each turn` stage entries from the goal
-   definition (e.g., `completion time should be under 120`, a fixed coaching
-   style criterion)
+1. **Static per-turn criteria** — `evals.query` stage entries from the goal
+   definition and tag-matched EvaluationCriteria (e.g., `completion time
+   should be under 120`, a fixed coaching style criterion). Multiple entries
+   create multi-stage evaluation.
 2. **Dynamic criteria** — `then` array generated by the simulator for that
-   specific user message (up to `max_criteria_per_turn`, default 3); each
-   criterion MUST start with the `"the answer should be: "` prefix so it is
-   dispatched to the AI judge grader
-3. **On-finish criteria** — `on finish` stage entries, evaluated once against
-   the full conversation subject after the last turn
+   specific user message (up to `max_dynamic_criteria_per_turn`, default 3); appended
+   to the last query eval stage. Each criterion MUST start with the
+   `"the answer should be: "` prefix so it is dispatched to the AI judge grader.
+3. **Conversation-level criteria** — `evals.conversation` stage entries,
+   evaluated once against the full conversation subject after the last turn.
 
 Grades for turns where the agent returned an empty or cancelled response are
 skipped (no AI judge calls are made) to avoid polluting quality metrics with
@@ -1099,6 +1248,8 @@ Subcommands:
 | `--goal <id>` | all | Run only this goal (repeatable) |
 | `--actor-count <n>` | from config | Override actor count |
 | `--max-parallel <n>` | from config | Override max parallel actors |
+| `--max-turns <n>` | from config | Override max_turns circuit breaker |
+| `--conversation-timeout <seconds>` | from config | Override timeout_seconds per conversation |
 | `--simulator-model <model>` | — | Shorthand openai simulator model |
 | `--simulator-agent <command>` | — | Shorthand acp simulator; stdio command (e.g., `copilot --acp --stdio`) |
 | `--mode <mode>` | from config | Evaluation mode |
@@ -1175,6 +1326,7 @@ The following definitions are added to `config.schema.json`:
 * `SimulatorConfig`: simulator protocol and connection details
 * `PersonaSource`: union of file-path reference and inline persona
 * `GoalSource`: union of file-path reference and inline goal
+* `CriteriaSource`: union of file-path reference and inline criteria
 
 The `EvalConfig` definition gains a new optional `conversation` property:
 

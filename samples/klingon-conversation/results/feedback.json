@@ -1,0 +1,62 @@
+[
+  {
+    "conversation_id": "starfleet_diplomat:mission_critical_phrases:2",
+    "persona_id": "starfleet_diplomat",
+    "goal_id": "mission_critical_phrases",
+    "actor_index": 2,
+    "satisfaction": 0.62,
+    "text": "Mostly useful and fast, but the phrasing was a bit sloppy and I needed the exact usable lines, not placeholders.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:understand_warrior_phrases:2",
+    "persona_id": "eager_linguist",
+    "goal_id": "understand_warrior_phrases",
+    "actor_index": 2,
+    "satisfaction": 0.86,
+    "text": "I\u2019m pretty satisfied \u2014 I got a clear feel for Qapla\u2019, majQa\u2019, and batlh, and I liked that the explanation focused on cultural context as well as usable phrases.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:learn_greetings:2",
+    "persona_id": "eager_linguist",
+    "goal_id": "learn_greetings",
+    "actor_index": 2,
+    "satisfaction": 0.74,
+    "text": "I liked how the tutor matched my curiosity and helped me practice nuqneH, bIQuch\u2019a\u2019, and Qapla\u2019, but a few of the Klingon explanations felt a bit shaky or overconfident for a beginner.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "starfleet_diplomat:mission_critical_phrases:1",
+    "persona_id": "starfleet_diplomat",
+    "goal_id": "mission_critical_phrases",
+    "actor_index": 1,
+    "satisfaction": 0.62,
+    "text": "Useful and fast, and you kept giving me phrases I could actually use. A bit messy with a few odd or shaky suggestions, but you did confirm my repeats and got me to usable openers and closers.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:understand_warrior_phrases:1",
+    "persona_id": "eager_linguist",
+    "goal_id": "understand_warrior_phrases",
+    "actor_index": 1,
+    "satisfaction": 0.86,
+    "text": "I\u2019m pretty satisfied \u2014 I got the key phrases and their cultural feel, and the mini-dialogue really helped me see how they work in context.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:learn_greetings:1",
+    "persona_id": "eager_linguist",
+    "goal_id": "learn_greetings",
+    "actor_index": 1,
+    "satisfaction": 0.12,
+    "text": "I liked the enthusiasm and the back-and-forth practice, but there were a lot of shaky or incorrect Klingon forms, so I\u2019d rate it pretty low overall.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  }
+]

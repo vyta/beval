@@ -1,8 +1,13 @@
 eval:
   mode: validation
   thresholds:
-    grade_pass: 0.5
-    case_pass: 0.7
+    pass_score: 0.6
+    case_pass_rate: 0.7
+    turn_pass_rate: 0.7
+    conversation_pass_rate: 0.8
+    min_satisfaction: 0.7
+    run_pass_rate: 0.9
+    
 
   agents:
     default: klingon-tutor
@@ -34,7 +39,7 @@ eval:
       base_url: ${FOUNDRY_ENDPOINT}   # https://<resource>.services.ai.azure.com/api/projects/<project>/openai/v1
       auth: entra_id
       timeout: 60
-      max_criteria_per_turn: 1
+      max_dynamic_criteria_per_turn: 0
 
     personas:
       - file: personas.yaml
@@ -42,8 +47,14 @@ eval:
     goals:
       - file: goals.yaml
 
-    actor_count: 1
-    max_parallel_actors: 1
+    criteria:
+      - file: criteria.yaml
+
+    feedback_text_rate: 1
+    actor_count: 2
+    max_parallel_actors: 6
+    max_turns: 15
+    timeout_seconds: 600
     history_dir: .beval_history
     history_retention_days: 30
 

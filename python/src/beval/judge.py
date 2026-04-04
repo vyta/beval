@@ -107,6 +107,21 @@ def _salvage_truncated_json(text: str) -> dict[str, Any] | None:
     return {"score": score, "reasoning": f"(truncated) {reasoning}"}
 
 
+def _is_content_filter(exc: Exception) -> bool:
+    """Check if an exception is an Azure/OpenAI content filter error."""
+    msg = str(exc).lower()
+    return "content_filter" in msg or "content management policy" in msg
+
+
+def _content_filter_reason(exc: Exception) -> str:
+    """Extract which filter was triggered (e.g. 'jailbreak')."""
+    msg = str(exc)
+    for label in ("jailbreak", "hate", "violence", "self_harm", "sexual"):
+        if f"'{label}': {{'filtered': True" in msg or f"'{label}': {{'filtered': true" in msg:
+            return label
+    return "unknown"
+
+
 def _extract_json(text: str) -> str:
     """Extract the first complete JSON object from text.
 
@@ -131,9 +146,12 @@ def _extract_json(text: str) -> str:
 def _parse_judge_response(
     raw: str,
     criterion: str,
-    grade_pass_threshold: float,
 ) -> Grade:
-    """Parse a judge response into a Grade (§14.5). Shared by all judge backends."""
+    """Parse a judge response into a Grade (§14.5). Shared by all judge backends.
+
+    The ``passed`` field is set provisionally to ``False``; the grader
+    registry enforces the authoritative threshold (§5.3).
+    """
     text = raw.strip()
 
     # Strip markdown code fences if present
@@ -171,7 +189,7 @@ def _parse_judge_response(
         criterion=criterion,
         score=score,
         metric="quality",
-        passed=score > grade_pass_threshold,
+        passed=False,  # grader registry sets the real value (§5.3)
         detail=reasoning,
         layer=GraderLayer.AI_JUDGED,
     )
@@ -260,7 +278,7 @@ class LLMJudge(Judge):
         self,
         model: str,
         *,
-        grade_pass_threshold: float = 0.5,
+        grade_pass_threshold: float = 0.5,  # kept for backward compat; unused
         api_key: str | None = None,
         base_url: str | None = None,
         auth: str | None = None,
@@ -276,7 +294,6 @@ class LLMJudge(Judge):
             raise ImportError(msg) from exc
 
         self._model = model
-        self._grade_pass_threshold = grade_pass_threshold
         self._max_answer_chars = max_answer_chars
 
         if api_key is not None or base_url is not None or auth is not None:
@@ -470,6 +487,17 @@ class LLMJudge(Judge):
             )
             raw = response.choices[0].message.content or ""
         except Exception as exc:
+            if _is_content_filter(exc):
+                logger.info("Judge content-filtered for: %s", criterion[:80])
+                return Grade(
+                    criterion=criterion,
+                    score=0.0,
+                    metric="quality",
+                    passed=False,
+                    detail=f"Skipped: content filter triggered ({_content_filter_reason(exc)})",
+                    layer=GraderLayer.AI_JUDGED,
+                    skipped=True,
+                )
             logger.warning("LLM judge call failed: %s", exc)
             return Grade(
                 criterion=criterion,
@@ -480,7 +508,7 @@ class LLMJudge(Judge):
                 layer=GraderLayer.AI_JUDGED,
             )
 
-        return _parse_judge_response(raw, criterion, self._grade_pass_threshold)
+        return _parse_judge_response(raw, criterion)
 
 
 class _ACPJudgeClient:
@@ -545,11 +573,10 @@ class ACPJudge(Judge):
         self,
         connection: dict[str, Any],
         *,
-        grade_pass_threshold: float = 0.5,
+        grade_pass_threshold: float = 0.5,  # kept for backward compat; unused
         timeout: float = 30,
     ) -> None:
         self._connection = connection
-        self._grade_pass_threshold = grade_pass_threshold
         self._timeout = timeout
 
         self._loop: asyncio.AbstractEventLoop | None = None
@@ -577,6 +604,17 @@ class ACPJudge(Judge):
         try:
             raw = self._evaluate_sync(prompt)
         except Exception as exc:
+            if _is_content_filter(exc):
+                logger.info("ACP judge content-filtered for: %s", criterion[:80])
+                return Grade(
+                    criterion=criterion,
+                    score=0.0,
+                    metric="quality",
+                    passed=False,
+                    detail=f"Skipped: content filter triggered ({_content_filter_reason(exc)})",
+                    layer=GraderLayer.AI_JUDGED,
+                    skipped=True,
+                )
             logger.warning("ACP judge call failed: %s", exc)
             return Grade(
                 criterion=criterion,
@@ -747,7 +785,7 @@ class ACPJudge(Judge):
         self._process = None
 
     def _parse_response(self, raw: str, criterion: str) -> Grade:
-        return _parse_judge_response(raw, criterion, self._grade_pass_threshold)
+        return _parse_judge_response(raw, criterion)
 
 
 def load_judge_from_config(

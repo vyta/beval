@@ -1,0 +1,88 @@
+criteria:
+
+  # ── Shared: applies to all goals via [core] tag ────────────────────────
+  - id: latency
+    name: Response Latency
+    tags: [core]
+    evals:
+      query:
+        - when: "the agent processes the request"
+          then:
+            - "completion time should be under 60"
+
+  - id: relevance
+    name: Response Relevance
+    tags: [core]
+    evals:
+      query:
+        - when: "the agent responds"
+          then:
+            - "the answer should be: about the topic the user asked about,
+              not about something else entirely (do not judge accuracy or
+              quality of the content, only topical relevance)"
+
+  # ── Goal-specific: learn_greetings ─────────────────────────────────────
+  - id: greetings_quality
+    name: Greetings Quality
+    tags: [greetings]
+    evals:
+      query:
+        - when: "the agent responds"
+          then:
+            - "the answer should be: provides Klingon phrases with English
+              translations in parentheses, not Klingon-only responses"
+      conversation:
+        - when: "the conversation finishes"
+          then:
+            - "the conversation should be: the tutor taught at least one
+              authentic Klingon greeting phrase (e.g. nuqneH, Qapla', or
+              similar) with its correct translation"
+            - "the conversation should be: the tutor generally built on
+              earlier exchanges rather than repeating the same material
+              verbatim (some overlap is acceptable)"
+            - "the conversation should be: by the end the student had enough
+              to attempt a Klingon greeting and received feedback on their
+              attempt"
+
+  # ── Goal-specific: understand_warrior_phrases ──────────────────────────
+  - id: culture_quality
+    name: Cultural Phrases Quality
+    tags: [culture]
+    evals:
+      query:
+        - when: "the agent responds"
+          then:
+            - "the answer should be: stays in character as a Klingon tutor,
+              uses authentic Klingon vocabulary, and provides translations"
+      conversation:
+        - when: "the conversation finishes"
+          then:
+            - "the conversation should be: the tutor explained the cultural
+              meaning behind Klingon phrases, not just the literal translation"
+            - "the conversation should be: at least 2-3 distinct culturally
+              significant phrases were introduced with both Klingon text and
+              English translation"
+            - "the conversation should be: the tutor's character remained
+              consistent throughout, fitting the Klingon cultural persona"
+
+  # ── Goal-specific: mission_critical_phrases ────────────────────────────
+  - id: diplomacy_quality
+    name: Diplomatic Phrases Quality
+    tags: [diplomacy]
+    evals:
+      query:
+        - when: "the agent responds"
+          then:
+            - "the answer should be: gives specific, usable Klingon phrases
+              rather than general commentary about Klingon culture"
+      conversation:
+        - when: "the conversation finishes"
+          then:
+            - "the conversation should be: the tutor provided at least 3
+              distinct, diplomatically relevant Klingon phrases with English
+              translations"
+            - "the conversation should be: if the student attempted to
+              repeat or practice phrases, the tutor responded to those
+              attempts (ignore if the student never tried repeating)"
+            - "the conversation should be: the student left with phrases
+              they could plausibly use in a high-stakes first-contact scenario"

@@ -257,22 +257,18 @@ def resolve_grade(
             layer=entry.layer,
         )
 
-    # Enforce grade_pass_threshold (SPEC §5.3): pass is score > threshold
-    threshold = context.config.grade_pass_threshold
-    enforced_pass = grade.score > threshold
-    if enforced_pass != grade.passed:
-        grade = Grade(
-            criterion=grade.criterion,
-            score=grade.score,
-            metric=grade.metric,
-            passed=enforced_pass,
-            detail=grade.detail,
-            layer=grade.layer,
-            skipped=grade.skipped,
-            stage=grade.stage,
-            stage_name=grade.stage_name,
-        )
-    return grade
+    # Set passed based on grade_pass_threshold (§5.3)
+    return Grade(
+        criterion=grade.criterion,
+        score=grade.score,
+        metric=grade.metric,
+        passed=grade.score >= context.config.grade_pass_threshold,
+        detail=grade.detail,
+        layer=grade.layer,
+        skipped=grade.skipped,
+        stage=grade.stage,
+        stage_name=grade.stage_name,
+    )
 
 
 def get_registered_graders() -> list[GraderEntry]:

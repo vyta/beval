@@ -129,6 +129,34 @@ def _metric_scores(grades: list[Grade], config: RunConfig) -> dict[str, float]:
     return {m: sums[m] / counts[m] for m in sums}
 
 
+def _grade_pass_rate(
+    grades: list[Grade],
+    pass_score: float,
+    config: RunConfig,
+) -> float:
+    """Fraction of effective grades that pass (score >= pass_score).
+
+    Skipped grades follow skip_mode: EXCLUDE drops them, OPTIMISTIC counts
+    as passing, STRICT counts as failing.  Returns 1.0 when no effective
+    grades remain (no-evals pass rule).
+    """
+    passed = 0
+    total = 0
+    for g in grades:
+        if g.skipped:
+            if config.skip_mode == SkipMode.EXCLUDE:
+                continue
+            elif config.skip_mode == SkipMode.OPTIMISTIC:
+                passed += 1
+            # STRICT: counts as failing (total increments, passed does not)
+        elif g.score >= pass_score:
+            passed += 1
+        total += 1
+    if total == 0:
+        return 1.0
+    return passed / total
+
+
 class Runner:
     """Orchestrates case execution. See SPEC §7."""
 

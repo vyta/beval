@@ -33,6 +33,7 @@ def _cancel_all_tasks(loop: asyncio.AbstractEventLoop) -> None:
         except Exception:  # noqa: BLE001, S110
             pass
 
+
 from beval.types import Grade, GraderLayer  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -331,8 +332,12 @@ class LLMJudge(Judge):
         #   Uses AzureOpenAI (strips path, lets SDK reconstruct it), and
         #   Entra ID scope https://cognitiveservices.azure.com/.default
         _is_foundry = base_url and "services.ai.azure.com" in base_url
-        _is_azure_oai = base_url and not _is_foundry and any(
-            h in base_url for h in ("azure.com", "azureml.ms", "cognitiveservices")
+        _is_azure_oai = (
+            base_url
+            and not _is_foundry
+            and any(
+                h in base_url for h in ("azure.com", "azureml.ms", "cognitiveservices")
+            )
         )
 
         if auth == "entra_id":

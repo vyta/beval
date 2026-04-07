@@ -152,8 +152,8 @@ def test_summary_line_totals():
     db.on_actor_complete("persona_1", "goal_1", _FakeResult(0.0, False))
     lines = db._build_lines()
     summary = lines[-1]
-    assert "2/20" in summary   # 2 done out of 20 total (10 per pair)
-    assert "50%" in summary    # 1/2 goal rate
+    assert "2/20" in summary  # 2 done out of 20 total (10 per pair)
+    assert "50%" in summary  # 1/2 goal rate
 
 
 # ── Rendering (cursor-up) ─────────────────────────────────────────────────────

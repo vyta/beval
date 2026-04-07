@@ -19,12 +19,14 @@ import yaml
 
 # ── ACP SDK noise suppression ─────────────────────────────────────────────────
 
+
 class _SuppressACPTaskDestroyed(logging.Filter):
     """Drop 'Task was destroyed but it is pending!' from the asyncio logger.
 
     These come from the ACP SDK's TaskSupervisor respawning background tasks
     (Sender.loop, Connection.receive, Dispatcher.loop) after cancellation.
     """
+
     def filter(self, record: logging.LogRecord) -> bool:
         return "Task was destroyed" not in record.getMessage()
 
@@ -51,15 +53,21 @@ def _install_acp_noise_filters() -> None:
             qualname = getattr(obj, "__qualname__", "") or ""
             # Suppress ACP SDK coroutine finalizer noise and the stdlib
             # Queue.get/Queue.__anext__ wakeup failures that accompany it
-            if any(name in qualname for name in (
-                "MessageSender", "DefaultMessageDispatcher",
-                "Connection._receive", "_QueueIterator",
-                "Queue.get",  # stdlib asyncio queue woken up after loop close
-            )):
+            if any(
+                name in qualname
+                for name in (
+                    "MessageSender",
+                    "DefaultMessageDispatcher",
+                    "Connection._receive",
+                    "_QueueIterator",
+                    "Queue.get",  # stdlib asyncio queue woken up after loop close
+                )
+            ):
                 return
         _orig_hook(args)
 
     sys.unraisablehook = _filtered_hook
+
 
 if TYPE_CHECKING:
     from beval.conversation.dashboard import _LiveDashboard
@@ -138,18 +146,14 @@ def load_personas_and_goals(
                 query_evals.append(
                     GoalEval(
                         when=ev.get("when", ""),
-                        then=_parse_then_list(
-                            ev.get("then") or []
-                        ),
+                        then=_parse_then_list(ev.get("then") or []),
                     )
                 )
             for ev in evals_block.get("conversation") or []:
                 conversation_evals.append(
                     GoalEval(
                         when=ev.get("when", ""),
-                        then=_parse_then_list(
-                            ev.get("then") or []
-                        ),
+                        then=_parse_then_list(ev.get("then") or []),
                     )
                 )
             goal_pool[goal_id] = Goal(
@@ -251,27 +255,25 @@ def load_criteria(
                 query_evals.append(
                     GoalEval(
                         when=ev.get("when", ""),
-                        then=_parse_then_list(
-                            ev.get("then") or []
-                        ),
+                        then=_parse_then_list(ev.get("then") or []),
                     )
                 )
             for ev in evals_block.get("conversation") or []:
                 conversation_evals.append(
                     GoalEval(
                         when=ev.get("when", ""),
-                        then=_parse_then_list(
-                            ev.get("then") or []
-                        ),
+                        then=_parse_then_list(ev.get("then") or []),
                     )
                 )
-            criteria_list.append(EvaluationCriteria(
-                id=c["id"],
-                name=c.get("name", c["id"]),
-                tags=list(c.get("tags") or []),
-                query_evals=query_evals,
-                conversation_evals=conversation_evals,
-            ))
+            criteria_list.append(
+                EvaluationCriteria(
+                    id=c["id"],
+                    name=c.get("name", c["id"]),
+                    tags=list(c.get("tags") or []),
+                    query_evals=query_evals,
+                    conversation_evals=conversation_evals,
+                )
+            )
 
     return criteria_list
 
@@ -318,7 +320,9 @@ def _build_conversations(
     return conversations
 
 
-def _make_cancelled_result(persona: Persona, goal: Goal, actor_index: int) -> ConversationResult:  # noqa: E501
+def _make_cancelled_result(
+    persona: Persona, goal: Goal, actor_index: int
+) -> ConversationResult:  # noqa: E501
     actor_id = f"{persona.id}:{goal.id}:{actor_index}"
     return ConversationResult(
         id=actor_id,
@@ -406,14 +410,16 @@ async def _run_all_actors(
                     )
 
             # Write stub immediately so the file exists as soon as actor starts
-            _write_transcript({
-                "id": actor_id,
-                "persona_id": persona.id,
-                "goal_id": goal.id,
-                "actor_index": actor_index,
-                "status": "in_progress",
-                "turns": [],
-            })
+            _write_transcript(
+                {
+                    "id": actor_id,
+                    "persona_id": persona.id,
+                    "goal_id": goal.id,
+                    "actor_index": actor_index,
+                    "status": "in_progress",
+                    "turns": [],
+                }
+            )
 
             def on_turn(aid: str, turn: int, query: str) -> None:
                 if dashboard:
@@ -426,18 +432,23 @@ async def _run_all_actors(
                         flush=True,
                     )
                 # Write user message immediately — before agent responds
-                _write_transcript({
-                    "id": actor_id,
-                    "persona_id": persona.id,
-                    "goal_id": goal.id,
-                    "actor_index": actor_index,
-                    "status": "in_progress",
-                    "turns": turns_so_far + [{
-                        "turn_number": turn,
-                        "user_message": query,
-                        "agent_response": None,
-                    }],
-                })
+                _write_transcript(
+                    {
+                        "id": actor_id,
+                        "persona_id": persona.id,
+                        "goal_id": goal.id,
+                        "actor_index": actor_index,
+                        "status": "in_progress",
+                        "turns": turns_so_far
+                        + [
+                            {
+                                "turn_number": turn,
+                                "user_message": query,
+                                "agent_response": None,
+                            }
+                        ],
+                    }
+                )
 
             def on_turn_complete(aid: str, turn_result: Any) -> None:
                 turns_so_far.append(turn_result)
@@ -445,18 +456,25 @@ async def _run_all_actors(
                     dashboard.on_turn_complete(
                         persona.id, goal.id, turn_result.goal_progress
                     )
-                _write_transcript({
-                    "id": actor_id,
-                    "persona_id": persona.id,
-                    "goal_id": goal.id,
-                    "actor_index": actor_index,
-                    "status": "in_progress",
-                    "turns": turns_so_far,
-                })
+                _write_transcript(
+                    {
+                        "id": actor_id,
+                        "persona_id": persona.id,
+                        "goal_id": goal.id,
+                        "actor_index": actor_index,
+                        "status": "in_progress",
+                        "turns": turns_so_far,
+                    }
+                )
 
             try:
                 result = await run_actor(
-                    persona, goal, actor_index, adapter, simulator, context,
+                    persona,
+                    goal,
+                    actor_index,
+                    adapter,
+                    simulator,
+                    context,
                     max_turns=max_turns,
                     timeout_seconds=timeout_seconds,
                     on_turn=on_turn,
@@ -481,16 +499,18 @@ async def _run_all_actors(
 
                 # Append feedback incrementally
                 if feedback_path is not None and result.feedback is not None:
-                    feedback_entries.append({
-                        "conversation_id": result.id,
-                        "persona_id": result.persona_id,
-                        "goal_id": result.goal_id,
-                        "actor_index": result.actor_index,
-                        "satisfaction": result.feedback.satisfaction,
-                        "text": result.feedback.text,
-                        "goal_achieved": result.goal_achieved,
-                        "termination_reason": result.termination_reason,
-                    })
+                    feedback_entries.append(
+                        {
+                            "conversation_id": result.id,
+                            "persona_id": result.persona_id,
+                            "goal_id": result.goal_id,
+                            "actor_index": result.actor_index,
+                            "satisfaction": result.feedback.satisfaction,
+                            "text": result.feedback.text,
+                            "goal_achieved": result.goal_achieved,
+                            "termination_reason": result.termination_reason,
+                        }
+                    )
                     try:
                         with open(feedback_path, "w", encoding="utf-8") as f:
                             json.dump(feedback_entries, f, indent=2)
@@ -524,7 +544,9 @@ async def _run_all_actors(
             results.append(_make_cancelled_result(persona, goal, actor_index))
         elif task.cancelled() or task.exception() is not None:
             exc = task.exception() if not task.cancelled() else None
-            logger.warning("Actor %s:%s:%d failed: %s", persona.id, goal.id, actor_index, exc)  # noqa: E501
+            logger.warning(
+                "Actor %s:%s:%d failed: %s", persona.id, goal.id, actor_index, exc
+            )  # noqa: E501
             results.append(_make_cancelled_result(persona, goal, actor_index))
         else:
             results.append(task.result())
@@ -535,9 +557,9 @@ async def _run_all_actors(
     loop.set_exception_handler(lambda _l, _ctx: None)  # silence cleanup warnings
     for _ in range(5):
         lingering = {
-            t for t in asyncio.all_tasks()
-            if t is not asyncio.current_task()
-            and not t.done()
+            t
+            for t in asyncio.all_tasks()
+            if t is not asyncio.current_task() and not t.done()
         }
         if not lingering:
             break
@@ -556,16 +578,16 @@ def _build_summary(
     total = len(results)
     passed = sum(1 for r in results if r.passed)
     errored = sum(
-        1
-        for r in results
-        if r.termination_reason in ("agent_error", "simulator_error")
+        1 for r in results if r.termination_reason in ("agent_error", "simulator_error")
     )
     cancelled = sum(1 for r in results if r.termination_reason == "cancelled")
     failed = total - passed - errored - cancelled
     goal_achieved_count = sum(1 for r in results if r.goal_achieved)
     total_turns = sum(r.turn_count for r in results)
 
-    overall_score = statistics.mean(r.overall_score for r in results) if results else 0.0  # noqa: E501
+    overall_score = (
+        statistics.mean(r.overall_score for r in results) if results else 0.0
+    )  # noqa: E501
     goal_achievement_rate = goal_achieved_count / total if total > 0 else 0.0
 
     goal_achieved_turns = [r.turn_count for r in results if r.goal_achieved]
@@ -667,7 +689,9 @@ class ConversationRunner:
             personas, goal_pool, actor_count, persona_filter, goal_filter
         )
         if not conversations:
-            logger.error("No conversations to run — check personas and goals configuration.")  # noqa: E501
+            logger.error(
+                "No conversations to run — check personas and goals configuration."
+            )  # noqa: E501
             raise SystemExit(2)
 
         context = EvalContext(

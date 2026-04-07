@@ -146,7 +146,7 @@ class TestPromptBuilding:
             conversation_evals=[
                 GoalEval(
                     when="the conversation finishes",
-                    then=["the agent answered fully"],
+                    then=[("the agent answered fully", ())],
                 )
             ]
         )
@@ -191,8 +191,13 @@ class MockSimulator:
         return next(self._cases)
 
     async def generate_feedback(
-        self, persona, goal, history,
-        termination_reason, *, include_text=False,
+        self,
+        persona,
+        goal,
+        history,
+        termination_reason,
+        *,
+        include_text=False,
     ):
         return None
 
@@ -221,8 +226,13 @@ class MockAdapter:
 
 class TestRunActor:
     def _run(
-        self, persona, goal, simulator,
-        adapter=None, context=None, max_turns=5,
+        self,
+        persona,
+        goal,
+        simulator,
+        adapter=None,
+        context=None,
+        max_turns=5,
     ):
         if adapter is None:
             adapter = MockAdapter()
@@ -230,8 +240,13 @@ class TestRunActor:
             context = make_context()
         return asyncio.run(
             run_actor(
-                persona, goal, 1, adapter,
-                simulator, context, max_turns=max_turns,
+                persona,
+                goal,
+                1,
+                adapter,
+                simulator,
+                context,
+                max_turns=max_turns,
             )
         )
 
@@ -387,19 +402,23 @@ class TestBuildSummary:
     def test_counts(self):
         results = [
             self._make_result(
-                passed=True, goal_achieved=True,
+                passed=True,
+                goal_achieved=True,
                 termination_reason="goal_achieved",
             ),
             self._make_result(
-                passed=False, goal_achieved=False,
+                passed=False,
+                goal_achieved=False,
                 termination_reason="terminated_max_turns",
             ),
             self._make_result(
-                passed=False, goal_achieved=False,
+                passed=False,
+                goal_achieved=False,
                 termination_reason="agent_error",
             ),
             self._make_result(
-                passed=False, goal_achieved=False,
+                passed=False,
+                goal_achieved=False,
                 termination_reason="cancelled",
             ),
         ]
@@ -489,11 +508,11 @@ class TestParallelActors:
         class CountingAdapter:
             def invoke(self, *a, **kw):
                 from beval.types import Subject
+
                 return Subject(input="q", output="a", completion_time=0.0)
 
             def close(self):
                 pass
-
 
         def make_simulator(_config):
             return CountingSimulator()
@@ -503,12 +522,15 @@ class TestParallelActors:
 
         context = make_context()
 
-        with patch(
-            "beval.conversation.runner.load_simulator_from_config",
-            side_effect=make_simulator,
-        ), patch(
-            "beval.conversation.runner.create_adapter",
-            side_effect=make_adapter,
+        with (
+            patch(
+                "beval.conversation.runner.load_simulator_from_config",
+                side_effect=make_simulator,
+            ),
+            patch(
+                "beval.conversation.runner.create_adapter",
+                side_effect=make_adapter,
+            ),
         ):
             results = asyncio.run(
                 _run_all_actors(
@@ -553,20 +575,23 @@ class TestParallelActors:
         class CountingAdapter:
             def invoke(self, *a, **kw):
                 from beval.types import Subject
+
                 return Subject(input="q", output="a", completion_time=0.0)
 
             def close(self):
                 pass
 
-
         context = make_context()
 
-        with patch(
-            "beval.conversation.runner.load_simulator_from_config",
-            side_effect=lambda _: CountingSimulator(),
-        ), patch(
-            "beval.conversation.runner.create_adapter",
-            side_effect=lambda _: CountingAdapter(),
+        with (
+            patch(
+                "beval.conversation.runner.load_simulator_from_config",
+                side_effect=lambda _: CountingSimulator(),
+            ),
+            patch(
+                "beval.conversation.runner.create_adapter",
+                side_effect=lambda _: CountingAdapter(),
+            ),
         ):
             asyncio.run(
                 _run_all_actors(
@@ -596,20 +621,29 @@ class TestOnTurnComplete:
             calls.append((actor_id, turn_result))
 
         result = asyncio.run(
-            run_actor(persona, goal, 1, adapter, sim, make_context(),
-                      max_turns=max_turns,
-                      on_turn_complete=callback)
+            run_actor(
+                persona,
+                goal,
+                1,
+                adapter,
+                sim,
+                make_context(),
+                max_turns=max_turns,
+                on_turn_complete=callback,
+            )
         )
         return result, calls
 
     def test_called_once_per_successful_turn(self):
         persona = make_persona()
         goal = make_goal(objective="t")
-        sim = MockSimulator([
-            DynamicCase(query="turn1", then=(), progress=0.3),
-            DynamicCase(query="turn2", then=(), progress=0.6),
-            DynamicCase(query="turn3", then=(), progress=0.9),
-        ])
+        sim = MockSimulator(
+            [
+                DynamicCase(query="turn1", then=(), progress=0.3),
+                DynamicCase(query="turn2", then=(), progress=0.6),
+                DynamicCase(query="turn3", then=(), progress=0.9),
+            ]
+        )
         result, calls = self._run_with_callback(persona, goal, sim, max_turns=3)
         assert result.termination_reason == "terminated_max_turns"
         assert len(calls) == 3
@@ -621,7 +655,9 @@ class TestOnTurnComplete:
         class ErrorSim:
             async def generate_case(self, *a, **kw):
                 raise RuntimeError("sim failed")
-            async def close(self): pass
+
+            async def close(self):
+                pass
 
         _, calls = self._run_with_callback(persona, goal, ErrorSim())
         assert calls == []
@@ -632,8 +668,11 @@ class TestOnTurnComplete:
         sim = MockSimulator([DynamicCase(query="hi", then=(), progress=0.5)])
 
         class ErrorAdapter:
-            def invoke(self, *a, **kw): raise RuntimeError("agent failed")
-            def close(self): pass
+            def invoke(self, *a, **kw):
+                raise RuntimeError("agent failed")
+
+            def close(self):
+                pass
 
         _, calls = self._run_with_callback(persona, goal, sim, adapter=ErrorAdapter())
         assert calls == []
@@ -641,8 +680,12 @@ class TestOnTurnComplete:
     def test_callback_receives_correct_actor_id(self):
         persona = make_persona(id="myp")
         goal = make_goal(id="myg")
-        sim = MockSimulator([DynamicCase(query="hi", then=(), progress=0.5),
-                             DynamicCase(query="", then=(), progress=1.0)])
+        sim = MockSimulator(
+            [
+                DynamicCase(query="hi", then=(), progress=0.5),
+                DynamicCase(query="", then=(), progress=1.0),
+            ]
+        )
         _, calls = self._run_with_callback(persona, goal, sim)
         assert len(calls) == 1
         assert calls[0][0] == "myp:myg:1"
@@ -650,8 +693,12 @@ class TestOnTurnComplete:
     def test_callback_receives_fully_populated_turn_result(self):
         persona = make_persona()
         goal = make_goal()
-        sim = MockSimulator([DynamicCase(query="hello", then=(), progress=0.5),
-                             DynamicCase(query="", then=(), progress=1.0)])
+        sim = MockSimulator(
+            [
+                DynamicCase(query="hello", then=(), progress=0.5),
+                DynamicCase(query="", then=(), progress=1.0),
+            ]
+        )
         _, calls = self._run_with_callback(persona, goal, sim)
         assert len(calls) == 1
         tr = calls[0][1]
@@ -678,19 +725,29 @@ class TestTranscriptFiles:
         class QuickSim:
             async def generate_case(self, *a, **kw):
                 return DynamicCase(query="", then=(), progress=1.0)
-            async def close(self): pass
+
+            async def close(self):
+                pass
 
         class QuickAdapter:
             def invoke(self, *a, **kw):
                 from beval.types import Subject
+
                 return Subject(input="q", output="a", completion_time=0.0)
-            def close(self): pass
+
+            def close(self):
+                pass
 
         context = make_context()
-        with patch("beval.conversation.runner.load_simulator_from_config",
-                   return_value=QuickSim()), \
-             patch("beval.conversation.runner.create_adapter",
-                   return_value=QuickAdapter()):
+        with (
+            patch(
+                "beval.conversation.runner.load_simulator_from_config",
+                return_value=QuickSim(),
+            ),
+            patch(
+                "beval.conversation.runner.create_adapter", return_value=QuickAdapter()
+            ),
+        ):
             return asyncio.run(
                 _run_all_actors(
                     conversations,
@@ -728,6 +785,7 @@ class TestTranscriptFiles:
 
     def test_transcript_is_valid_json(self, tmp_path):
         import json
+
         persona = make_persona()
         goal = make_goal()
         convs = _build_conversations([persona], {goal.id: goal}, 1)
@@ -740,30 +798,41 @@ class TestTranscriptFiles:
 
     def test_transcript_contains_turn_data(self, tmp_path):
         import json
+
         persona = make_persona()
         goal = make_goal(objective="t")
 
         class TwoTurnSim:
             _count = 0
+
             async def generate_case(self, *a, **kw):
                 self._count += 1
                 if self._count == 1:
                     return DynamicCase(query="hello", then=(), progress=0.5)
                 return DynamicCase(query="", then=(), progress=1.0)
-            async def close(self): pass
 
+            async def close(self):
+                pass
 
         class QuickAdapter:
             def invoke(self, *a, **kw):
                 from beval.types import Subject
+
                 return Subject(input="q", output="agent says hi", completion_time=0.0)
-            def close(self): pass
+
+            def close(self):
+                pass
 
         context = make_context()
-        with patch("beval.conversation.runner.load_simulator_from_config",
-                   return_value=TwoTurnSim()), \
-             patch("beval.conversation.runner.create_adapter",
-                   return_value=QuickAdapter()):
+        with (
+            patch(
+                "beval.conversation.runner.load_simulator_from_config",
+                return_value=TwoTurnSim(),
+            ),
+            patch(
+                "beval.conversation.runner.create_adapter", return_value=QuickAdapter()
+            ),
+        ):
             asyncio.run(
                 _run_all_actors(
                     _build_conversations([persona], {goal.id: goal}, 1),
@@ -799,7 +868,7 @@ class TestMergeCriteria:
                 query_evals=[
                     GoalEval(
                         when="the agent responds",
-                        then=["completion time should be under 120"],
+                        then=[("completion time should be under 120", ())],
                     ),
                 ],
                 conversation_evals=[],
@@ -807,10 +876,9 @@ class TestMergeCriteria:
         ]
         _merge_criteria_into_goals(goal_pool, criteria)
         assert len(goal_pool["g1"].query_evals) == 1
-        assert (
-            goal_pool["g1"].query_evals[0].then
-            == ["completion time should be under 120"]
-        )
+        assert goal_pool["g1"].query_evals[0].then == [
+            ("completion time should be under 120", ())
+        ]
 
     def test_no_tag_intersection_skips(self):
         goal_pool = {
@@ -821,7 +889,7 @@ class TestMergeCriteria:
                 id="latency",
                 name="Latency",
                 tags=["diplomacy"],
-                query_evals=[GoalEval(when="x", then=["y"])],
+                query_evals=[GoalEval(when="x", then=[("y", ())])],
                 conversation_evals=[],
             ),
         ]
@@ -833,7 +901,7 @@ class TestMergeCriteria:
             "g1": make_goal(
                 id="g1",
                 tags=["core"],
-                query_evals=[GoalEval(when="inline", then=["inline criterion"])],
+                query_evals=[GoalEval(when="inline", then=[("inline criterion", ())])],
             ),
         }
         criteria = [
@@ -841,7 +909,9 @@ class TestMergeCriteria:
                 id="extra",
                 name="Extra",
                 tags=["core"],
-                query_evals=[GoalEval(when="criteria", then=["criteria criterion"])],
+                query_evals=[
+                    GoalEval(when="criteria", then=[("criteria criterion", ())])
+                ],
                 conversation_evals=[],
             ),
         ]
@@ -855,9 +925,13 @@ class TestMergeCriteria:
             "g1": make_goal(id="g1", tags=[]),
         }
         criteria = [
-            EvaluationCriteria(id="c", name="C", tags=["core"],
-                               query_evals=[GoalEval(when="x", then=["y"])],
-                               conversation_evals=[]),
+            EvaluationCriteria(
+                id="c",
+                name="C",
+                tags=["core"],
+                query_evals=[GoalEval(when="x", then=[("y", ())])],
+                conversation_evals=[],
+            ),
         ]
         _merge_criteria_into_goals(goal_pool, criteria)
         assert len(goal_pool["g1"].query_evals) == 0
@@ -875,14 +949,14 @@ class TestMergeCriteria:
                 conversation_evals=[
                     GoalEval(
                         when="the conversation finishes",
-                        then=["good ending"],
+                        then=[("good ending", ())],
                     ),
                 ],
             ),
         ]
         _merge_criteria_into_goals(goal_pool, criteria)
         assert len(goal_pool["g1"].conversation_evals) == 1
-        assert goal_pool["g1"].conversation_evals[0].then == ["good ending"]
+        assert goal_pool["g1"].conversation_evals[0].then == [("good ending", ())]
 
 
 class TestCriteriaLoading:
@@ -927,18 +1001,25 @@ class TestNoEvalsPassRule:
             context = make_context()
         return asyncio.run(
             run_actor(
-                persona, goal, 1, adapter, simulator,
-                context, max_turns=max_turns,
+                persona,
+                goal,
+                1,
+                adapter,
+                simulator,
+                context,
+                max_turns=max_turns,
             )
         )
 
     def test_no_evals_passes_on_goal_achieved(self):
         persona = make_persona()
         goal = make_goal(query_evals=[], conversation_evals=[])
-        sim = MockSimulator([
-            DynamicCase(query="hi", then=(), progress=0.5),
-            DynamicCase(query="", then=(), progress=1.0),
-        ])
+        sim = MockSimulator(
+            [
+                DynamicCase(query="hi", then=(), progress=0.5),
+                DynamicCase(query="", then=(), progress=1.0),
+            ]
+        )
         result = self._run(persona, goal, sim)
         assert result.goal_achieved is True
         assert result.overall_score == 1.0
@@ -947,9 +1028,9 @@ class TestNoEvalsPassRule:
     def test_no_evals_fails_on_max_turns(self):
         persona = make_persona()
         goal = make_goal(query_evals=[], conversation_evals=[])
-        sim = MockSimulator([
-            DynamicCase(query=f"turn {i}", then=(), progress=0.0) for i in range(3)
-        ])
+        sim = MockSimulator(
+            [DynamicCase(query=f"turn {i}", then=(), progress=0.0) for i in range(3)]
+        )
         result = self._run(persona, goal, sim, max_turns=3)
         assert result.termination_reason == "terminated_max_turns"
         assert result.overall_score == 1.0
@@ -963,6 +1044,7 @@ class TestNoEvalsPassRule:
         class ErrorAdapter:
             def invoke(self, *a, **kw):
                 raise RuntimeError("Agent offline")
+
             def close(self):
                 pass
 
@@ -978,6 +1060,7 @@ class TestNoEvalsPassRule:
         class ErrorSim:
             async def generate_case(self, *a, **kw):
                 raise RuntimeError("Sim failed")
+
             async def close(self):
                 pass
 
@@ -1020,12 +1103,20 @@ class TestThresholdModel:
 
         grades = [
             Grade(
-                criterion="a", score=0.8, metric="q",
-                passed=True, detail="", layer="ai_judged",
+                criterion="a",
+                score=0.8,
+                metric="q",
+                passed=True,
+                detail="",
+                layer="ai_judged",
             ),
             Grade(
-                criterion="b", score=0.9, metric="q",
-                passed=True, detail="", layer="ai_judged",
+                criterion="b",
+                score=0.9,
+                metric="q",
+                passed=True,
+                detail="",
+                layer="ai_judged",
             ),
         ]
         config = RunConfig(pass_score=0.7)
@@ -1037,12 +1128,20 @@ class TestThresholdModel:
 
         grades = [
             Grade(
-                criterion="a", score=0.8, metric="q",
-                passed=True, detail="", layer="ai_judged",
+                criterion="a",
+                score=0.8,
+                metric="q",
+                passed=True,
+                detail="",
+                layer="ai_judged",
             ),
             Grade(
-                criterion="b", score=0.3, metric="q",
-                passed=False, detail="", layer="ai_judged",
+                criterion="b",
+                score=0.3,
+                metric="q",
+                passed=False,
+                detail="",
+                layer="ai_judged",
             ),
         ]
         config = RunConfig(pass_score=0.7, case_pass_rate=0.9)
@@ -1059,10 +1158,12 @@ class TestThresholdModel:
 
     def test_turn_result_has_passed_field(self):
         goal = make_goal(objective="t")
-        sim = MockSimulator([
-            DynamicCase(query="hi", then=(), progress=0.5),
-            DynamicCase(query="", then=(), progress=1.0),
-        ])
+        sim = MockSimulator(
+            [
+                DynamicCase(query="hi", then=(), progress=0.5),
+                DynamicCase(query="", then=(), progress=1.0),
+            ]
+        )
         result = self._run(goal, sim)
         assert result.turn_count == 1
         tr = result.turns[0]
@@ -1077,6 +1178,7 @@ class TestThresholdModel:
         class ErrorAdapter:
             def invoke(self, *a, **kw):
                 raise RuntimeError("fail")
+
             def close(self):
                 pass
 
@@ -1141,7 +1243,12 @@ class TestActorFeedback:
         context = make_context()
         return asyncio.run(
             run_actor(
-                persona, goal, 1, adapter, sim, context,
+                persona,
+                goal,
+                1,
+                adapter,
+                sim,
+                context,
                 max_turns=max_turns,
                 feedback_text_rate=feedback_text_rate,
             )
@@ -1153,15 +1260,22 @@ class TestActorFeedback:
 
         class FeedbackSim(MockSimulator):
             async def generate_feedback(
-                self, persona, goal, history,
-                termination_reason, *, include_text=False,
+                self,
+                persona,
+                goal,
+                history,
+                termination_reason,
+                *,
+                include_text=False,
             ):
                 return UserFeedback(satisfaction=0.9, text="Nice!")
 
-        sim = FeedbackSim([
-            DynamicCase(query="hi", then=(), progress=0.5),
-            DynamicCase(query="", then=(), progress=1.0),
-        ])
+        sim = FeedbackSim(
+            [
+                DynamicCase(query="hi", then=(), progress=0.5),
+                DynamicCase(query="", then=(), progress=1.0),
+            ]
+        )
         result = self._run(persona, goal, sim)
         assert result.feedback is not None
         assert result.feedback.satisfaction == pytest.approx(0.9)
@@ -1175,10 +1289,12 @@ class TestActorFeedback:
             async def generate_feedback(self, *a, **kw):
                 raise RuntimeError("LLM down")
 
-        sim = FailFeedbackSim([
-            DynamicCase(query="hi", then=(), progress=0.5),
-            DynamicCase(query="", then=(), progress=1.0),
-        ])
+        sim = FailFeedbackSim(
+            [
+                DynamicCase(query="hi", then=(), progress=0.5),
+                DynamicCase(query="", then=(), progress=1.0),
+            ]
+        )
         result = self._run(persona, goal, sim)
         assert result.feedback is None
 
@@ -1197,10 +1313,12 @@ class TestActorFeedback:
         """MockSimulator without generate_feedback override returns None."""
         persona = make_persona()
         goal = make_goal()
-        sim = MockSimulator([
-            DynamicCase(query="hi", then=(), progress=0.5),
-            DynamicCase(query="", then=(), progress=1.0),
-        ])
+        sim = MockSimulator(
+            [
+                DynamicCase(query="hi", then=(), progress=0.5),
+                DynamicCase(query="", then=(), progress=1.0),
+            ]
+        )
         result = self._run(persona, goal, sim)
         assert result.feedback is None
 
@@ -1208,13 +1326,23 @@ class TestActorFeedback:
 class TestSummaryFeedback:
     def _make_result(self, satisfaction=None, **kwargs):
         defaults = dict(
-            id="p:g:1", name="p → g (actor 1)", category="p/g",
-            persona_id="p", goal_id="g", actor_index=1,
-            overall_score=1.0, goal_achievement_score=1.0,
-            passed=True, goal_achieved=True,
-            termination_reason="goal_achieved", turn_count=3,
-            time_seconds=5.0, metric_scores={}, error=None,
-            turns=[], grades=[],
+            id="p:g:1",
+            name="p → g (actor 1)",
+            category="p/g",
+            persona_id="p",
+            goal_id="g",
+            actor_index=1,
+            overall_score=1.0,
+            goal_achievement_score=1.0,
+            passed=True,
+            goal_achieved=True,
+            termination_reason="goal_achieved",
+            turn_count=3,
+            time_seconds=5.0,
+            metric_scores={},
+            error=None,
+            turns=[],
+            grades=[],
         )
         if satisfaction is not None:
             defaults["feedback"] = UserFeedback(satisfaction=satisfaction)
@@ -1248,6 +1376,7 @@ class TestDashboardSatisfaction:
         import io
 
         from beval.conversation.dashboard import _LiveDashboard
+
         stream = io.StringIO()
         dash = _LiveDashboard(
             [("p1", "g1", 2, 10)],
@@ -1273,6 +1402,7 @@ class TestDashboardSatisfaction:
         import io
 
         from beval.conversation.dashboard import _LiveDashboard
+
         stream = io.StringIO()
         dash = _LiveDashboard(
             [("p1", "g1", 1, 10)],

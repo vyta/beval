@@ -142,8 +142,7 @@ async def run_actor(
             except Exception as exc:  # noqa: BLE001
                 if _is_content_filter(exc):
                     logger.info(
-                        "Content filter in %s turn %d,"
-                        " skipping turn",
+                        "Content filter in %s turn %d, skipping turn",
                         actor_id,
                         turn_number,
                     )
@@ -215,15 +214,19 @@ async def run_actor(
 
             # Build TurnSubject and run per-turn graders (§15.8.1)
             turn_subject = _build_turn_subject(
-                subject, turn_number, persona.id, goal.id, actor_index, dyn_case.progress  # noqa: E501
+                subject,
+                turn_number,
+                persona.id,
+                goal.id,
+                actor_index,
+                dyn_case.progress,  # noqa: E501
             )
 
             # Skip AI grading for cancelled/empty agent responses — they're infra
             # failures, not coaching quality signals.
             _answer = subject.answer or ""
             _is_cancelled = (
-                not _answer.strip()
-                or "operation cancelled" in _answer.lower()
+                not _answer.strip() or "operation cancelled" in _answer.lower()
             )
 
             if _is_cancelled:
@@ -258,17 +261,19 @@ async def run_actor(
                 )
                 for criterion, args in ev.then:
                     grade = resolve_grade(criterion, list(args), stage_subject, context)
-                    grades.append(Grade(
-                        criterion=grade.criterion,
-                        score=grade.score,
-                        metric=grade.metric,
-                        passed=grade.passed,
-                        detail=grade.detail,
-                        layer=grade.layer,
-                        skipped=grade.skipped,
-                        stage=stage_num,
-                        stage_name=ev.when,
-                    ))
+                    grades.append(
+                        Grade(
+                            criterion=grade.criterion,
+                            score=grade.score,
+                            metric=grade.metric,
+                            passed=grade.passed,
+                            detail=grade.detail,
+                            layer=grade.layer,
+                            skipped=grade.skipped,
+                            stage=stage_num,
+                            stage_name=ev.when,
+                        )
+                    )
             # Dynamic criteria from simulator appended to last stage
             if dyn_then:
                 if stage_num == 0:
@@ -289,17 +294,19 @@ async def run_actor(
                 )
                 for criterion in dyn_then:
                     grade = resolve_grade(criterion, [], dyn_subject, context)
-                    grades.append(Grade(
-                        criterion=grade.criterion,
-                        score=grade.score,
-                        metric=grade.metric,
-                        passed=grade.passed,
-                        detail=grade.detail,
-                        layer=grade.layer,
-                        skipped=grade.skipped,
-                        stage=stage_num,
-                        stage_name=dyn_stage_name,
-                    ))
+                    grades.append(
+                        Grade(
+                            criterion=grade.criterion,
+                            score=grade.score,
+                            metric=grade.metric,
+                            passed=grade.passed,
+                            detail=grade.detail,
+                            layer=grade.layer,
+                            skipped=grade.skipped,
+                            stage=stage_num,
+                            stage_name=dyn_stage_name,
+                        )
+                    )
 
             turn_overall = _aggregate_grades(grades, context.config) if grades else 0.0
             turn_metrics = _metric_scores(grades, context.config) if grades else {}
@@ -352,17 +359,19 @@ async def run_actor(
             )
             for criterion, args in ev.then:
                 grade = resolve_grade(criterion, list(args), stage_subject, context)
-                conv_grades.append(Grade(
-                    criterion=grade.criterion,
-                    score=grade.score,
-                    metric=grade.metric,
-                    passed=grade.passed,
-                    detail=grade.detail,
-                    layer=grade.layer,
-                    skipped=grade.skipped,
-                    stage=stage_idx,
-                    stage_name=ev.when,
-                ))
+                conv_grades.append(
+                    Grade(
+                        criterion=grade.criterion,
+                        score=grade.score,
+                        metric=grade.metric,
+                        passed=grade.passed,
+                        detail=grade.detail,
+                        layer=grade.layer,
+                        skipped=grade.skipped,
+                        stage=stage_idx,
+                        stage_name=ev.when,
+                    )
+                )
 
     # overall_score (§15.8.4): mean of all non-skipped grades (informational)
     all_grades = [g for t in history for g in t.grades] + conv_grades
@@ -377,9 +386,7 @@ async def run_actor(
 
     # goal_achievement_score (§15.8.3)
     goal_achievement_score = (  # noqa: E501
-        1.0
-        if termination_reason == "goal_achieved"
-        else last_progress
+        1.0 if termination_reason == "goal_achieved" else last_progress
     )
 
     goal_achieved = termination_reason == "goal_achieved"
@@ -392,9 +399,8 @@ async def run_actor(
         # Turn pass rate
         turns_with_grades = [t for t in history if t.grades]
         if turns_with_grades:
-            t_rate = (
-                sum(1 for t in turns_with_grades if t.passed)
-                / len(turns_with_grades)
+            t_rate = sum(1 for t in turns_with_grades if t.passed) / len(
+                turns_with_grades
             )
         else:
             t_rate = 1.0
@@ -416,7 +422,10 @@ async def run_actor(
         include_text = random.random() < feedback_text_rate  # noqa: S311
         try:
             feedback = await simulator.generate_feedback(
-                persona, goal, history, termination_reason,
+                persona,
+                goal,
+                history,
+                termination_reason,
                 include_text=include_text,
             )
         except Exception:  # noqa: BLE001

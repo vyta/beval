@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     pass
 
 
-_RED   = "\033[31m"
+_RED = "\033[31m"
 _GREEN = "\033[32m"
 _RESET = "\033[0m"
 
@@ -36,18 +36,18 @@ class _PersonaGoalRow:
 
     persona_id: str
     goal_id: str
-    total_actors: int   # actor_count for this pair
-    max_turns: int      # from eval.conversation.max_turns config
-    done: int = 0       # actors that have completed (any termination)
-    failed: int = 0     # actors that completed with passed=False
-    running: int = 0    # actors currently active
+    total_actors: int  # actor_count for this pair
+    max_turns: int  # from eval.conversation.max_turns config
+    done: int = 0  # actors that have completed (any termination)
+    failed: int = 0  # actors that completed with passed=False
+    running: int = 0  # actors currently active
     score_sum: float = 0.0
     goals_achieved: int = 0
     achievement_score_sum: float = 0.0  # sum of goal_achievement_score
-    last_turn: int = 0     # highest turn seen across all running actors
-    turns_sum: int = 0     # total turns across all completed actors
+    last_turn: int = 0  # highest turn seen across all running actors
+    turns_sum: int = 0  # total turns across all completed actors
     running_progress_sum: float = 0.0  # sum of latest goal_progress for running actors
-    running_progress_count: int = 0    # how many running actors have reported progress
+    running_progress_count: int = 0  # how many running actors have reported progress
     satisfaction_sum: float = 0.0
     satisfaction_count: int = 0
 
@@ -61,13 +61,19 @@ class _PersonaGoalRow:
 
     @property
     def avg_running_progress(self) -> float | None:
-        return (self.running_progress_sum / self.running_progress_count
-                if self.running_progress_count > 0 else None)
+        return (
+            self.running_progress_sum / self.running_progress_count
+            if self.running_progress_count > 0
+            else None
+        )
 
     @property
     def avg_satisfaction(self) -> float | None:
-        return (self.satisfaction_sum / self.satisfaction_count
-                if self.satisfaction_count > 0 else None)
+        return (
+            self.satisfaction_sum / self.satisfaction_count
+            if self.satisfaction_count > 0
+            else None
+        )
 
 
 class _LiveDashboard:
@@ -129,9 +135,7 @@ class _LiveDashboard:
                 row.running_progress_count += 1
             self._render()
 
-    def on_actor_complete(
-        self, persona_id: str, goal_id: str, result: Any
-    ) -> None:
+    def on_actor_complete(self, persona_id: str, goal_id: str, result: Any) -> None:
         with self._lock:
             row = self._rows.get((persona_id, goal_id))
             if row is not None:
@@ -211,8 +215,7 @@ class _LiveDashboard:
                 if completed:
                     goal_pct = _color(
                         goal_pct_val,
-                        _GREEN if avg_achievement >= 1.0
-                        else _RED,
+                        _GREEN if avg_achievement >= 1.0 else _RED,
                     )
                 else:
                     goal_pct = goal_pct_val
@@ -228,9 +231,7 @@ class _LiveDashboard:
                 else "--"
             )
             fail_cell = (
-                _color(f"{row.failed:>4}", _RED)
-                if row.failed > 0
-                else f"{'0':>4}"
+                _color(f"{row.failed:>4}", _RED) if row.failed > 0 else f"{'0':>4}"
             )
             lines.append(
                 f"  {persona_short:<28}  {goal_short:<22}  {done_cell:>9}"

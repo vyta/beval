@@ -15,6 +15,7 @@ from beval.conversation.types import (
     DynamicCase,
     Goal,
     Persona,
+    ThenClause,
     TurnResult,
     UserFeedback,
 )
@@ -102,7 +103,14 @@ def _format_traits(persona: Persona) -> str:
         return "(none specified)"
     traits = persona.traits
     lines = []
-    for attr in ("tone", "expertise", "patience", "verbosity", "language", "style_notes"):  # noqa: E501
+    for attr in (
+        "tone",
+        "expertise",
+        "patience",
+        "verbosity",
+        "language",
+        "style_notes",
+    ):  # noqa: E501
         val = getattr(traits, attr, None)
         if val:
             lines.append(f"{attr}: {val}")
@@ -118,14 +126,14 @@ def _format_history(history: list[TurnResult]) -> str:
     return "\n".join(parts)
 
 
-def _build_system_message(
-    persona: Persona, goal: Goal, max_criteria: int = 3
-) -> str:
-    on_finish_criteria: list[str] = []
+def _build_system_message(persona: Persona, goal: Goal, max_criteria: int = 3) -> str:
+    on_finish_criteria: list[ThenClause] = []
     for ev in goal.conversation_evals:
         on_finish_criteria.extend(ev.then)
     if on_finish_criteria:
-        numbered = "\n".join(f"{i + 1}. {c}" for i, c in enumerate(on_finish_criteria))
+        numbered = "\n".join(
+            f"{i + 1}. {c[0]}" for i, c in enumerate(on_finish_criteria)
+        )
         completion_criteria = f"\nCompletion criteria (for reference):\n{numbered}\n"
     else:
         completion_criteria = ""
@@ -257,6 +265,7 @@ def _build_feedback_messages(
 
 # ── Simulator ABC ──────────────────────────────────────────────────────────
 
+
 class UserSimulatorInterface(ABC):
     """User simulator contract (§15.6.1)."""
 
@@ -288,6 +297,7 @@ class UserSimulatorInterface(ABC):
 
 
 # ── OpenAI simulator (§15.6.3) ────────────────────────────────────────────
+
 
 class OpenAISimulator(UserSimulatorInterface):
     """Built-in simulator using an OpenAI-compatible chat completions API (§15.6.3)."""
@@ -336,7 +346,9 @@ class OpenAISimulator(UserSimulatorInterface):
         history: list[TurnResult],
         context: EvalContext,
     ) -> DynamicCase:
-        system_msg = _build_system_message(persona, goal, self._max_dynamic_criteria_per_turn)
+        system_msg = _build_system_message(
+            persona, goal, self._max_dynamic_criteria_per_turn
+        )
 
         # Optionally truncate agent responses to keep prompt size bounded
         if self._max_answer_chars is not None and history:
@@ -350,6 +362,7 @@ class OpenAISimulator(UserSimulatorInterface):
                     grades=t.grades,
                     metric_scores=t.metric_scores,
                     overall_score=t.overall_score,
+                    passed=t.passed,
                     error=t.error,
                 )
                 for t in history
@@ -410,7 +423,11 @@ class OpenAISimulator(UserSimulatorInterface):
         include_text: bool = False,
     ) -> UserFeedback | None:
         system_msg, user_msg = _build_feedback_messages(
-            persona, goal, history, termination_reason, include_text,
+            persona,
+            goal,
+            history,
+            termination_reason,
+            include_text,
         )
         try:
             raw = await asyncio.to_thread(self._call_llm, system_msg, user_msg)
@@ -421,6 +438,7 @@ class OpenAISimulator(UserSimulatorInterface):
 
 
 # ── ACP simulator (§15.6.4) ───────────────────────────────────────────────
+
 
 class ACPSimulator(UserSimulatorInterface):
     """Built-in simulator using an ACP-compatible agent (§15.6.4).
@@ -448,7 +466,7 @@ class ACPSimulator(UserSimulatorInterface):
     async def _ensure_connected(self) -> None:
         """Lazily establish ACP connection and session."""
         try:
-            from acp import (  # type: ignore[import-untyped]
+            from acp import (
                 PROTOCOL_VERSION,
                 connect_to_agent,
                 spawn_agent_process,
@@ -524,7 +542,7 @@ class ACPSimulator(UserSimulatorInterface):
         context: EvalContext,
     ) -> DynamicCase:
         try:
-            from acp import text_block  # type: ignore[import-untyped]
+            from acp import text_block
         except ImportError as exc:
             msg = (
                 "ACP simulator requires the 'agent-client-protocol' package. "
@@ -535,7 +553,9 @@ class ACPSimulator(UserSimulatorInterface):
         await self._ensure_connected()
 
         # Combined prompt: system message + separator + user message (§15.6.4.1)
-        system_msg = _build_system_message(persona, goal, self._max_dynamic_criteria_per_turn)
+        system_msg = _build_system_message(
+            persona, goal, self._max_dynamic_criteria_per_turn
+        )
         user_msg = _build_user_message(history)
         combined = f"{system_msg}\n\n---\n\n{user_msg}"
 
@@ -566,7 +586,9 @@ class ACPSimulator(UserSimulatorInterface):
                 result = _parse_dynamic_case(raw)
                 # Enforce max_dynamic_criteria_per_turn
                 if self._max_dynamic_criteria_per_turn == 0:
-                    result = DynamicCase(query=result.query, then=(), progress=result.progress)
+                    result = DynamicCase(
+                        query=result.query, then=(), progress=result.progress
+                    )
                 elif len(result.then) > self._max_dynamic_criteria_per_turn:
                     result = DynamicCase(
                         query=result.query,
@@ -609,13 +631,17 @@ class ACPSimulator(UserSimulatorInterface):
         include_text: bool = False,
     ) -> UserFeedback | None:
         try:
-            from acp import text_block  # type: ignore[import-untyped]
+            from acp import text_block
         except ImportError:
             return None
 
         await self._ensure_connected()
         system_msg, user_msg = _build_feedback_messages(
-            persona, goal, history, termination_reason, include_text,
+            persona,
+            goal,
+            history,
+            termination_reason,
+            include_text,
         )
         combined = f"{system_msg}\n\n---\n\n{user_msg}"
         try:
@@ -636,7 +662,10 @@ class ACPSimulator(UserSimulatorInterface):
 
 # ── Factory ────────────────────────────────────────────────────────────────
 
-def load_simulator_from_config(simulator_config: dict[str, Any]) -> UserSimulatorInterface:  # noqa: E501
+
+def load_simulator_from_config(
+    simulator_config: dict[str, Any],
+) -> UserSimulatorInterface:  # noqa: E501
     """Create a UserSimulator from a config block (§15.6.6)."""
     from beval.judge import _resolve_config_vars
 
@@ -656,10 +685,12 @@ def load_simulator_from_config(simulator_config: dict[str, Any]) -> UserSimulato
             auth=resolved.get("auth"),
             max_answer_chars=resolved.get("max_answer_chars"),
             timeout=float(resolved.get("timeout", 30)),
-            max_dynamic_criteria_per_turn=int(resolved.get(
-                "max_dynamic_criteria_per_turn",
-                resolved.get("max_criteria_per_turn", 3),
-            )),
+            max_dynamic_criteria_per_turn=int(
+                resolved.get(
+                    "max_dynamic_criteria_per_turn",
+                    resolved.get("max_criteria_per_turn", 3),
+                )
+            ),
         )
 
     if protocol == "acp":
@@ -671,10 +702,12 @@ def load_simulator_from_config(simulator_config: dict[str, Any]) -> UserSimulato
         return ACPSimulator(
             connection,
             timeout=float(resolved.get("timeout", 30)),
-            max_dynamic_criteria_per_turn=int(resolved.get(
-                "max_dynamic_criteria_per_turn",
-                resolved.get("max_criteria_per_turn", 3),
-            )),
+            max_dynamic_criteria_per_turn=int(
+                resolved.get(
+                    "max_dynamic_criteria_per_turn",
+                    resolved.get("max_criteria_per_turn", 3),
+                )
+            ),
         )
 
     raise ValueError(

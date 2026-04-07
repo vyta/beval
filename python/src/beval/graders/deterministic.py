@@ -27,6 +27,7 @@ def _completion_time_grader(
     else:
         # Parse threshold from criterion string: "completion time should be under 120"
         import re as _re
+
         m = _re.search(r"[\d.]+", criterion)
         threshold = float(m.group()) if m else 30.0
     elapsed = subject.completion_time

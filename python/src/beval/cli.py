@@ -1194,8 +1194,9 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
     use_dashboard = sys.stderr.isatty() and not getattr(args, "quiet", False)
     log_level = logging.ERROR if use_dashboard else logging.WARNING
     if not logging.root.handlers:
-        logging.basicConfig(level=log_level, stream=sys.stderr,
-                            format="  [%(levelname)s] %(message)s")
+        logging.basicConfig(
+            level=log_level, stream=sys.stderr, format="  [%(levelname)s] %(message)s"
+        )
     else:
         logging.root.setLevel(log_level)
 
@@ -1209,7 +1210,10 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
     if agent_ref is None and config_agents:
         agent_ref = config_agents.get("default")
     if agent_ref is None:
-        print("Error: --agent is required (or set agents.default in config)", file=sys.stderr)  # noqa: E501
+        print(
+            "Error: --agent is required (or set agents.default in config)",
+            file=sys.stderr,
+        )  # noqa: E501
         return EXIT_INPUT_ERROR
 
     try:
@@ -1244,7 +1248,7 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
             "connection": {"transport": "stdio", "command": sim_agent.split()},
         }
     else:
-        raw_sim = (conv_config.get("simulator") or {})
+        raw_sim = conv_config.get("simulator") or {}
         if not raw_sim:
             print(
                 "Error: no simulator configured. Use --simulator-model, "
@@ -1342,10 +1346,13 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
 
     # ── Conversation list (always computed for count + dashboard) ──────────
     from beval.conversation.runner import _build_conversations, load_personas_and_goals
+
     _personas, _goal_pool = load_personas_and_goals(conv_config, config_dir)
     _actor_count = int(conv_config.get("actor_count", 1))
     _convs = _build_conversations(
-        _personas, _goal_pool, _actor_count,
+        _personas,
+        _goal_pool,
+        _actor_count,
         persona_filter=getattr(args, "persona", None),
         goal_filter=getattr(args, "goal", None),
     )
@@ -1355,6 +1362,7 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
     dashboard = None
     if use_dashboard:
         from beval.conversation.dashboard import _LiveDashboard
+
         _max_turns = int(conv_config.get("max_turns", 20))
         counts: dict[tuple[str, str], int] = {}
         for _p, _g, _ in _convs:
@@ -1362,9 +1370,12 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
             counts[key] = counts.get(key, 0) + 1
         _rows = [(pid, gid, cnt, _max_turns) for (pid, gid), cnt in counts.items()]
         dashboard = _LiveDashboard(_rows)
-    print(f"\n  Starting {n_convs} conversation(s)..."
-          + (f"  transcripts → {transcript_dir}" if transcript_dir else ""),
-          file=sys.stderr, flush=True)
+    print(
+        f"\n  Starting {n_convs} conversation(s)..."
+        + (f"  transcripts → {transcript_dir}" if transcript_dir else ""),
+        file=sys.stderr,
+        flush=True,
+    )
 
     # ── Feedback path ──────────────────────────────────────────────────────
     feedback_path: Path | None = None
@@ -1433,9 +1444,7 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
         verdict = "PASS" if run_passed else "FAIL"
 
         sat_str = (
-            f"  Sat: {s.avg_satisfaction:.2f}"
-            if s.avg_satisfaction is not None
-            else ""
+            f"  Sat: {s.avg_satisfaction:.2f}" if s.avg_satisfaction is not None else ""
         )
         print(
             f"\n  {verdict}  Score: {s.overall_score:.2f}  "
@@ -1464,8 +1473,7 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
                         for g in failing_grades:
                             crit = g.criterion[:72]
                             print(
-                                f"      turn {t.turn_number}:"
-                                f" {g.score:.2f} — {crit}",
+                                f"      turn {t.turn_number}: {g.score:.2f} — {crit}",
                                 file=sys.stderr,
                             )
                 # Conversation-level failures
@@ -1522,7 +1530,7 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_INPUT_ERROR
 
     try:
-        return handler(args)  # type: ignore[no-untyped-call]
+        return handler(args)
     except NotImplementedError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return EXIT_INPUT_ERROR

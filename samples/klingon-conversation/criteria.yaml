@@ -8,7 +8,20 @@ criteria:
       query:
         - when: "the agent processes the request"
           then:
-            - "completion time should be under 60"
+            - "completion time should be under": 60
+
+  - id: not_empty
+    name: Non-empty Response
+    tags: [core]
+    evals:
+      query:
+        - when: "the agent responds"
+          then:
+            - "response should not contain": "I cannot help"
+      conversation:
+        - when: "the conversation finishes"
+          then:
+            - "conversation length should be": [100, 50000]
 
   - id: relevance
     name: Response Relevance

@@ -61,8 +61,14 @@ export KLINGON_MODEL=o4-mini
 export OPENAI_API_KEY=sk-...
 export KLINGON_MODEL=o4-mini
 
-pip install -r requirements.txt      # or: uv sync
-python server.py --port 8000
+cd ../../python && uv sync --extra a2a-server
+
+# From the samples/klingon-agent/ directory:
+cd ../samples/klingon-agent
+uv run --project ../../python python server.py
+
+# Or on a custom port:
+uv run --project ../../python python server.py --port 9000
 ```
 
 The agent runs on http://localhost:8000.
@@ -86,8 +92,6 @@ cd python && uv sync --extra dev --extra a2a --extra judge
 ## Running
 
 ```bash
-cd python
-
 uv run beval -c ../samples/klingon-conversation/eval.config.yaml \
   converse run \
   --output ../samples/klingon-conversation/results/

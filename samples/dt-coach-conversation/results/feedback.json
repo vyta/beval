@@ -1,0 +1,32 @@
+[
+  {
+    "conversation_id": "product_manager_new_to_dt:run_method1_session:1",
+    "persona_id": "product_manager_new_to_dt",
+    "goal_id": "run_method1_session",
+    "actor_index": 1,
+    "satisfaction": 0.95,
+    "text": null,
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "product_manager_new_to_dt:recover_from_confusion:1",
+    "persona_id": "product_manager_new_to_dt",
+    "goal_id": "recover_from_confusion",
+    "actor_index": 1,
+    "satisfaction": 0.9,
+    "text": null,
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "team_lead_returning_user:transition_to_method2:1",
+    "persona_id": "team_lead_returning_user",
+    "goal_id": "transition_to_method2",
+    "actor_index": 1,
+    "satisfaction": 0.9,
+    "text": null,
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  }
+]

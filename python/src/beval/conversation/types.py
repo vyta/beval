@@ -10,6 +10,9 @@ from typing import Any
 
 from beval.types import Grade
 
+# Parsed then-clause: (criterion_string, args_tuple)
+ThenClause = tuple[str, tuple[Any, ...]]
+
 
 @dataclass
 class PersonaTraits:
@@ -40,7 +43,7 @@ class GoalEval:
     """A when/then evaluation block (§15.4.1)."""
 
     when: str
-    then: list[str] = field(default_factory=list)
+    then: list[ThenClause] = field(default_factory=list)
 
 
 @dataclass
@@ -143,6 +146,7 @@ class ConversationRunSummary:
     mean_turns_to_goal: float | None
     metrics: dict[str, float]
     avg_satisfaction: float | None = None
+    run_passed: bool = True
 
 
 @dataclass

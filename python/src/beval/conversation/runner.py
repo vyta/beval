@@ -80,10 +80,23 @@ from beval.conversation.types import (
     GoalEval,
     Persona,
     PersonaTraits,
+    ThenClause,
 )
+from beval.loader import _parse_then_clause
 from beval.types import EvalContext, EvaluationMode, RunConfig
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_then_list(raw_thens: list[Any]) -> list[ThenClause]:
+    """Parse a list of then entries (strings or dicts) into ThenClause tuples."""
+    result: list[ThenClause] = []
+    for t in raw_thens:
+        if isinstance(t, dict):
+            result.append(_parse_then_clause(t))
+        else:
+            result.append((str(t), ()))
+    return result
 
 
 def load_personas_and_goals(
@@ -124,11 +137,11 @@ def load_personas_and_goals(
             evals_block = g.get("evals") or {}
             for ev in evals_block.get("query") or []:
                 query_evals.append(
-                    GoalEval(when=ev.get("when", ""), then=list(ev.get("then") or []))
+                    GoalEval(when=ev.get("when", ""), then=_parse_then_list(ev.get("then") or []))
                 )
             for ev in evals_block.get("conversation") or []:
                 conversation_evals.append(
-                    GoalEval(when=ev.get("when", ""), then=list(ev.get("then") or []))
+                    GoalEval(when=ev.get("when", ""), then=_parse_then_list(ev.get("then") or []))
                 )
             goal_pool[goal_id] = Goal(
                 id=goal_id,
@@ -227,11 +240,11 @@ def load_criteria(
             conversation_evals: list[GoalEval] = []
             for ev in evals_block.get("query") or []:
                 query_evals.append(
-                    GoalEval(when=ev.get("when", ""), then=list(ev.get("then") or []))
+                    GoalEval(when=ev.get("when", ""), then=_parse_then_list(ev.get("then") or []))
                 )
             for ev in evals_block.get("conversation") or []:
                 conversation_evals.append(
-                    GoalEval(when=ev.get("when", ""), then=list(ev.get("then") or []))
+                    GoalEval(when=ev.get("when", ""), then=_parse_then_list(ev.get("then") or []))
                 )
             criteria_list.append(EvaluationCriteria(
                 id=c["id"],
@@ -542,6 +555,20 @@ def _build_summary(
     sat_scores = [r.feedback.satisfaction for r in results if r.feedback is not None]
     avg_satisfaction = statistics.mean(sat_scores) if sat_scores else None
 
+    # Overall run pass/fail
+    if total > 0:
+        rate = passed / total
+        run_passed = rate >= config.run_pass_rate
+        if (
+            run_passed
+            and config.min_satisfaction is not None
+            and avg_satisfaction is not None
+            and avg_satisfaction < config.min_satisfaction
+        ):
+            run_passed = False
+    else:
+        run_passed = True
+
     return ConversationRunSummary(
         overall_score=overall_score,
         goal_achievement_rate=goal_achievement_rate,
@@ -554,6 +581,7 @@ def _build_summary(
         mean_turns_to_goal=mean_turns_to_goal,
         metrics=metrics,
         avg_satisfaction=avg_satisfaction,
+        run_passed=run_passed,
     )
 
 

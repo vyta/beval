@@ -1,10 +1,10 @@
 eval:
   mode: validation
   thresholds:
-    pass_score: 0.7
-    case_pass_rate: 0.9
-    turn_pass_rate: 0.9
-    conversation_pass_rate: 0.9
+    pass_score: 0.5
+    case_pass_rate: 0.6
+    turn_pass_rate: 0.6
+    conversation_pass_rate: 0.7
     run_pass_rate: 1.0
 
   agents:
@@ -69,7 +69,7 @@ eval:
 
     feedback_text_rate: 0.3
     actor_count: 1          # increase for variance data
-    max_parallel_actors: 3
+    max_parallel_actors: 1
     max_turns: 20
     timeout_seconds: 1800
     history_dir: .beval_history

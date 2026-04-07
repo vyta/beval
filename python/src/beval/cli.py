@@ -1413,9 +1413,24 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
     # Console summary
     s = result.summary
     if not args.quiet:
+        # Determine overall pass/fail (same logic as exit code below)
+        if s.total > 0:
+            rate = s.passed / s.total
+            run_passed = rate >= config.run_pass_rate
+            if (
+                run_passed
+                and config.min_satisfaction is not None
+                and s.avg_satisfaction is not None
+                and s.avg_satisfaction < config.min_satisfaction
+            ):
+                run_passed = False
+        else:
+            run_passed = True
+        verdict = "PASS" if run_passed else "FAIL"
+
         sat_str = f"  Sat: {s.avg_satisfaction:.2f}" if s.avg_satisfaction is not None else ""
         print(
-            f"\n  Score: {s.overall_score:.2f}  "
+            f"\n  {verdict}  Score: {s.overall_score:.2f}  "
             f"Goal rate: {s.goal_achievement_rate:.0%}  "
             f"Passed: {s.passed}/{s.total}  "
             f"Turns: {s.total_turns}"

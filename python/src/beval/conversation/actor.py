@@ -251,8 +251,8 @@ async def run_actor(
                     stage_name=ev.when,
                     prior_subject=turn_subject.prior_subject,
                 )
-                for criterion in ev.then:
-                    grade = resolve_grade(criterion, [], stage_subject, context)
+                for criterion, args in ev.then:
+                    grade = resolve_grade(criterion, list(args), stage_subject, context)
                     grades.append(Grade(
                         criterion=grade.criterion,
                         score=grade.score,
@@ -345,8 +345,8 @@ async def run_actor(
                 stage=stage_idx,
                 stage_name=ev.when,
             )
-            for criterion in ev.then:
-                grade = resolve_grade(criterion, [], stage_subject, context)
+            for criterion, args in ev.then:
+                grade = resolve_grade(criterion, list(args), stage_subject, context)
                 conv_grades.append(Grade(
                     criterion=grade.criterion,
                     score=grade.score,
@@ -392,7 +392,8 @@ async def run_actor(
         else:
             c_rate = 1.0
         passed = (
-            t_rate >= context.config.turn_pass_rate
+            goal_achieved
+            and t_rate >= context.config.turn_pass_rate
             and c_rate >= context.config.conversation_pass_rate
         )
 
@@ -407,6 +408,15 @@ async def run_actor(
             )
         except Exception:  # noqa: BLE001
             logger.warning("Feedback generation failed for %s", actor_id)
+
+    # Enforce min_satisfaction threshold per conversation
+    if (
+        passed
+        and context.config.min_satisfaction is not None
+        and feedback is not None
+        and feedback.satisfaction < context.config.min_satisfaction
+    ):
+        passed = False
 
     return ConversationResult(
         id=actor_id,

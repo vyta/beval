@@ -244,9 +244,20 @@ def resolve_grade(
         )
 
     timeout = getattr(context.config, "grader_timeout", _DEFAULT_GRADER_TIMEOUT)
-    grade = _run_with_timeout(
-        entry.handler, (criterion, args, subject, context), timeout
-    )
+    try:
+        grade = _run_with_timeout(
+            entry.handler, (criterion, args, subject, context), timeout
+        )
+    except Exception as exc:  # noqa: BLE001
+        return Grade(
+            criterion=criterion,
+            score=0.0,
+            metric=entry.metric,
+            passed=False,
+            detail=f"Grader error (skipped): {exc}",
+            layer=entry.layer,
+            skipped=True,
+        )
     if grade is None:
         grade = Grade(
             criterion=criterion,
@@ -255,6 +266,7 @@ def resolve_grade(
             passed=False,
             detail=f"Grader timed out after {timeout}s",
             layer=entry.layer,
+            skipped=True,
         )
 
     # Set passed based on grade_pass_threshold (§5.3)

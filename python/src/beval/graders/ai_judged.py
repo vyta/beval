@@ -13,29 +13,14 @@ from beval.types import EvalContext, Grade, GraderLayer, Subject
 
 
 @grader("the answer should", layer=GraderLayer.AI_JUDGED)
-def _answer_should_be_grader(
-    criterion: str,
-    args: list[Any],
-    subject: Subject,
-    context: EvalContext,
-) -> Grade:
-    """Delegate 'the answer should be/mention' to the LLM judge."""
-    judge = context.llm_judge or NullJudge()
-    return judge.evaluate(
-        criterion=criterion,
-        subject_answer=subject.answer,
-        context={"input": subject.input},
-    )
-
-
 @grader("the conversation should", layer=GraderLayer.AI_JUDGED)
-def _conversation_should_grader(
+def _ai_judged_grader(
     criterion: str,
     args: list[Any],
     subject: Subject,
     context: EvalContext,
 ) -> Grade:
-    """Delegate 'the conversation should be/demonstrate' to the LLM judge."""
+    """Delegate 'the answer/conversation should ...' to the LLM judge."""
     judge = context.llm_judge or NullJudge()
     return judge.evaluate(
         criterion=criterion,

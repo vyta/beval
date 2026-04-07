@@ -77,6 +77,7 @@ def _response_not_contains_grader(
 
 
 @grader("response length should be", layer=GraderLayer.DETERMINISTIC)
+@grader("conversation length should be", layer=GraderLayer.DETERMINISTIC)
 def _response_length_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:

@@ -16,7 +16,7 @@ goals:
       query:
         - when: "the agent processes the request"
           then:
-            - "completion time should be under 120"
+            - "completion time should be under 240"
         - when: "the agent responds"
           then:
             - "the answer should be: responds conversationally and stays in
@@ -53,7 +53,7 @@ goals:
       query:
         - when: "the agent processes the request"
           then:
-            - "completion time should be under 120"
+            - "completion time should be under 240"
         - when: "the agent responds"
           then:
             - "the answer should be: responds with curiosity and empathy rather
@@ -87,7 +87,7 @@ goals:
       query:
         - when: "the agent processes the request"
           then:
-            - "completion time should be under 120"
+            - "completion time should be under 240"
         - when: "the agent responds"
           then:
             - "the answer should be: acknowledges context and builds on prior

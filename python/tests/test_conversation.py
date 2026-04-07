@@ -892,7 +892,7 @@ class TestNoEvalsPassRule:
         assert result.overall_score == 1.0
         assert result.passed is True
 
-    def test_no_evals_passes_on_max_turns(self):
+    def test_no_evals_fails_on_max_turns(self):
         persona = make_persona()
         goal = make_goal(query_evals=[], conversation_evals=[])
         sim = MockSimulator([
@@ -901,7 +901,7 @@ class TestNoEvalsPassRule:
         result = self._run(persona, goal, sim, max_turns=3)
         assert result.termination_reason == "terminated_max_turns"
         assert result.overall_score == 1.0
-        assert result.passed is True
+        assert result.passed is False
 
     def test_no_evals_fails_on_agent_error(self):
         persona = make_persona()

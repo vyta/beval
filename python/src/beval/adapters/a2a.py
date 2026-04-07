@@ -171,8 +171,9 @@ class A2AAdapter(AdapterInterface):
                 client_config=config,
             )
 
-            from a2a.types import Part, TextPart
             from uuid import uuid4
+
+            from a2a.types import Part, TextPart
 
             message = Message(
                 role=Role.user,

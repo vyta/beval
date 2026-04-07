@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING, Any
 
 import yaml
 
-
 # ── ACP SDK noise suppression ─────────────────────────────────────────────────
 
 class _SuppressACPTaskDestroyed(logging.Filter):
@@ -65,13 +64,13 @@ def _install_acp_noise_filters() -> None:
 if TYPE_CHECKING:
     from beval.conversation.dashboard import _LiveDashboard
 
-from beval.adapters import create_adapter
-from beval.conversation.actor import run_actor
-from beval.conversation.simulator import (
+from beval.adapters import create_adapter  # noqa: E402
+from beval.conversation.actor import run_actor  # noqa: E402
+from beval.conversation.simulator import (  # noqa: E402
     UserSimulatorInterface,
     load_simulator_from_config,
 )
-from beval.conversation.types import (
+from beval.conversation.types import (  # noqa: E402
     ConversationResult,
     ConversationRunResult,
     ConversationRunSummary,
@@ -82,8 +81,8 @@ from beval.conversation.types import (
     PersonaTraits,
     ThenClause,
 )
-from beval.loader import _parse_then_clause
-from beval.types import EvalContext, EvaluationMode, RunConfig
+from beval.loader import _parse_then_clause  # noqa: E402
+from beval.types import EvalContext, EvaluationMode, RunConfig  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -137,11 +136,21 @@ def load_personas_and_goals(
             evals_block = g.get("evals") or {}
             for ev in evals_block.get("query") or []:
                 query_evals.append(
-                    GoalEval(when=ev.get("when", ""), then=_parse_then_list(ev.get("then") or []))
+                    GoalEval(
+                        when=ev.get("when", ""),
+                        then=_parse_then_list(
+                            ev.get("then") or []
+                        ),
+                    )
                 )
             for ev in evals_block.get("conversation") or []:
                 conversation_evals.append(
-                    GoalEval(when=ev.get("when", ""), then=_parse_then_list(ev.get("then") or []))
+                    GoalEval(
+                        when=ev.get("when", ""),
+                        then=_parse_then_list(
+                            ev.get("then") or []
+                        ),
+                    )
                 )
             goal_pool[goal_id] = Goal(
                 id=goal_id,
@@ -240,11 +249,21 @@ def load_criteria(
             conversation_evals: list[GoalEval] = []
             for ev in evals_block.get("query") or []:
                 query_evals.append(
-                    GoalEval(when=ev.get("when", ""), then=_parse_then_list(ev.get("then") or []))
+                    GoalEval(
+                        when=ev.get("when", ""),
+                        then=_parse_then_list(
+                            ev.get("then") or []
+                        ),
+                    )
                 )
             for ev in evals_block.get("conversation") or []:
                 conversation_evals.append(
-                    GoalEval(when=ev.get("when", ""), then=_parse_then_list(ev.get("then") or []))
+                    GoalEval(
+                        when=ev.get("when", ""),
+                        then=_parse_then_list(
+                            ev.get("then") or []
+                        ),
+                    )
                 )
             criteria_list.append(EvaluationCriteria(
                 id=c["id"],
@@ -343,7 +362,7 @@ async def _run_all_actors(
     max_turns: int = 20,
     timeout_seconds: float = 600.0,
     feedback_text_rate: float = 0.0,
-    dashboard: "_LiveDashboard | None" = None,
+    dashboard: _LiveDashboard | None = None,
     transcript_dir: Path | None = None,
     feedback_path: Path | None = None,
 ) -> list[ConversationResult]:
@@ -369,7 +388,9 @@ async def _run_all_actors(
 
             safe_id = actor_id.replace(":", "_")
             transcript_path = (
-                transcript_dir / f"{safe_id}.json" if transcript_dir is not None else None
+                transcript_dir / f"{safe_id}.json"
+                if transcript_dir is not None
+                else None
             )
             turns_so_far: list[Any] = []
 
@@ -399,7 +420,11 @@ async def _run_all_actors(
                     dashboard.on_turn_start(persona.id, goal.id, turn)
                 else:
                     preview = query[:70].replace("\n", " ")
-                    print(f"    [{aid}] turn {turn}: {preview}", file=sys.stderr, flush=True)
+                    print(
+                        f"    [{aid}] turn {turn}: {preview}",
+                        file=sys.stderr,
+                        flush=True,
+                    )
                 # Write user message immediately — before agent responds
                 _write_transcript({
                     "id": actor_id,
@@ -509,7 +534,11 @@ async def _run_all_actors(
     loop = asyncio.get_running_loop()
     loop.set_exception_handler(lambda _l, _ctx: None)  # silence cleanup warnings
     for _ in range(5):
-        lingering = {t for t in asyncio.all_tasks() if t is not asyncio.current_task() and not t.done()}
+        lingering = {
+            t for t in asyncio.all_tasks()
+            if t is not asyncio.current_task()
+            and not t.done()
+        }
         if not lingering:
             break
         for t in lingering:
@@ -613,12 +642,14 @@ class ConversationRunner:
         label: str | None = None,
         persona_filter: str | None = None,
         goal_filter: str | None = None,
-        dashboard: "_LiveDashboard | None" = None,
+        dashboard: _LiveDashboard | None = None,
         transcript_dir: Path | None = None,
         feedback_path: Path | None = None,
     ) -> ConversationRunResult:
         """Load personas/goals, run all actors, return ConversationRunResult."""
-        personas, goal_pool = load_personas_and_goals(self._conv_config, self._config_dir)
+        personas, goal_pool = load_personas_and_goals(
+            self._conv_config, self._config_dir
+        )
         criteria = load_criteria(self._conv_config, self._config_dir)
         if criteria:
             _merge_criteria_into_goals(goal_pool, criteria)

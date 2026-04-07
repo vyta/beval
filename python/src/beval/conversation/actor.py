@@ -13,7 +13,6 @@ from collections.abc import Callable
 from typing import Any
 
 from beval.adapters import AdapterInput, AdapterInterface
-from beval.judge import _is_content_filter
 from beval.conversation.simulator import UserSimulatorInterface
 from beval.conversation.types import (
     ConversationResult,
@@ -23,6 +22,7 @@ from beval.conversation.types import (
     TurnResult,
 )
 from beval.graders import resolve_grade
+from beval.judge import _is_content_filter
 from beval.runner import _aggregate_grades, _metric_scores
 from beval.types import EvalContext, Grade, Subject
 
@@ -109,7 +109,7 @@ async def run_actor(
     max_turns: int = 20,
     timeout_seconds: float = 600.0,
     on_turn: Callable[[str, int, str], None] | None = None,
-    on_turn_complete: Callable[[str, "TurnResult"], None] | None = None,
+    on_turn_complete: Callable[[str, TurnResult], None] | None = None,
     feedback_text_rate: float = 0.0,
 ) -> ConversationResult:
     """Run a single actor: one persona pursuing one goal (§15.5.2).
@@ -142,7 +142,10 @@ async def run_actor(
             except Exception as exc:  # noqa: BLE001
                 if _is_content_filter(exc):
                     logger.info(
-                        "Content filter in %s turn %d, skipping turn", actor_id, turn_number
+                        "Content filter in %s turn %d,"
+                        " skipping turn",
+                        actor_id,
+                        turn_number,
                     )
                     continue
                 logger.warning(
@@ -225,8 +228,10 @@ async def run_actor(
 
             if _is_cancelled:
                 logger.warning(
-                    "Skipping grades for %s turn %d — agent returned cancelled/empty response",
-                    actor_id, turn_number,
+                    "Skipping grades for %s turn %d"
+                    " — agent returned cancelled/empty response",
+                    actor_id,
+                    turn_number,
                 )
                 query_eval_list: list[GoalEval] = []
                 dyn_then: tuple[str, ...] = ()
@@ -371,18 +376,26 @@ async def run_actor(
     all_metric_scores = _metric_scores(all_grades, context.config) if all_grades else {}
 
     # goal_achievement_score (§15.8.3)
-    goal_achievement_score = 1.0 if termination_reason == "goal_achieved" else last_progress  # noqa: E501
+    goal_achievement_score = (  # noqa: E501
+        1.0
+        if termination_reason == "goal_achieved"
+        else last_progress
+    )
 
     goal_achieved = termination_reason == "goal_achieved"
 
-    # Pass/fail: both turn pass rate and conversation grade pass rate must meet thresholds
+    # Pass/fail: both turn pass rate and conversation grade
+    # pass rate must meet thresholds
     if termination_reason in ("agent_error", "simulator_error"):
         passed = False
     else:
         # Turn pass rate
         turns_with_grades = [t for t in history if t.grades]
         if turns_with_grades:
-            t_rate = sum(1 for t in turns_with_grades if t.passed) / len(turns_with_grades)
+            t_rate = (
+                sum(1 for t in turns_with_grades if t.passed)
+                / len(turns_with_grades)
+            )
         else:
             t_rate = 1.0
         # Conversation grade pass rate

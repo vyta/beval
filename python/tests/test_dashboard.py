@@ -8,7 +8,6 @@ import pytest
 
 from beval.conversation.dashboard import _LiveDashboard, _PersonaGoalRow, _score_bar
 
-
 # ── _score_bar ────────────────────────────────────────────────────────────────
 
 

@@ -12,7 +12,7 @@ import threading
 from typing import TYPE_CHECKING, Any, TextIO
 
 if TYPE_CHECKING:
-    from beval.conversation.types import ConversationResult, TurnResult
+    pass
 
 
 _RED   = "\033[31m"
@@ -43,7 +43,7 @@ class _PersonaGoalRow:
     running: int = 0    # actors currently active
     score_sum: float = 0.0
     goals_achieved: int = 0
-    achievement_score_sum: float = 0.0  # sum of goal_achievement_score (1.0 if achieved, else last progress)
+    achievement_score_sum: float = 0.0  # sum of goal_achievement_score
     last_turn: int = 0     # highest turn seen across all running actors
     turns_sum: int = 0     # total turns across all completed actors
     running_progress_sum: float = 0.0  # sum of latest goal_progress for running actors
@@ -198,7 +198,10 @@ class _LiveDashboard:
             if row.avg_score is not None:
                 score_val = f"{_score_bar(row.avg_score, 8)} {row.avg_score:.2f}"
                 if completed:
-                    score_cell = _color(score_val, _GREEN if row.avg_score >= 0.7 else _RED)
+                    score_cell = _color(
+                        score_val,
+                        _GREEN if row.avg_score >= 0.7 else _RED,
+                    )
                 else:
                     score_cell = score_val
                 # Use goal_achievement_score avg (1.0=achieved, else last progress)
@@ -206,7 +209,11 @@ class _LiveDashboard:
                 avg_achievement = row.achievement_score_sum / row.done
                 goal_pct_val = f"{avg_achievement:.0%}"
                 if completed:
-                    goal_pct = _color(goal_pct_val, _GREEN if avg_achievement >= 1.0 else _RED)
+                    goal_pct = _color(
+                        goal_pct_val,
+                        _GREEN if avg_achievement >= 1.0
+                        else _RED,
+                    )
                 else:
                     goal_pct = goal_pct_val
             else:
@@ -215,8 +222,16 @@ class _LiveDashboard:
             # Show live goal progress for running actors (overrides done rate)
             if row.running > 0 and row.avg_running_progress is not None:
                 goal_pct = f"~{row.avg_running_progress:.0%}"
-            sat_cell = f"{row.avg_satisfaction:.2f}" if row.avg_satisfaction is not None else "--"
-            fail_cell = _color(f"{row.failed:>4}", _RED) if row.failed > 0 else f"{'0':>4}"
+            sat_cell = (
+                f"{row.avg_satisfaction:.2f}"
+                if row.avg_satisfaction is not None
+                else "--"
+            )
+            fail_cell = (
+                _color(f"{row.failed:>4}", _RED)
+                if row.failed > 0
+                else f"{'0':>4}"
+            )
             lines.append(
                 f"  {persona_short:<28}  {goal_short:<22}  {done_cell:>9}"
                 f"  {fail_cell}  {row.running:>4}  {turn_cell:>6}  {score_cell:<14}"

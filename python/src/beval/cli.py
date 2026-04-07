@@ -1274,7 +1274,11 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
         turn_pass_rate=float(thresholds.get("turn_pass_rate", 0.9)),
         conversation_pass_rate=float(thresholds.get("conversation_pass_rate", 0.9)),
         run_pass_rate=float(thresholds.get("run_pass_rate", 1.0)),
-        min_satisfaction=float(thresholds["min_satisfaction"]) if "min_satisfaction" in thresholds else None,
+        min_satisfaction=(
+            float(thresholds["min_satisfaction"])
+            if "min_satisfaction" in thresholds
+            else None
+        ),
     )
 
     # ── Evaluation mode ───────────────────────────────────────────────────
@@ -1428,7 +1432,11 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
             run_passed = True
         verdict = "PASS" if run_passed else "FAIL"
 
-        sat_str = f"  Sat: {s.avg_satisfaction:.2f}" if s.avg_satisfaction is not None else ""
+        sat_str = (
+            f"  Sat: {s.avg_satisfaction:.2f}"
+            if s.avg_satisfaction is not None
+            else ""
+        )
         print(
             f"\n  {verdict}  Score: {s.overall_score:.2f}  "
             f"Goal rate: {s.goal_achievement_rate:.0%}  "
@@ -1443,7 +1451,11 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
         if failed_convs:
             print(f"\n  Failed conversations ({len(failed_convs)}):", file=sys.stderr)
             for conv in failed_convs:
-                print(f"\n    {conv.id}  (score={conv.overall_score:.2f}, {conv.termination_reason})", file=sys.stderr)
+                print(
+                    f"\n    {conv.id}  (score={conv.overall_score:.2f},"
+                    f" {conv.termination_reason})",
+                    file=sys.stderr,
+                )
                 # Turn-level failures
                 failed_turns = [t for t in conv.turns if t.grades and not t.passed]
                 if failed_turns:
@@ -1451,7 +1463,11 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
                         failing_grades = [g for g in t.grades if not g.passed]
                         for g in failing_grades:
                             crit = g.criterion[:72]
-                            print(f"      turn {t.turn_number}: {g.score:.2f} — {crit}", file=sys.stderr)
+                            print(
+                                f"      turn {t.turn_number}:"
+                                f" {g.score:.2f} — {crit}",
+                                file=sys.stderr,
+                            )
                 # Conversation-level failures
                 failing_conv_grades = [g for g in conv.grades if not g.passed]
                 for g in failing_conv_grades:

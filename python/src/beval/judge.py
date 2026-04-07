@@ -33,7 +33,7 @@ def _cancel_all_tasks(loop: asyncio.AbstractEventLoop) -> None:
         except Exception:  # noqa: BLE001, S110
             pass
 
-from beval.types import Grade, GraderLayer
+from beval.types import Grade, GraderLayer  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,8 @@ Agent response:
 ---
 
 Return a JSON object with exactly two fields:
-- "score": a decimal between 0.0 (does not meet criterion) and 1.0 (fully meets criterion)
+- "score": a decimal between 0.0 (does not meet criterion) \
+and 1.0 (fully meets criterion)
 - "reasoning": one or two sentences explaining the score
 
 Respond with JSON only.\
@@ -117,7 +118,9 @@ def _content_filter_reason(exc: Exception) -> str:
     """Extract which filter was triggered (e.g. 'jailbreak')."""
     msg = str(exc)
     for label in ("jailbreak", "hate", "violence", "self_harm", "sexual"):
-        if f"'{label}': {{'filtered': True" in msg or f"'{label}': {{'filtered': true" in msg:
+        pattern_true = f"'{label}': {{'filtered': True"
+        pattern_lower = f"'{label}': {{'filtered': true"
+        if pattern_true in msg or pattern_lower in msg:
             return label
     return "unknown"
 
@@ -357,7 +360,9 @@ class LLMJudge(Judge):
                         break
                 clean_url = f"{parsed.scheme}://{parsed.netloc}{path}"
                 scope = "https://ai.azure.com/.default"
-                token_provider = get_bearer_token_provider(DefaultAzureCredential(), scope)
+                token_provider = get_bearer_token_provider(
+                    DefaultAzureCredential(), scope
+                )
                 return openai_cls(
                     api_key="placeholder",  # required by OpenAI SDK but unused
                     base_url=clean_url,
@@ -483,18 +488,25 @@ class LLMJudge(Judge):
                     {"role": "system", "content": _JUDGE_SYSTEM_PROMPT},
                     {"role": "user", "content": user_msg},
                 ],
-                max_completion_tokens=4096,  # reasoning models use tokens for thinking before output
+                # reasoning models use tokens for thinking
+                max_completion_tokens=4096,
             )
             raw = response.choices[0].message.content or ""
         except Exception as exc:
             if _is_content_filter(exc):
-                logger.info("Judge content-filtered for: %s", criterion[:80])
+                logger.info(
+                    "Judge content-filtered for: %s",
+                    criterion[:80],
+                )
                 return Grade(
                     criterion=criterion,
                     score=0.0,
                     metric="quality",
                     passed=False,
-                    detail=f"Skipped: content filter triggered ({_content_filter_reason(exc)})",
+                    detail=(
+                        "Skipped: content filter triggered"
+                        f" ({_content_filter_reason(exc)})"
+                    ),
                     layer=GraderLayer.AI_JUDGED,
                     skipped=True,
                 )
@@ -605,13 +617,19 @@ class ACPJudge(Judge):
             raw = self._evaluate_sync(prompt)
         except Exception as exc:
             if _is_content_filter(exc):
-                logger.info("ACP judge content-filtered for: %s", criterion[:80])
+                logger.info(
+                    "ACP judge content-filtered for: %s",
+                    criterion[:80],
+                )
                 return Grade(
                     criterion=criterion,
                     score=0.0,
                     metric="quality",
                     passed=False,
-                    detail=f"Skipped: content filter triggered ({_content_filter_reason(exc)})",
+                    detail=(
+                        "Skipped: content filter triggered"
+                        f" ({_content_filter_reason(exc)})"
+                    ),
                     layer=GraderLayer.AI_JUDGED,
                     skipped=True,
                 )

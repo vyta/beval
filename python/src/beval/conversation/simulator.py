@@ -11,7 +11,13 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any
 
-from beval.conversation.types import DynamicCase, Goal, Persona, TurnResult, UserFeedback
+from beval.conversation.types import (
+    DynamicCase,
+    Goal,
+    Persona,
+    TurnResult,
+    UserFeedback,
+)
 from beval.types import EvalContext
 
 logger = logging.getLogger(__name__)

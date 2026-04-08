@@ -1460,9 +1460,12 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
         if failed_convs:
             print(f"\n  Failed conversations ({len(failed_convs)}):", file=sys.stderr)
             for conv in failed_convs:
+                sat_str = ""
+                if conv.feedback is not None:
+                    sat_str = f", satisfaction={conv.feedback.satisfaction:.2f}"
                 print(
                     f"\n    {conv.id}  (score={conv.overall_score:.2f},"
-                    f" {conv.termination_reason})",
+                    f" {conv.termination_reason}{sat_str})",
                     file=sys.stderr,
                 )
                 # Turn-level failures

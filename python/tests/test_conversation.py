@@ -67,6 +67,30 @@ def make_context() -> EvalContext:
     )
 
 
+def make_conversation_result(**kwargs: Any) -> ConversationResult:
+    defaults: dict[str, Any] = dict(
+        id="p:g:1",
+        name="p → g (actor 1)",
+        category="p/g",
+        persona_id="p",
+        goal_id="g",
+        actor_index=1,
+        overall_score=1.0,
+        goal_achievement_score=1.0,
+        passed=True,
+        goal_achieved=True,
+        termination_reason="goal_achieved",
+        turn_count=3,
+        time_seconds=5.0,
+        metric_scores={},
+        error=None,
+        turns=[],
+        grades=[],
+    )
+    defaults.update(kwargs)
+    return ConversationResult(**defaults)
+
+
 # ── _parse_dynamic_case ───────────────────────────────────────────────────
 
 
@@ -224,32 +248,42 @@ class MockAdapter:
         pass
 
 
-class TestRunActor:
-    def _run(
-        self,
-        persona,
-        goal,
-        simulator,
-        adapter=None,
-        context=None,
-        max_turns=5,
-    ):
-        if adapter is None:
-            adapter = MockAdapter()
-        if context is None:
-            context = make_context()
-        return asyncio.run(
-            run_actor(
-                persona,
-                goal,
-                1,
-                adapter,
-                simulator,
-                context,
-                max_turns=max_turns,
-            )
-        )
+class ErrorSim:
+    """Simulator that always raises RuntimeError."""
 
+    async def generate_case(self, *a, **kw):
+        raise RuntimeError("sim failed")
+
+    async def close(self):
+        pass
+
+
+class ErrorAdapter:
+    """Adapter that always raises RuntimeError."""
+
+    def invoke(self, *a, **kw):
+        raise RuntimeError("agent failed")
+
+    def close(self):
+        pass
+
+
+def _run_actor_sync(
+    persona=None, *, goal, simulator, adapter=None, context=None, max_turns=5
+):
+    """Shared helper to run a single actor synchronously."""
+    if persona is None:
+        persona = make_persona()
+    if adapter is None:
+        adapter = MockAdapter()
+    if context is None:
+        context = make_context()
+    return asyncio.run(
+        run_actor(persona, goal, 1, adapter, simulator, context, max_turns=max_turns)
+    )
+
+
+class TestRunActor:
     def test_goal_achieved_on_progress_1(self):
         persona = make_persona()
         goal = make_goal()
@@ -259,7 +293,7 @@ class TestRunActor:
                 DynamicCase(query="", then=(), progress=1.0),
             ]
         )
-        result = self._run(persona, goal, sim)
+        result = _run_actor_sync(persona, goal=goal, simulator=sim)
         assert result.goal_achieved is True
         assert result.termination_reason == "goal_achieved"
         assert result.turn_count == 1  # 1 turn sent, then goal achieved
@@ -271,7 +305,7 @@ class TestRunActor:
         sim = MockSimulator(
             [DynamicCase(query=f"turn {i}", then=(), progress=0.0) for i in range(5)]
         )
-        result = self._run(persona, goal, sim, max_turns=3)
+        result = _run_actor_sync(persona, goal=goal, simulator=sim, max_turns=3)
         assert result.termination_reason == "terminated_max_turns"
         assert result.turn_count == 3
 
@@ -279,14 +313,7 @@ class TestRunActor:
         persona = make_persona()
         goal = make_goal()
 
-        class ErrorSim:
-            async def generate_case(self, *a, **kw):
-                raise RuntimeError("LLM API failed")
-
-            async def close(self):
-                pass
-
-        result = self._run(persona, goal, ErrorSim())
+        result = _run_actor_sync(persona, goal=goal, simulator=ErrorSim())
         assert result.termination_reason == "simulator_error"
         assert result.error is not None
         # Actor records an error TurnResult for the failed turn (§15.5.2)
@@ -298,14 +325,9 @@ class TestRunActor:
         goal = make_goal()
         sim = MockSimulator([DynamicCase(query="Hello", then=(), progress=0.5)])
 
-        class ErrorAdapter:
-            def invoke(self, *a, **kw):
-                raise RuntimeError("Agent offline")
-
-            def close(self):
-                pass
-
-        result = self._run(persona, goal, sim, adapter=ErrorAdapter())
+        result = _run_actor_sync(
+            persona, goal=goal, simulator=sim, adapter=ErrorAdapter()
+        )
         assert result.termination_reason == "agent_error"
         assert result.turn_count == 1
         assert result.turns[0].error is not None
@@ -314,7 +336,7 @@ class TestRunActor:
         persona = make_persona()
         goal = make_goal()
         sim = MockSimulator([DynamicCase(query="", then=(), progress=1.0)])
-        result = self._run(persona, goal, sim)
+        result = _run_actor_sync(persona, goal=goal, simulator=sim)
         assert result.id == "test_user:test_goal:1"
         assert result.persona_id == "test_user"
         assert result.goal_id == "test_goal"
@@ -330,7 +352,7 @@ class TestRunActor:
                 DynamicCase(query="More", then=(), progress=0.7),
             ]
         )
-        result = self._run(persona, goal, sim, max_turns=2)
+        result = _run_actor_sync(persona, goal=goal, simulator=sim, max_turns=2)
         assert result.termination_reason == "terminated_max_turns"
         assert result.goal_achievement_score == pytest.approx(0.7)
 
@@ -338,7 +360,7 @@ class TestRunActor:
         persona = make_persona()
         goal = make_goal()
         sim = MockSimulator([DynamicCase(query="", then=(), progress=1.0)])
-        result = self._run(persona, goal, sim)
+        result = _run_actor_sync(persona, goal=goal, simulator=sim)
         assert result.goal_achievement_score == pytest.approx(1.0)
 
 
@@ -376,47 +398,24 @@ class TestBuildConversations:
 
 
 class TestBuildSummary:
-    def _make_result(self, **kwargs: Any) -> ConversationResult:
-        defaults: dict[str, Any] = dict(
-            id="p:g:1",
-            name="p → g (actor 1)",
-            category="p/g",
-            persona_id="p",
-            goal_id="g",
-            actor_index=1,
-            overall_score=1.0,
-            goal_achievement_score=1.0,
-            passed=True,
-            goal_achieved=True,
-            termination_reason="goal_achieved",
-            turn_count=3,
-            time_seconds=5.0,
-            metric_scores={},
-            error=None,
-            turns=[],
-            grades=[],
-        )
-        defaults.update(kwargs)
-        return ConversationResult(**defaults)
-
     def test_counts(self):
         results = [
-            self._make_result(
+            make_conversation_result(
                 passed=True,
                 goal_achieved=True,
                 termination_reason="goal_achieved",
             ),
-            self._make_result(
+            make_conversation_result(
                 passed=False,
                 goal_achieved=False,
                 termination_reason="terminated_max_turns",
             ),
-            self._make_result(
+            make_conversation_result(
                 passed=False,
                 goal_achieved=False,
                 termination_reason="agent_error",
             ),
-            self._make_result(
+            make_conversation_result(
                 passed=False,
                 goal_achieved=False,
                 termination_reason="cancelled",
@@ -431,9 +430,9 @@ class TestBuildSummary:
 
     def test_goal_achievement_rate(self):
         results = [
-            self._make_result(goal_achieved=True),
-            self._make_result(goal_achieved=True),
-            self._make_result(
+            make_conversation_result(goal_achieved=True),
+            make_conversation_result(goal_achieved=True),
+            make_conversation_result(
                 goal_achieved=False,
                 termination_reason="terminated_max_turns",
                 passed=False,
@@ -444,15 +443,15 @@ class TestBuildSummary:
 
     def test_mean_turns_to_goal(self):
         results = [
-            self._make_result(goal_achieved=True, turn_count=2),
-            self._make_result(goal_achieved=True, turn_count=4),
+            make_conversation_result(goal_achieved=True, turn_count=2),
+            make_conversation_result(goal_achieved=True, turn_count=4),
         ]
         summary = _build_summary(results, RunConfig())
         assert summary.mean_turns_to_goal == pytest.approx(3.0)
 
     def test_mean_turns_to_goal_none_when_none_achieved(self):
         results = [
-            self._make_result(
+            make_conversation_result(
                 goal_achieved=False,
                 termination_reason="terminated_max_turns",
                 passed=False,
@@ -463,8 +462,8 @@ class TestBuildSummary:
 
     def test_total_turns(self):
         results = [
-            self._make_result(turn_count=3),
-            self._make_result(turn_count=7),
+            make_conversation_result(turn_count=3),
+            make_conversation_result(turn_count=7),
         ]
         summary = _build_summary(results, RunConfig())
         assert summary.total_turns == 10
@@ -652,13 +651,6 @@ class TestOnTurnComplete:
         persona = make_persona()
         goal = make_goal()
 
-        class ErrorSim:
-            async def generate_case(self, *a, **kw):
-                raise RuntimeError("sim failed")
-
-            async def close(self):
-                pass
-
         _, calls = self._run_with_callback(persona, goal, ErrorSim())
         assert calls == []
 
@@ -666,13 +658,6 @@ class TestOnTurnComplete:
         persona = make_persona()
         goal = make_goal()
         sim = MockSimulator([DynamicCase(query="hi", then=(), progress=0.5)])
-
-        class ErrorAdapter:
-            def invoke(self, *a, **kw):
-                raise RuntimeError("agent failed")
-
-            def close(self):
-                pass
 
         _, calls = self._run_with_callback(persona, goal, sim, adapter=ErrorAdapter())
         assert calls == []
@@ -994,23 +979,6 @@ criteria:
 
 
 class TestNoEvalsPassRule:
-    def _run(self, persona, goal, simulator, adapter=None, context=None, max_turns=5):
-        if adapter is None:
-            adapter = MockAdapter()
-        if context is None:
-            context = make_context()
-        return asyncio.run(
-            run_actor(
-                persona,
-                goal,
-                1,
-                adapter,
-                simulator,
-                context,
-                max_turns=max_turns,
-            )
-        )
-
     def test_no_evals_passes_on_goal_achieved(self):
         persona = make_persona()
         goal = make_goal(query_evals=[], conversation_evals=[])
@@ -1020,7 +988,7 @@ class TestNoEvalsPassRule:
                 DynamicCase(query="", then=(), progress=1.0),
             ]
         )
-        result = self._run(persona, goal, sim)
+        result = _run_actor_sync(persona, goal=goal, simulator=sim)
         assert result.goal_achieved is True
         assert result.overall_score == 1.0
         assert result.passed is True
@@ -1031,7 +999,7 @@ class TestNoEvalsPassRule:
         sim = MockSimulator(
             [DynamicCase(query=f"turn {i}", then=(), progress=0.0) for i in range(3)]
         )
-        result = self._run(persona, goal, sim, max_turns=3)
+        result = _run_actor_sync(persona, goal=goal, simulator=sim, max_turns=3)
         assert result.termination_reason == "terminated_max_turns"
         assert result.overall_score == 1.0
         assert result.passed is False
@@ -1041,14 +1009,9 @@ class TestNoEvalsPassRule:
         goal = make_goal(query_evals=[], conversation_evals=[])
         sim = MockSimulator([DynamicCase(query="hi", then=(), progress=0.5)])
 
-        class ErrorAdapter:
-            def invoke(self, *a, **kw):
-                raise RuntimeError("Agent offline")
-
-            def close(self):
-                pass
-
-        result = self._run(persona, goal, sim, adapter=ErrorAdapter())
+        result = _run_actor_sync(
+            persona, goal=goal, simulator=sim, adapter=ErrorAdapter()
+        )
         assert result.termination_reason == "agent_error"
         assert result.overall_score == 0.0
         assert result.passed is False
@@ -1057,14 +1020,7 @@ class TestNoEvalsPassRule:
         persona = make_persona()
         goal = make_goal(query_evals=[], conversation_evals=[])
 
-        class ErrorSim:
-            async def generate_case(self, *a, **kw):
-                raise RuntimeError("Sim failed")
-
-            async def close(self):
-                pass
-
-        result = self._run(persona, goal, ErrorSim())
+        result = _run_actor_sync(persona, goal=goal, simulator=ErrorSim())
         assert result.termination_reason == "simulator_error"
         assert result.overall_score == 0.0
         assert result.passed is False
@@ -1090,12 +1046,10 @@ class TestThresholdModel:
         return EvalContext(mode=EvaluationMode.DEV, config=RunConfig(**kw))
 
     def _run(self, goal, sim, context=None, max_turns=5):
-        persona = make_persona()
-        adapter = MockAdapter()
         if context is None:
             context = self._make_context()
-        return asyncio.run(
-            run_actor(persona, goal, 1, adapter, sim, context, max_turns=max_turns)
+        return _run_actor_sync(
+            goal=goal, simulator=sim, context=context, max_turns=max_turns
         )
 
     def test_turn_passes_when_all_grades_pass(self):
@@ -1174,13 +1128,6 @@ class TestThresholdModel:
     def test_error_turn_has_passed_false(self):
         goal = make_goal()
         sim = MockSimulator([DynamicCase(query="hi", then=(), progress=0.5)])
-
-        class ErrorAdapter:
-            def invoke(self, *a, **kw):
-                raise RuntimeError("fail")
-
-            def close(self):
-                pass
 
         persona = make_persona()
         ctx = self._make_context()
@@ -1324,99 +1271,23 @@ class TestActorFeedback:
 
 
 class TestSummaryFeedback:
-    def _make_result(self, satisfaction=None, **kwargs):
-        defaults = dict(
-            id="p:g:1",
-            name="p → g (actor 1)",
-            category="p/g",
-            persona_id="p",
-            goal_id="g",
-            actor_index=1,
-            overall_score=1.0,
-            goal_achievement_score=1.0,
-            passed=True,
-            goal_achieved=True,
-            termination_reason="goal_achieved",
-            turn_count=3,
-            time_seconds=5.0,
-            metric_scores={},
-            error=None,
-            turns=[],
-            grades=[],
-        )
-        if satisfaction is not None:
-            defaults["feedback"] = UserFeedback(satisfaction=satisfaction)
-        defaults.update(kwargs)
-        return ConversationResult(**defaults)
-
     def test_avg_satisfaction_computed(self):
         results = [
-            self._make_result(satisfaction=0.8),
-            self._make_result(satisfaction=0.6),
+            make_conversation_result(feedback=UserFeedback(satisfaction=0.8)),
+            make_conversation_result(feedback=UserFeedback(satisfaction=0.6)),
         ]
         summary = _build_summary(results, RunConfig())
         assert summary.avg_satisfaction == pytest.approx(0.7)
 
     def test_avg_satisfaction_none_when_no_feedback(self):
-        results = [self._make_result()]
+        results = [make_conversation_result()]
         summary = _build_summary(results, RunConfig())
         assert summary.avg_satisfaction is None
 
     def test_avg_satisfaction_ignores_no_feedback(self):
         results = [
-            self._make_result(satisfaction=0.9),
-            self._make_result(),  # no feedback
+            make_conversation_result(feedback=UserFeedback(satisfaction=0.9)),
+            make_conversation_result(),  # no feedback
         ]
         summary = _build_summary(results, RunConfig())
         assert summary.avg_satisfaction == pytest.approx(0.9)
-
-
-class TestDashboardSatisfaction:
-    def test_satisfaction_accumulated(self):
-        import io
-
-        from beval.conversation.dashboard import _LiveDashboard
-
-        stream = io.StringIO()
-        dash = _LiveDashboard(
-            [("p1", "g1", 2, 10)],
-            stream=stream,
-        )
-        dash.on_actor_start("p1", "g1")
-
-        # Simulate actor completion with feedback
-        class FakeResult:
-            overall_score = 0.8
-            goal_achievement_score = 0.8
-            goal_achieved = False
-            turn_count = 3
-            feedback = UserFeedback(satisfaction=0.75)
-
-        dash.on_actor_complete("p1", "g1", FakeResult())
-        row = dash._rows[("p1", "g1")]
-        assert row.satisfaction_sum == pytest.approx(0.75)
-        assert row.satisfaction_count == 1
-        assert row.avg_satisfaction == pytest.approx(0.75)
-
-    def test_no_feedback_no_accumulation(self):
-        import io
-
-        from beval.conversation.dashboard import _LiveDashboard
-
-        stream = io.StringIO()
-        dash = _LiveDashboard(
-            [("p1", "g1", 1, 10)],
-            stream=stream,
-        )
-
-        class FakeResult:
-            overall_score = 0.8
-            goal_achievement_score = 0.8
-            goal_achieved = False
-            turn_count = 3
-            feedback = None
-
-        dash.on_actor_complete("p1", "g1", FakeResult())
-        row = dash._rows[("p1", "g1")]
-        assert row.satisfaction_count == 0
-        assert row.avg_satisfaction is None

@@ -106,6 +106,29 @@ def _parse_then_list(raw_thens: list[Any]) -> list[ThenClause]:
     return result
 
 
+def _parse_evals_block(
+    evals_block: dict[str, Any],
+) -> tuple[list[GoalEval], list[GoalEval]]:
+    """Parse query and conversation evals from a raw evals block."""
+    query_evals: list[GoalEval] = []
+    conversation_evals: list[GoalEval] = []
+    for ev in evals_block.get("query") or []:
+        query_evals.append(
+            GoalEval(
+                when=ev.get("when", ""),
+                then=_parse_then_list(ev.get("then") or []),
+            )
+        )
+    for ev in evals_block.get("conversation") or []:
+        conversation_evals.append(
+            GoalEval(
+                when=ev.get("when", ""),
+                then=_parse_then_list(ev.get("then") or []),
+            )
+        )
+    return query_evals, conversation_evals
+
+
 def load_personas_and_goals(
     conv_config: dict[str, Any],
     config_dir: Path | None = None,
@@ -139,23 +162,8 @@ def load_personas_and_goals(
             if goal_id in goal_pool:
                 logger.warning("Duplicate goal id '%s'; last definition wins.", goal_id)
             objective = g.get("objective", "")
-            query_evals: list[GoalEval] = []
-            conversation_evals: list[GoalEval] = []
             evals_block = g.get("evals") or {}
-            for ev in evals_block.get("query") or []:
-                query_evals.append(
-                    GoalEval(
-                        when=ev.get("when", ""),
-                        then=_parse_then_list(ev.get("then") or []),
-                    )
-                )
-            for ev in evals_block.get("conversation") or []:
-                conversation_evals.append(
-                    GoalEval(
-                        when=ev.get("when", ""),
-                        then=_parse_then_list(ev.get("then") or []),
-                    )
-                )
+            query_evals, conversation_evals = _parse_evals_block(evals_block)
             goal_pool[goal_id] = Goal(
                 id=goal_id,
                 name=g["name"],
@@ -249,22 +257,7 @@ def load_criteria(
 
         for c in raw_criteria:
             evals_block = c.get("evals") or {}
-            query_evals: list[GoalEval] = []
-            conversation_evals: list[GoalEval] = []
-            for ev in evals_block.get("query") or []:
-                query_evals.append(
-                    GoalEval(
-                        when=ev.get("when", ""),
-                        then=_parse_then_list(ev.get("then") or []),
-                    )
-                )
-            for ev in evals_block.get("conversation") or []:
-                conversation_evals.append(
-                    GoalEval(
-                        when=ev.get("when", ""),
-                        then=_parse_then_list(ev.get("then") or []),
-                    )
-                )
+            query_evals, conversation_evals = _parse_evals_block(evals_block)
             criteria_list.append(
                 EvaluationCriteria(
                     id=c["id"],
@@ -348,7 +341,7 @@ def _make_cancelled_result(
 def _to_dict(obj: Any) -> Any:
     """Recursively convert dataclasses and collections to JSON-serializable dicts."""
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
-        return {k: _to_dict(v) for k, v in dataclasses.asdict(obj).items()}
+        return dataclasses.asdict(obj)
     if isinstance(obj, dict):
         return {k: _to_dict(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple)):

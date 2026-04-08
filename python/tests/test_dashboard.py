@@ -102,11 +102,18 @@ def test_on_actor_start_triggers_render():
 
 
 class _FakeResult:
-    def __init__(self, overall_score: float, goal_achieved: bool, turn_count: int = 3):
+    def __init__(
+        self,
+        overall_score: float,
+        goal_achieved: bool,
+        turn_count: int = 3,
+        feedback: object = None,
+    ):
         self.overall_score = overall_score
         self.goal_achieved = goal_achieved
         self.turn_count = turn_count
         self.goal_achievement_score = 1.0 if goal_achieved else overall_score
+        self.feedback = feedback
 
 
 def test_on_actor_complete_decrements_running():
@@ -194,3 +201,28 @@ def test_unknown_key_ignored():
     db, _ = _make_dashboard(1)
     db.on_actor_start("no_such_persona", "no_such_goal")  # should not raise
     db.on_actor_complete("no_such_persona", "no_such_goal", _FakeResult(0.5, False))
+
+
+# ── Satisfaction tracking ────────────────────────────────────────────────────
+
+
+def test_satisfaction_accumulated():
+    from beval.conversation.types import UserFeedback
+
+    db, _ = _make_dashboard(1)
+    db.on_actor_start("persona_0", "goal_0")
+    result = _FakeResult(0.8, False, feedback=UserFeedback(satisfaction=0.75))
+    db.on_actor_complete("persona_0", "goal_0", result)
+    row = db._rows[("persona_0", "goal_0")]
+    assert row.satisfaction_sum == pytest.approx(0.75)
+    assert row.satisfaction_count == 1
+    assert row.avg_satisfaction == pytest.approx(0.75)
+
+
+def test_no_feedback_no_accumulation():
+    db, _ = _make_dashboard(1)
+    result = _FakeResult(0.8, False, feedback=None)
+    db.on_actor_complete("persona_0", "goal_0", result)
+    row = db._rows[("persona_0", "goal_0")]
+    assert row.satisfaction_count == 0
+    assert row.avg_satisfaction is None

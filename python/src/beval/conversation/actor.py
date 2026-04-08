@@ -10,6 +10,7 @@ import logging
 import random
 import time
 from collections.abc import Callable
+from dataclasses import replace
 from typing import Any
 
 from beval.adapters import AdapterInput, AdapterInterface
@@ -27,6 +28,50 @@ from beval.runner import _aggregate_grades, _metric_scores
 from beval.types import EvalContext, Grade, Subject
 
 logger = logging.getLogger(__name__)
+
+
+def _grade_turn(
+    turn_subject: Subject,
+    query_evals: list[GoalEval],
+    dyn_then: tuple[str, ...],
+    context: EvalContext,
+) -> list[Grade]:
+    """Run per-turn multi-stage grading (§15.8.1)."""
+    grades: list[Grade] = []
+    stage_num = 0
+    for ev in query_evals:
+        stage_num += 1
+        stage_subject = replace(turn_subject, stage=stage_num, stage_name=ev.when)
+        for criterion, args in ev.then:
+            grade = resolve_grade(criterion, list(args), stage_subject, context)
+            grades.append(replace(grade, stage=stage_num, stage_name=ev.when))
+    # Dynamic criteria from simulator appended to last stage
+    if dyn_then:
+        if stage_num == 0:
+            stage_num = 1
+            dyn_stage_name = "dynamic"
+        else:
+            dyn_stage_name = query_evals[-1].when
+        dyn_subject = replace(turn_subject, stage=stage_num, stage_name=dyn_stage_name)
+        for criterion in dyn_then:
+            grade = resolve_grade(criterion, [], dyn_subject, context)
+            grades.append(replace(grade, stage=stage_num, stage_name=dyn_stage_name))
+    return grades
+
+
+def _grade_conversation(
+    conv_subject: Subject,
+    conversation_evals: list[GoalEval],
+    context: EvalContext,
+) -> list[Grade]:
+    """Run conversation-level grading (§15.8.2)."""
+    grades: list[Grade] = []
+    for stage_idx, ev in enumerate(conversation_evals, 1):
+        stage_subject = replace(conv_subject, stage=stage_idx, stage_name=ev.when)
+        for criterion, args in ev.then:
+            grade = resolve_grade(criterion, list(args), stage_subject, context)
+            grades.append(replace(grade, stage=stage_idx, stage_name=ev.when))
+    return grades
 
 
 def _build_turn_subject(
@@ -244,69 +289,7 @@ async def run_actor(
 
             # Multi-stage per-turn grading — each GoalEval is one stage,
             # mirroring static _run_multistage() in runner.py
-            grades: list[Grade] = []
-            stage_num = 0
-            for ev in query_eval_list:
-                stage_num += 1
-                stage_subject = Subject(
-                    input=turn_subject.input,
-                    output=turn_subject.output,
-                    completion_time=turn_subject.completion_time,
-                    tool_calls=turn_subject.tool_calls,
-                    spans=turn_subject.spans,
-                    metadata=turn_subject.metadata,
-                    stage=stage_num,
-                    stage_name=ev.when,
-                    prior_subject=turn_subject.prior_subject,
-                )
-                for criterion, args in ev.then:
-                    grade = resolve_grade(criterion, list(args), stage_subject, context)
-                    grades.append(
-                        Grade(
-                            criterion=grade.criterion,
-                            score=grade.score,
-                            metric=grade.metric,
-                            passed=grade.passed,
-                            detail=grade.detail,
-                            layer=grade.layer,
-                            skipped=grade.skipped,
-                            stage=stage_num,
-                            stage_name=ev.when,
-                        )
-                    )
-            # Dynamic criteria from simulator appended to last stage
-            if dyn_then:
-                if stage_num == 0:
-                    stage_num = 1
-                    dyn_stage_name = "dynamic"
-                else:
-                    dyn_stage_name = query_eval_list[-1].when
-                dyn_subject = Subject(
-                    input=turn_subject.input,
-                    output=turn_subject.output,
-                    completion_time=turn_subject.completion_time,
-                    tool_calls=turn_subject.tool_calls,
-                    spans=turn_subject.spans,
-                    metadata=turn_subject.metadata,
-                    stage=stage_num,
-                    stage_name=dyn_stage_name,
-                    prior_subject=turn_subject.prior_subject,
-                )
-                for criterion in dyn_then:
-                    grade = resolve_grade(criterion, [], dyn_subject, context)
-                    grades.append(
-                        Grade(
-                            criterion=grade.criterion,
-                            score=grade.score,
-                            metric=grade.metric,
-                            passed=grade.passed,
-                            detail=grade.detail,
-                            layer=grade.layer,
-                            skipped=grade.skipped,
-                            stage=stage_num,
-                            stage_name=dyn_stage_name,
-                        )
-                    )
+            grades = _grade_turn(turn_subject, query_eval_list, dyn_then, context)
 
             turn_overall = _aggregate_grades(grades, context.config) if grades else 0.0
             turn_metrics = _metric_scores(grades, context.config) if grades else {}
@@ -348,30 +331,9 @@ async def run_actor(
         conv_subject = _build_conversation_subject(
             history, persona.id, goal.id, actor_index, termination_reason, elapsed
         )
-        for stage_idx, ev in enumerate(goal.conversation_evals, 1):
-            stage_subject = Subject(
-                input=conv_subject.input,
-                output=conv_subject.output,
-                completion_time=conv_subject.completion_time,
-                metadata=conv_subject.metadata,
-                stage=stage_idx,
-                stage_name=ev.when,
-            )
-            for criterion, args in ev.then:
-                grade = resolve_grade(criterion, list(args), stage_subject, context)
-                conv_grades.append(
-                    Grade(
-                        criterion=grade.criterion,
-                        score=grade.score,
-                        metric=grade.metric,
-                        passed=grade.passed,
-                        detail=grade.detail,
-                        layer=grade.layer,
-                        skipped=grade.skipped,
-                        stage=stage_idx,
-                        stage_name=ev.when,
-                    )
-                )
+        conv_grades = _grade_conversation(
+            conv_subject, goal.conversation_evals, context
+        )
 
     # overall_score (§15.8.4): mean of all non-skipped grades (informational)
     all_grades = [g for t in history for g in t.grades] + conv_grades

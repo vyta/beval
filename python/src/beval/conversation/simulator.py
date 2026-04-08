@@ -154,8 +154,8 @@ def _build_user_message(history: list[TurnResult]) -> str:
     return _SIM_USER_HISTORY_TEMPLATE.format(history=_format_history(history))
 
 
-def _parse_dynamic_case(raw: str) -> DynamicCase:
-    """Parse simulator response into DynamicCase. Raises ValueError on fatal errors."""
+def _extract_json_object(raw: str, label: str) -> dict[str, Any]:
+    """Strip markdown fences, extract the first JSON object, and parse it."""
     text = raw.strip()
 
     # Strip markdown code fences
@@ -179,9 +179,15 @@ def _parse_dynamic_case(raw: str) -> DynamicCase:
                     break
 
     try:
-        data = json.loads(text)
+        data: dict[str, Any] = json.loads(text)
+        return data
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Invalid JSON from simulator: {raw[:200]}") from exc
+        raise ValueError(f"Invalid JSON from {label}: {raw[:200]}") from exc
+
+
+def _parse_dynamic_case(raw: str) -> DynamicCase:
+    """Parse simulator response into DynamicCase. Raises ValueError on fatal errors."""
+    data = _extract_json_object(raw, "simulator")
 
     progress = float(data.get("progress", 0.0))
     progress = max(0.0, min(1.0, progress))
@@ -204,32 +210,7 @@ def _parse_dynamic_case(raw: str) -> DynamicCase:
 
 def _parse_feedback(raw: str) -> UserFeedback:
     """Parse feedback response into UserFeedback. Raises ValueError on fatal errors."""
-    text = raw.strip()
-
-    # Strip markdown code fences
-    if text.startswith("```"):
-        lines = text.split("\n")[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        text = "\n".join(lines)
-
-    # Extract the first JSON object
-    start = text.find("{")
-    if start != -1:
-        depth = 0
-        for i, ch in enumerate(text[start:], start):
-            if ch == "{":
-                depth += 1
-            elif ch == "}":
-                depth -= 1
-                if depth == 0:
-                    text = text[start : i + 1]
-                    break
-
-    try:
-        data = json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"Invalid JSON from feedback: {raw[:200]}") from exc
+    data = _extract_json_object(raw, "feedback")
 
     satisfaction = float(data.get("satisfaction", 0.0))
     satisfaction = max(0.0, min(1.0, satisfaction))
@@ -238,6 +219,19 @@ def _parse_feedback(raw: str) -> UserFeedback:
         feedback_text = str(feedback_text).strip() or None
 
     return UserFeedback(satisfaction=satisfaction, text=feedback_text)
+
+
+def _enforce_max_criteria(result: DynamicCase, max_criteria: int) -> DynamicCase:
+    """Truncate or clear dynamic criteria to respect the per-turn limit."""
+    if max_criteria == 0:
+        return DynamicCase(query=result.query, then=(), progress=result.progress)
+    if len(result.then) > max_criteria:
+        return DynamicCase(
+            query=result.query,
+            then=result.then[:max_criteria],
+            progress=result.progress,
+        )
+    return result
 
 
 def _build_feedback_messages(
@@ -373,16 +367,7 @@ class OpenAISimulator(UserSimulatorInterface):
         user_msg = _build_user_message(truncated)
         raw = await asyncio.to_thread(self._call_llm, system_msg, user_msg)
         result = _parse_dynamic_case(raw)
-        # Enforce max_dynamic_criteria_per_turn — LLMs may ignore "up to 0" instructions
-        if self._max_dynamic_criteria_per_turn == 0:
-            result = DynamicCase(query=result.query, then=(), progress=result.progress)
-        elif len(result.then) > self._max_dynamic_criteria_per_turn:
-            result = DynamicCase(
-                query=result.query,
-                then=result.then[: self._max_dynamic_criteria_per_turn],
-                progress=result.progress,
-            )
-        return result
+        return _enforce_max_criteria(result, self._max_dynamic_criteria_per_turn)
 
     def _call_llm(self, system_msg: str, user_msg: str) -> str:
         kwargs: dict[str, Any] = {
@@ -584,18 +569,9 @@ class ACPSimulator(UserSimulatorInterface):
             raw = "".join(self._client.chunks)
             try:
                 result = _parse_dynamic_case(raw)
-                # Enforce max_dynamic_criteria_per_turn
-                if self._max_dynamic_criteria_per_turn == 0:
-                    result = DynamicCase(
-                        query=result.query, then=(), progress=result.progress
-                    )
-                elif len(result.then) > self._max_dynamic_criteria_per_turn:
-                    result = DynamicCase(
-                        query=result.query,
-                        then=result.then[: self._max_dynamic_criteria_per_turn],
-                        progress=result.progress,
-                    )
-                return result
+                return _enforce_max_criteria(
+                    result, self._max_dynamic_criteria_per_turn
+                )
             except ValueError as exc:
                 logger.warning(
                     "Simulator parse error (attempt %d/%d): %s | raw=%r",

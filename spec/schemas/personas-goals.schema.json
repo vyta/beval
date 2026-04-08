@@ -139,8 +139,7 @@
       "properties": {
         "when": {
           "type": "string",
-          "enum": ["each turn", "on finish"],
-          "description": "Lifecycle hook: 'each turn' = graders applied to TurnSubject after every agent response; 'on finish' = graders applied to ConversationSubject after conversation ends, and also used as assess_goal() evaluation criteria."
+          "description": "Lifecycle hook label used as a stage name in results. Common values: 'each turn' (graders applied to TurnSubject after every agent response), 'on finish' (graders applied to ConversationSubject after conversation ends)."
         },
         "then": {
           "type": "array",

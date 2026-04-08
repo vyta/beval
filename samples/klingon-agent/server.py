@@ -10,7 +10,10 @@ import argparse
 import os
 import uuid
 from collections import defaultdict
+from collections.abc import Generator
 from typing import Any
+
+import httpx
 
 import uvicorn
 from a2a.server.apps.jsonrpc import A2AFastAPIApplication
@@ -57,14 +60,22 @@ def _build_llm_client() -> AsyncOpenAI:
     if "/v1" in azure_endpoint or "services.ai.azure.com" in azure_endpoint:
         if api_key:
             return AsyncOpenAI(api_key=api_key, base_url=azure_endpoint)
-        # Entra ID: get bearer token for the Foundry scope
+        # Entra ID: use a token provider that refreshes automatically
         from azure.identity import DefaultAzureCredential, get_bearer_token_provider
         scope = os.environ.get("AZURE_TOKEN_SCOPE", "https://ai.azure.com/.default")
-        token_provider = get_bearer_token_provider(DefaultAzureCredential(), scope)
+        _token_provider = get_bearer_token_provider(DefaultAzureCredential(), scope)
+
+        class _RefreshAuth(httpx.Auth):
+            """Injects a fresh bearer token on every request."""
+
+            def auth_flow(self, request: httpx.Request) -> Generator[httpx.Request, httpx.Response, None]:
+                request.headers["Authorization"] = f"Bearer {_token_provider()}"
+                yield request
+
         return AsyncOpenAI(
             api_key="placeholder",
             base_url=azure_endpoint,
-            default_headers={"Authorization": f"Bearer {token_provider()}"},
+            http_client=httpx.AsyncClient(auth=_RefreshAuth()),
         )
 
     # Classic Azure OpenAI (openai.azure.com / cognitiveservices.azure.com)

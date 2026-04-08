@@ -434,7 +434,7 @@ async def _run_all_actors(
                     "persona_id": persona.id,
                     "goal_id": goal.id,
                     "actor_index": actor_index,
-                    "status": "in_progress",
+                    "in_progress": True,
                     "turns": [],
                 }
             )
@@ -456,13 +456,13 @@ async def _run_all_actors(
                         "persona_id": persona.id,
                         "goal_id": goal.id,
                         "actor_index": actor_index,
-                        "status": "in_progress",
+                        "in_progress": True,
                         "turns": turns_so_far
                         + [
                             {
                                 "turn_number": turn,
                                 "user_message": query,
-                                "agent_response": None,
+                                "agent_response": "",
                             }
                         ],
                     }
@@ -480,7 +480,7 @@ async def _run_all_actors(
                         "persona_id": persona.id,
                         "goal_id": goal.id,
                         "actor_index": actor_index,
-                        "status": "in_progress",
+                        "in_progress": True,
                         "turns": turns_so_far,
                     }
                 )
@@ -764,11 +764,14 @@ class ConversationRunner:
         return ConversationRunResult(
             mode=self._mode.value,
             config={
+                "grade_pass_threshold": self._config.grade_pass_threshold,
+                "case_pass_threshold": self._config.case_pass_threshold,
                 "pass_score": self._config.pass_score,
                 "case_pass_rate": self._config.case_pass_rate,
                 "turn_pass_rate": self._config.turn_pass_rate,
                 "conversation_pass_rate": self._config.conversation_pass_rate,
                 "run_pass_rate": self._config.run_pass_rate,
+                "min_satisfaction": self._config.min_satisfaction,
             },
             summary=summary,
             conversations=results,

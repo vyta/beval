@@ -122,7 +122,7 @@ def _format_history(history: list[TurnResult]) -> str:
     for t in history:
         parts.append(f"User: {t.user_message}")
         parts.append(
-            f"Assistant: <<<AGENT_RESPONSE>>>{t.agent_response}<<</AGENT_RESPONSE>>>"
+            f"Assistant: <agent_response>{t.agent_response}</agent_response>"
         )
         parts.append("")
     return "\n".join(parts)

@@ -338,13 +338,6 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Results output path.",
     )
     converse_run.add_argument(
-        "--format",
-        type=str,
-        choices=["json", "jsonl"],
-        default="json",
-        help="Results output format.",
-    )
-    converse_run.add_argument(
         "--persona",
         type=str,
         default=None,

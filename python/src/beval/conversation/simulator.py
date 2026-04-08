@@ -121,7 +121,9 @@ def _format_history(history: list[TurnResult]) -> str:
     parts = []
     for t in history:
         parts.append(f"User: {t.user_message}")
-        parts.append(f"Assistant: {t.agent_response}")
+        parts.append(
+            f"Assistant: <<<AGENT_RESPONSE>>>{t.agent_response}<<</AGENT_RESPONSE>>>"
+        )
         parts.append("")
     return "\n".join(parts)
 
@@ -350,7 +352,11 @@ class OpenAISimulator(UserSimulatorInterface):
                 TurnResult(
                     turn_number=t.turn_number,
                     user_message=t.user_message,
-                    agent_response=t.agent_response[: self._max_answer_chars],
+                    agent_response=(
+                        t.agent_response[: self._max_answer_chars] + " [truncated]"
+                        if len(t.agent_response) > self._max_answer_chars
+                        else t.agent_response
+                    ),
                     completion_time_seconds=t.completion_time_seconds,
                     goal_progress=t.goal_progress,
                     grades=t.grades,

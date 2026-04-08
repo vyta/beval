@@ -10,6 +10,7 @@ import argparse
 import json
 import logging
 import os
+import shlex
 import sys
 import threading
 import time
@@ -1245,7 +1246,7 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
     elif sim_agent:
         simulator_config = {
             "protocol": "acp",
-            "connection": {"transport": "stdio", "command": sim_agent.split()},
+            "connection": {"transport": "stdio", "command": shlex.split(sim_agent)},
         }
     else:
         raw_sim = conv_config.get("simulator") or {}

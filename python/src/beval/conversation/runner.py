@@ -338,6 +338,31 @@ def _make_cancelled_result(
     )
 
 
+def _make_error_result(
+    persona: Persona, goal: Goal, actor_index: int, exc: BaseException
+) -> ConversationResult:
+    actor_id = f"{persona.id}:{goal.id}:{actor_index}"
+    return ConversationResult(
+        id=actor_id,
+        name=f"{persona.name} → {goal.name} (actor {actor_index})",
+        category=f"{persona.id}/{goal.id}",
+        persona_id=persona.id,
+        goal_id=goal.id,
+        actor_index=actor_index,
+        overall_score=0.0,
+        goal_achievement_score=0.0,
+        passed=False,
+        goal_achieved=False,
+        termination_reason="agent_error",
+        turn_count=0,
+        time_seconds=0.0,
+        metric_scores={},
+        error=str(exc),
+        turns=[],
+        grades=[],
+    )
+
+
 def _to_dict(obj: Any) -> Any:
     """Recursively convert dataclasses and collections to JSON-serializable dicts."""
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
@@ -535,12 +560,16 @@ async def _run_all_actors(
     for (persona, goal, actor_index), task in zip(conversations, tasks, strict=False):
         if task in pending:
             results.append(_make_cancelled_result(persona, goal, actor_index))
-        elif task.cancelled() or task.exception() is not None:
-            exc = task.exception() if not task.cancelled() else None
-            logger.warning(
-                "Actor %s:%s:%d failed: %s", persona.id, goal.id, actor_index, exc
-            )  # noqa: E501
+        elif task.cancelled():
             results.append(_make_cancelled_result(persona, goal, actor_index))
+        elif task.exception() is not None:
+            exc = task.exception()
+            logger.warning(
+                "Actor %s:%s:%d errored: %s", persona.id, goal.id, actor_index, exc
+            )
+            results.append(
+                _make_error_result(persona, goal, actor_index, exc)  # type: ignore[arg-type]
+            )
         else:
             results.append(task.result())
 

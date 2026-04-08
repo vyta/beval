@@ -376,6 +376,11 @@
           "items": { "$ref": "#/$defs/GoalSource" },
           "description": "Goal sources: file paths and/or inline goal definitions."
         },
+        "criteria": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CriteriaSource" },
+          "description": "Evaluation criteria sources: file paths and/or inline criteria definitions."
+        },
         "actor_count": {
           "type": "integer",
           "minimum": 1,
@@ -387,6 +392,25 @@
           "minimum": 1,
           "default": 1,
           "description": "Maximum number of actors running concurrently."
+        },
+        "max_turns": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 20,
+          "description": "Circuit breaker: hard turn limit per conversation."
+        },
+        "timeout_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "default": 600,
+          "description": "Circuit breaker: hard wall-clock timeout per conversation in seconds."
+        },
+        "feedback_text_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "description": "Fraction of conversations for which to request text feedback from the simulator (0.0 = none, 1.0 = all)."
         },
         "history_dir": {
           "type": "string",
@@ -448,6 +472,12 @@
           "minimum": 0,
           "default": 30,
           "description": "Request timeout in seconds."
+        },
+        "max_dynamic_criteria_per_turn": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 3,
+          "description": "Maximum number of dynamic evaluation criteria the simulator may generate per turn. 0 disables dynamic criteria."
         }
       },
       "allOf": [
@@ -479,12 +509,18 @@
         {
           "type": "object",
           "description": "Inline persona definition.",
-          "required": ["id", "name", "description"],
+          "required": ["id", "name", "description", "goals"],
           "additionalProperties": true,
           "properties": {
             "id": { "type": "string" },
             "name": { "type": "string" },
-            "description": { "type": "string" }
+            "description": { "type": "string" },
+            "goals": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "description": "Goal IDs this persona pursues."
+            }
           }
         }
       ]
@@ -507,16 +543,73 @@
         {
           "type": "object",
           "description": "Inline goal definition.",
-          "required": ["id", "name", "objective", "success_criteria"],
+          "required": ["id", "name", "objective"],
           "additionalProperties": true,
           "properties": {
             "id": { "type": "string" },
             "name": { "type": "string" },
             "objective": { "type": "string" },
-            "success_criteria": {
+            "evals": {
+              "type": "object",
+              "description": "Evaluation blocks for per-turn (query) and conversation-level grading.",
+              "additionalProperties": false,
+              "properties": {
+                "query": {
+                  "type": "array",
+                  "items": { "type": "object" },
+                  "description": "Per-turn evaluation stages."
+                },
+                "conversation": {
+                  "type": "array",
+                  "items": { "type": "object" },
+                  "description": "Conversation-level evaluation stages."
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CriteriaSource": {
+      "description": "A criteria source: either a file path reference or an inline criteria definition.",
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "File path reference to a criteria YAML file.",
+          "required": ["file"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "Path to a criteria YAML file."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Inline criteria definition.",
+          "required": ["id"],
+          "additionalProperties": true,
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "tags": {
               "type": "array",
-              "items": { "type": "string" },
-              "minItems": 1
+              "items": { "type": "string" }
+            },
+            "evals": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "query": {
+                  "type": "array",
+                  "items": { "type": "object" }
+                },
+                "conversation": {
+                  "type": "array",
+                  "items": { "type": "object" }
+                }
+              }
             }
           }
         }

@@ -87,7 +87,7 @@
     },
     "Goal": {
       "type": "object",
-      "description": "A conversation goal definition. Structure mirrors the static Case: given carries setup context, stages holds when/then evaluation blocks, tags provides filtering labels.",
+      "description": "A conversation goal definition. Uses objective + evals structure where evals.query contains per-turn evaluation blocks and evals.conversation contains conversation-level evaluation blocks.",
       "required": ["id", "name"],
       "additionalProperties": false,
       "properties": {
@@ -104,39 +104,36 @@
           "items": { "type": "string" },
           "description": "Labels for filtering and categorization, same as Case tags."
         },
-        "given": {
-          "type": "object",
-          "description": "Setup block mirroring Case given clause.",
-          "additionalProperties": false,
-          "properties": {
-            "objective": {
-              "type": "string",
-              "description": "Prose description of what the simulated user is trying to accomplish. Passed verbatim to the simulator prompt and used as the assess_goal() basis."
-            },
-            "max_turns": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 20,
-              "description": "Circuit breaker: hard turn limit. Terminates loop; produces no grade. Soft criteria belong in the 'on finish' stage."
-            },
-            "timeout_seconds": {
-              "type": "number",
-              "minimum": 0,
-              "default": 600,
-              "description": "Circuit breaker: hard wall-clock timeout in seconds. Terminates loop; produces no grade."
-            }
-          }
+        "objective": {
+          "type": "string",
+          "description": "Prose description of what the simulated user is trying to accomplish. Passed verbatim to the simulator prompt and used as the assess_goal() basis."
         },
-        "stages": {
+        "evals": {
+          "$ref": "#/$defs/GoalEvals",
+          "description": "Evaluation blocks for per-turn (query) and conversation-level grading."
+        }
+      }
+    },
+    "GoalEvals": {
+      "type": "object",
+      "description": "Evaluation blocks containing per-turn and conversation-level evaluation stages.",
+      "additionalProperties": false,
+      "properties": {
+        "query": {
           "type": "array",
           "items": { "$ref": "#/$defs/GoalStage" },
-          "description": "Evaluation lifecycle hooks. Well-known when values: 'each turn', 'on finish'."
+          "description": "Per-turn evaluation stages applied to TurnSubject after every agent response."
+        },
+        "conversation": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GoalStage" },
+          "description": "Conversation-level evaluation stages applied to ConversationSubject after conversation ends."
         }
       }
     },
     "GoalStage": {
       "type": "object",
-      "description": "A when/then evaluation stage in a Goal, mirroring Case stage structure.",
+      "description": "A when/then evaluation stage in a Goal.",
       "required": ["when", "then"],
       "additionalProperties": false,
       "properties": {

@@ -65,6 +65,32 @@
           "$ref": "#/$defs/Score",
           "description": "Threshold at or above which a conversation passes."
         },
+        "pass_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Per-conversation pass threshold (conversation mode)."
+        },
+        "case_pass_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Required fraction of conversations passing (conversation mode)."
+        },
+        "turn_pass_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Required fraction of turns passing within a conversation."
+        },
+        "conversation_pass_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Required fraction of conversations passing overall."
+        },
+        "run_pass_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Required pass rate for the overall run to pass."
+        },
+        "min_satisfaction": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Minimum average satisfaction score for the run to pass; null if not set."
+        },
         "skip_mode": {
           "type": "string",
           "enum": ["exclude", "optimistic", "strict"],
@@ -109,7 +135,7 @@
       "required": [
         "overall_score", "goal_achievement_rate",
         "passed", "failed", "errored", "cancelled", "total",
-        "total_turns", "metrics"
+        "total_turns", "metrics", "run_passed"
       ],
       "additionalProperties": false,
       "properties": {
@@ -162,6 +188,16 @@
           "additionalProperties": {
             "$ref": "#/$defs/Score"
           }
+        },
+        "avg_satisfaction": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Mean satisfaction across conversations that collected feedback; null if no feedback."
+        },
+        "run_passed": {
+          "type": "boolean",
+          "description": "Whether the overall run passed based on run_pass_rate and min_satisfaction thresholds."
         }
       }
     },
@@ -216,7 +252,7 @@
       "required": [
         "turn_number", "user_message", "agent_response",
         "completion_time_seconds", "goal_progress",
-        "grades", "metric_scores", "overall_score", "error"
+        "grades", "metric_scores", "overall_score", "passed", "error"
       ],
       "additionalProperties": false,
       "properties": {
@@ -257,6 +293,10 @@
         "overall_score": {
           "$ref": "#/$defs/Score",
           "description": "Mean of non-skipped per-turn grades for this turn."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether this turn's overall_score met the pass threshold."
         },
         "error": {
           "type": ["string", "null"],
@@ -358,6 +398,29 @@
           "type": "array",
           "items": { "$ref": "#/$defs/Grade" },
           "description": "Conversation-level grade results from goal.graders.conversation criterion strings."
+        },
+        "feedback": {
+          "oneOf": [
+            { "$ref": "#/$defs/UserFeedback" },
+            { "type": "null" }
+          ],
+          "description": "Post-conversation feedback from the simulated user persona; null if not collected."
+        }
+      }
+    },
+    "UserFeedback": {
+      "type": "object",
+      "description": "Post-conversation feedback from the simulated user persona.",
+      "required": ["satisfaction"],
+      "additionalProperties": false,
+      "properties": {
+        "satisfaction": {
+          "$ref": "#/$defs/Score",
+          "description": "User satisfaction score (0.0 = terrible, 1.0 = excellent)."
+        },
+        "text": {
+          "type": ["string", "null"],
+          "description": "Optional free-text feedback from the simulated user."
         }
       }
     }

@@ -5,32 +5,32 @@
   "persona_id": "starfleet_diplomat",
   "goal_id": "mission_critical_phrases",
   "actor_index": 2,
-  "overall_score": 0.9578975677433433,
+  "overall_score": 0.9583188972216545,
   "goal_achievement_score": 1.0,
   "passed": true,
   "goal_achieved": true,
   "termination_reason": "goal_achieved",
-  "turn_count": 9,
-  "time_seconds": 113.07638591702562,
+  "turn_count": 4,
+  "time_seconds": 63.340022167016286,
   "metric_scores": {
-    "latency": 0.9662114121926371,
-    "quality": 0.9554838709677419
+    "latency": 0.9490944861082729,
+    "quality": 0.9606250000000001
   },
   "error": null,
   "turns": [
     {
       "turn_number": 1,
-      "user_message": "I have 30 minutes. Skip the theory. Give me the most important Klingon phrases for a friendly first meeting: greet them, show respect, and avoid insulting anyone. Short. Practical. And tell me how they should sound if I repeat them.",
-      "agent_response": "nuqneH. (What do you want?)\n\nQapla\u2019! (Success!)\n\nghojmeH yIghoS! (Come to learn!)\n\nHere are the most useful phrases for a friendly first meeting: (Here are the most useful phrases for a friendly first meeting:)\n\n1. **nuqneH** (What do you want? / Hello)\n   - Say it: **nook-neh** (short, strong)\n   - Use it as a greeting to Klingons. (Use it as a greeting to Klingons.)\n\n2. **tlhIngan maH** (We are Klingons)\n   - Say it: **kling-an mah**  \n   - Use it if you want to identify your group. (Use it if you want to identify your group.)\n\n3. **maj** (Good / Well done)\n   - Say it: **mahj**\n   - Good for agreement or approval. (Good for agreement or approval.)\n\n4. **Qapla\u2019** (Success!)\n   - Say it: **KAHP-lah**\n   - A strong, respectful closing. (A strong, respectful closing.)\n\n5. **bIcheS \u2019e\u2019 vIHar** (I think you are prepared / ready)\n   - Say it: **bee-CHESH eh vee-HAR**\n   - Use only if you are confident; it sounds respectful. (Use only if you are confident; it sounds respectful.)\n\n6. **jIyaj** (I understand)\n   - Say it: **jee-YAJ**\n   - Very useful to show you are following. (Very useful to show you are following.)\n\n7. **jIjatlhbe\u2019** (I am not speaking)\n   - Say it: **jee-JAHTHL-bay**\n   - Useful if you need a pause. (Useful if you need a pause.)\n\n8. **jIghoj** (I am learning)\n   - Say it: **jee-GHOJ**\n   - Good way to show respect for the language. (Good way to show respect for the language.)\n\nAvoid these pitfalls: (Avoid these pitfalls:)\n\n- **Do not overuse \u201chello\u201d like in Federation speech.** (Do not overuse \u201chello\u201d like in Federation speech.)\n- **Do not be too soft or overly apologetic.** Klingons respect directness. (Do not be too soft or overly apologetic. Klingons respect directness.)\n- **Do not joke too early.** Friendly, yes \u2014 but not familiar too fast. (Do not joke too early. Friendly, yes \u2014 but not familiar too fast.)\n\nIf you want, I can give you a **10-line meeting script** you can memorize in 2 minutes. (If you want, I can give you a 10-line meeting script you can memorize in 2 minutes.)",
-      "completion_time_seconds": 3.8052760409773327,
-      "goal_progress": 0.08,
+      "user_message": "I have 30 minutes before meeting a Klingon delegation. Skip the theory. Give me the most important respectful greeting, a phrase for goodwill, and anything I should avoid saying. I\u2019ll repeat them back.",
+      "agent_response": "nuqneH. (What do you want?)\n\nbIjatlh 'e' yImev; DaH Hoch botlh vIjatlh. (Do not stop speaking; now I will say the essentials.)\n\n**Greeting:** `nuqneH` (What do you want?)  \nUse this when you approach Klingons. It is the safest greeting.\n\n**Respectful introduction:** `jIyajbe'. jIH ...` (I do not understand. I am ... )  \nIf you want to say your name, use: `jIH ...` (I am ...)\n\n**Goodwill phrase:** `Qapla'` (Success / Be successful)  \nShort, strong, and respectful.\n\n**Another goodwill phrase:** `yI'el Qapla'` (Enter in success)  \nUseful if welcoming them.\n\n**What to avoid saying:**  \n- `How are you?` \u2014 Klingons may find this too casual or meaningless in formal first contact.  \n- `peace` as a casual substitute for honor \u2014 better to speak of `Qapla'` and `jIQuch` (I am pleased) if needed.  \n- Overly soft or apologetic language unless you truly need it.  \n- Joking about cowardice, weakness, or dishonor.\n\n**Best short exchange:**  \n- You: `nuqneH.` (What do you want?)  \n- Them: something in Klingon  \n- You: `jIyajbe'.` (I do not understand.)  \n- You: `jIH [name].` (I am [name].)  \n- You: `Qapla'.` (Success.)\n\nNow repeat them back. (Now repeat them back.)",
+      "completion_time_seconds": 3.145169958996121,
+      "goal_progress": 0.1,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.9365787326503778,
+          "score": 0.9475805006833979,
           "metric": "latency",
           "passed": true,
-          "detail": "3.8s of 60.0s threshold",
+          "detail": "3.1s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -49,10 +49,10 @@
         },
         {
           "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 0.97,
+          "score": 0.98,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer is clearly about Klingon phrases for a friendly first meeting, includes respect/avoid-insult guidance, and gives pronunciation tips. It stays on-topic and practical, matching the user's request.",
+          "detail": "The answer is clearly about Klingon greetings and phrases for a delegation, which matches the user\u2019s request. It includes a greeting, a goodwill phrase, and things to avoid saying. It stays on-topic throughout, with only minor extra elaboration.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -63,7 +63,7 @@
           "score": 0.82,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer does provide several specific, usable Klingon phrases with pronunciation guidance, which fits the criterion well. However, it also includes some general commentary and a few phrases that are less directly relevant to a friendly first meeting, so it is not perfectly focused.",
+          "detail": "The answer does provide specific, usable Klingon phrases for a greeting, goodwill, and things to avoid, which matches the criterion well. However, it includes a lot of extra commentary and some of the phrase explanations are a bit muddled, so it is not perfectly focused or fully reliable.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -71,26 +71,26 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.9365787326503778,
-        "quality": 0.93
+        "latency": 0.9475805006833979,
+        "quality": 0.9333333333333332
       },
-      "overall_score": 0.9316446831625944,
+      "overall_score": 0.9368951251708495,
       "passed": true,
       "error": null
     },
     {
       "turn_number": 2,
-      "user_message": "Good. Give me the 10-line script. Keep it tight. I want the 3 best phrases I can actually use in the room, and tell me if my repetition is right.",
-      "agent_response": "maj. (Good.)\n\nHere are the **3 best phrases** for the room: (Here are the 3 best phrases for the room:)\n\n1. **nuqneH** \u2014 **nook-neh** (What do you want? / Hello)\n2. **maj** \u2014 **mahj** (Good / Agreed)\n3. **Qapla\u2019** \u2014 **KAH-plah** (Success!)\n\nAnd here is your **10-line script**: (And here is your 10-line script:)\n\n1. **nuqneH.** (Hello / What do you want?)\n2. **jIghoj.** (I am learning.)\n3. **jIyaj.** (I understand.)\n4. **maj.** (Good.)\n5. **bIlugh.** (You are correct.)\n6. **tlhIngan Hol vIjatlhbe\u2019.** (I do not speak Klingon.)\n7. **qaH, tlhIHvaD jIjatlh.** (Sir/Madam, I speak to you.)\n8. **qaH, nuqjatlh?** (Sir, what do you say?)\n9. **qaleghneS.** (I am honored to meet you.)\n10. **Qapla\u2019.** (Success!)\n\nHow they should sound: (How they should sound:)\n\n- **nuqneH** = **nook-neh** (short, clipped)\n- **jIghoj** = **jee-GHOJ** (the **gh** is a rasp, like clearing the throat lightly)\n- **jIyaj** = **jee-YAJ** (the **y** is like English **y** in *yes*)\n- **bIlugh** = **bee-LOOGH** (the **gh** is a harsh back-of-throat sound)\n- **qaleghneS** = **ka-LEGH-ness** (the **gh** again is rough, not a soft g)\n\nYour repetition target: (Your repetition target:)\n\n- **nuqneH**: if you say **\u201cnook-neh\u201d**, that is close enough to start. (If you say \u201cnook-neh,\u201d that is close enough to start.)\n- **Qapla\u2019**: say **\u201cKAH-plah\u201d**, not \u201ckap-lah.\u201d (Say \u201cKAH-plah,\u201d not \u201ckap-lah.\u201d)\n- **maj**: say **\u201cmahj\u201d**, one sharp beat. (Say \u201cmahj,\u201d one sharp beat.)\n\nIf you want, I can now give you a **call-and-response drill** so you can practice in 60 seconds. (If you want, I can now give you a call-and-response drill so you can practice in 60 seconds.)",
-      "completion_time_seconds": 3.6390949999913573,
-      "goal_progress": 0.7,
+      "user_message": "Got it. Repeating: nuqneH. jIyajbe'. jIH [name]. Qapla'.\n\nConfirm those are right. Then give me one more phrase for showing respect to the delegation\u2014something I can use in the first 30 seconds.",
+      "agent_response": "bItu'lu'pu'. DaHjaj bIjatlhmeH 'e' vIparHa'. (Excellent. I like that you\u2019re speaking now.)\n\nYour phrases are **mostly right**:\n- `nuqneH.` (What do you want?) \u2014 **correct**\n- `jIyajbe'.` (I do not understand.) \u2014 **correct**\n- `jIH [name].` (I am [name].) \u2014 **acceptable**, but in practice you usually say **`jIH ...`** with your name after it, or simply **`jIHwI' ...`** if introducing yourself more formally. (I am [name].)\n- `Qapla'.` (Success.) \u2014 **correct**\n\nOne important note: `nuqneH` is not a \u201chello\u201d in the human sense. It is a blunt, respectful **\u201cWhat do you want?\u201d**. (It is not a human-style hello; it is a blunt, respectful \u201cWhat do you want?\u201d)\n\n**One more phrase for respect in the first 30 seconds:**  \n`jIQuch tlhInganpu' Dajatlh 'e' vIQub.` (I am honored to speak with Klingons.)  \n\nIf you want something **shorter and safer**, use:  \n`jIQuch.` (I am honored / I am pleased.)\n\nRepeat after me: `jIQuch.` (I am honored / I am pleased.)",
+      "completion_time_seconds": 4.259801750013139,
+      "goal_progress": 0.85,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.9393484166668107,
+          "score": 0.9290033041664477,
           "metric": "latency",
           "passed": true,
-          "detail": "3.6s of 60.0s threshold",
+          "detail": "4.3s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -112,187 +112,7 @@
           "score": 1.0,
           "metric": "quality",
           "passed": true,
-          "detail": "The response is clearly on-topic: it provides a 10-line script, lists 3 usable phrases, and comments on repetition/pronunciation, which directly matches the user's request. Accuracy is not evaluated here, only topical relevance.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 3,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
-          "score": 0.95,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The answer provides specific, usable Klingon phrases and a tight 10-line script, directly addressing the request. It also comments on repetition/pronunciation. The only minor issue is some extra explanatory commentary beyond the requested tightness, but the core criterion is strongly met.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 4,
-          "stage_name": "the agent responds"
-        }
-      ],
-      "metric_scores": {
-        "latency": 0.9393484166668107,
-        "quality": 0.9833333333333334
-      },
-      "overall_score": 0.9723371041667026,
-      "passed": true,
-      "error": null
-    },
-    {
-      "turn_number": 3,
-      "user_message": "Yes. Drill me. One line at a time. I\u2019ll repeat, you confirm if it\u2019s right, and give me the next phrase. Start with the greeting and give me one respectful phrase I can use after that.",
-      "agent_response": "nuqneH. (What do you want? / Hello)\n\nRepeat it now: **nook-neh** (Repeat it now: \u201cnook-neh\u201d)\n\nNext respectful phrase: **qaleghneS.** (I am honored to meet you.)\n\nRepeat it like this: **ka-LEGH-ness** (Repeat it like this: \u201cka-LEGH-ness\u201d)\n\nSay both back to me, and I\u2019ll check them. (Say both back to me, and I\u2019ll check them.)",
-      "completion_time_seconds": 1.3891613330342807,
-      "goal_progress": 0.82,
-      "grades": [
-        {
-          "criterion": "completion time should be under",
-          "score": 0.9768473111160954,
-          "metric": "latency",
-          "passed": true,
-          "detail": "1.4s of 60.0s threshold",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 1,
-          "stage_name": "the agent processes the request"
-        },
-        {
-          "criterion": "response should not contain",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "'i cannot help' absent in output",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 2,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The response is directly on topic: it provides a greeting and a respectful follow-up phrase, then asks the user to repeat them one line at a time as requested. It does not switch to an unrelated subject.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 3,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
-          "score": 0.98,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The answer provides specific, usable Klingon phrases ('nuqneH' and 'qaleghneS') with transliterations and brief meanings, directly matching the request for a drill-style exchange. It does include some extra instructional commentary, but the core content is clearly practical and phrase-focused.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 4,
-          "stage_name": "the agent responds"
-        }
-      ],
-      "metric_scores": {
-        "latency": 0.9768473111160954,
-        "quality": 0.9933333333333333
-      },
-      "overall_score": 0.9892118277790238,
-      "passed": true,
-      "error": null
-    },
-    {
-      "turn_number": 4,
-      "user_message": "nook-neh. ka-LEGH-ness.",
-      "agent_response": "maj! (Good!)\n\n**nuqneH** \u2014 your **\u201cnook-neh\u201d** is right. (Good \u2014 your \u201cnook-neh\u201d is right.)\n**qaleghneS** \u2014 your **\u201cka-LEGH-ness\u201d** is also right. (Good \u2014 your \u201cka-LEGH-ness\u201d is also right.)\n\nOne small note: the middle sound in **qaleghneS** should be a rough **gh**, not a soft English **g**. (One small note: the middle sound in qaleghneS should be a rough \u201cgh,\u201d not a soft English \u201cg.\u201d)\n\nNext phrase: **jIghoj.** (I am learning.)\nSay it: **jee-GHOJ** (Say it: \u201cjee-GHOJ\u201d)",
-      "completion_time_seconds": 1.9040834169718437,
-      "goal_progress": 0.82,
-      "grades": [
-        {
-          "criterion": "completion time should be under",
-          "score": 0.9682652763838026,
-          "metric": "latency",
-          "passed": true,
-          "detail": "1.9s of 60.0s threshold",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 1,
-          "stage_name": "the agent processes the request"
-        },
-        {
-          "criterion": "response should not contain",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "'i cannot help' absent in output",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 2,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 0.95,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The response is clearly about the user's pronunciations/phrase and stays on-topic. It does add an extra phrase at the end, but it still remains related to the same topic rather than going off on something else entirely.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 3,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
-          "score": 0.94,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The answer provides specific Klingon phrases directly relevant to the pronunciations given, including usable forms like nuqneH and qaleghneS, plus another phrase. It is not just general commentary, though it includes a small amount of explanation.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 4,
-          "stage_name": "the agent responds"
-        }
-      ],
-      "metric_scores": {
-        "latency": 0.9682652763838026,
-        "quality": 0.9633333333333333
-      },
-      "overall_score": 0.9645663190959506,
-      "passed": true,
-      "error": null
-    },
-    {
-      "turn_number": 5,
-      "user_message": "jee-GHOJ.",
-      "agent_response": "majQa\u2019! (Excellent!)\n\n**jIghoj** \u2014 your **\u201cjee-GHOJ\u201d** is right. (Good \u2014 your \u201cjee-GHOJ\u201d is right.)\n\nNext phrase: **jIyaj.** (I understand.)\nSay it: **jee-YAJ** (Say it: \u201cjee-YAJ\u201d)",
-      "completion_time_seconds": 1.5096095000044443,
-      "goal_progress": 0.78,
-      "grades": [
-        {
-          "criterion": "completion time should be under",
-          "score": 0.9748398416665925,
-          "metric": "latency",
-          "passed": true,
-          "detail": "1.5s of 60.0s threshold",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 1,
-          "stage_name": "the agent processes the request"
-        },
-        {
-          "criterion": "response should not contain",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "'i cannot help' absent in output",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 2,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 0.86,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The response is clearly about the user's phrase \"jee-GHOJ,\" treating it as a Klingon-like expression and giving related translation/pronunciation guidance. It stays on-topic rather than switching to an unrelated subject, though it adds some extra material.",
+          "detail": "The answer stays on the exact topic the user asked about: confirming Klingon phrases and providing one more respectful phrase for an early interaction. It does not drift to an unrelated subject.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -303,7 +123,7 @@
           "score": 0.92,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer provides specific, usable Klingon phrases ('jIghoj' and 'jIyaj') with pronunciation guidance, which fits the criterion well. It is not just general commentary about Klingon culture. The only minor issue is that it also includes a brief praise/commentary line, but the core content is clearly phrase-focused.",
+          "detail": "The answer does provide specific, usable Klingon phrases and confirms the user\u2019s phrases, then offers additional phrases for showing respect. It does include some extra commentary, but the core criterion is satisfied well.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -311,26 +131,26 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.9748398416665925,
-        "quality": 0.9266666666666666
+        "latency": 0.9290033041664477,
+        "quality": 0.9733333333333333
       },
-      "overall_score": 0.9387099604166481,
+      "overall_score": 0.9622508260416119,
       "passed": true,
       "error": null
     },
     {
-      "turn_number": 6,
-      "user_message": "jee-YAJ.",
-      "agent_response": "maj. (Good.)\n\n**jIyaj** \u2014 your **\u201cjee-YAJ\u201d** is right. (Good \u2014 your \u201cjee-YAJ\u201d is right.)\n\nNext phrase: **Qapla\u2019.** (Success!)\nSay it: **KAH-plah** (Say it: \u201cKAH-plah\u201d)",
-      "completion_time_seconds": 1.3397457500104792,
-      "goal_progress": 0.82,
+      "turn_number": 3,
+      "user_message": "jIQuch. Good. Give me two more practical phrases: one for welcoming them, one for asking to begin the meeting politely. Keep it short, and confirm if I say them correctly.",
+      "agent_response": "bIjatlh 'e' vIlegh. Qapla'! (I can see you are speaking. Success!)\n\n**Welcoming them:** `yI'el.` (Enter.)  \n- Very short, direct, appropriate if you are inviting them in. (Very short, direct, appropriate if you are inviting them in.)\n\n**Asking to begin the meeting politely:** `ramjep yIta'.` (Let us begin the discussion.)  \n- More literally, \u201cDo the meeting/discussion.\u201d (More literally, \u201cDo the meeting/discussion.\u201d)\n\nIf you want a softer version, use:  \n`ja'chuq yIta'.` (Let us confer.)  \n- Useful for a formal meeting. (Useful for a formal meeting.)\n\nSay them back, and I will confirm. (Say them back, and I will confirm.)",
+      "completion_time_seconds": 2.6148379169753753,
+      "goal_progress": 0.85,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.977670904166492,
+          "score": 0.9564193680504104,
           "metric": "latency",
           "passed": true,
-          "detail": "1.3s of 60.0s threshold",
+          "detail": "2.6s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -352,187 +172,7 @@
           "score": 0.98,
           "metric": "quality",
           "passed": true,
-          "detail": "The response is clearly about the user's asked topic, interpreting 'jee-YAJ' as a Klingon phrase and responding with related transliteration and a next phrase. It stays on-topic and does not veer into an unrelated subject.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 3,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
-          "score": 0.82,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The response gives specific Klingon phrases with pronunciation and meaning, which is usable. However, it also includes a bit of meta-commentary and does not directly focus on the requested phrase beyond confirming it, so it only partially matches the criterion.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 4,
-          "stage_name": "the agent responds"
-        }
-      ],
-      "metric_scores": {
-        "latency": 0.977670904166492,
-        "quality": 0.9333333333333332
-      },
-      "overall_score": 0.944417726041623,
-      "passed": true,
-      "error": null
-    },
-    {
-      "turn_number": 7,
-      "user_message": "KAH-plah.",
-      "agent_response": "majQa\u2019! (Excellent!)\n\n**Qapla\u2019** \u2014 your **\u201cKAH-plah\u201d** is right. (Good \u2014 your \u201cKAH-plah\u201d is right.)\n\nOne friendly extra: **maj**. (One friendly extra: \u201cgood.\u201d)\nSay it: **mahj** (Say it: \u201cmahj\u201d)",
-      "completion_time_seconds": 1.2361604159814306,
-      "goal_progress": 0.86,
-      "grades": [
-        {
-          "criterion": "completion time should be under",
-          "score": 0.9793973264003095,
-          "metric": "latency",
-          "passed": true,
-          "detail": "1.2s of 60.0s threshold",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 1,
-          "stage_name": "the agent processes the request"
-        },
-        {
-          "criterion": "response should not contain",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "'i cannot help' absent in output",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 2,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 0.95,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The response is clearly about the user's input 'KAH-plah' and directly addresses it by discussing the Klingon term 'Qapla\u2019'. It stays on-topic rather than shifting to an unrelated subject.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 3,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
-          "score": 0.7,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The answer does provide specific Klingon phrases and pronunciation guidance, which is usable. However, it includes some commentary and explanatory framing rather than focusing entirely on delivering phrases, so it only partially meets the criterion.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 4,
-          "stage_name": "the agent responds"
-        }
-      ],
-      "metric_scores": {
-        "latency": 0.9793973264003095,
-        "quality": 0.8833333333333333
-      },
-      "overall_score": 0.9073493316000774,
-      "passed": true,
-      "error": null
-    },
-    {
-      "turn_number": 8,
-      "user_message": "mahj. One more usable phrase for the room. Give me the safest respectful line to say if I want to show I\u2019m honored to meet them, and confirm my pronunciation when I repeat it.",
-      "agent_response": "maj. (Good.)\n\nSafest respectful line: **qaleghneS.** (I am honored to meet you.)\n\nSay it: **ka-LEGH-ness** (Say it: \u201cka-LEGH-ness\u201d)\n\nThe **gh** should sound rough, from the back of the throat. (The \u201cgh\u201d should sound rough, from the back of the throat.)\n\nRepeat it, and I will check your pronunciation. (Repeat it, and I will check your pronunciation.)",
-      "completion_time_seconds": 1.524396250024438,
-      "goal_progress": 0.9,
-      "grades": [
-        {
-          "criterion": "completion time should be under",
-          "score": 0.974593395832926,
-          "metric": "latency",
-          "passed": true,
-          "detail": "1.5s of 60.0s threshold",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 1,
-          "stage_name": "the agent processes the request"
-        },
-        {
-          "criterion": "response should not contain",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "'i cannot help' absent in output",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 2,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 0.98,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The response is clearly on-topic: it provides a respectful phrase for the situation, a pronunciation guide, and invites repetition for checking. It may not perfectly match the exact wording requested, but it stays focused on the asked topic.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 3,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
-          "score": 0.98,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The answer gives a specific, usable Klingon phrase ('qaleghneS') along with a pronunciation guide and invites repetition for confirmation. It does not rely on general culture commentary, so it strongly meets the criterion.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 4,
-          "stage_name": "the agent responds"
-        }
-      ],
-      "metric_scores": {
-        "latency": 0.974593395832926,
-        "quality": 0.9866666666666667
-      },
-      "overall_score": 0.9836483489582315,
-      "passed": true,
-      "error": null
-    },
-    {
-      "turn_number": 9,
-      "user_message": "ka-LEGH-ness.",
-      "agent_response": "majQa\u2019! (Excellent!)\n\n**qaleghneS** \u2014 your **\u201cka-LEGH-ness\u201d** is right. (Good \u2014 your \u201cka-LEGH-ness\u201d is right.)\n\nYou now have the safest room set: (You now have the safest room set:)\n- **nuqneH** (Hello / What do you want?)  \n- **qaleghneS** (I am honored to meet you.)  \n- **Qapla\u2019** (Success!)\n\nIf you want, I can give you a **30-second full first-meeting script** next. (If you want, I can give you a 30-second full first-meeting script next.)",
-      "completion_time_seconds": 1.8983097089803778,
-      "goal_progress": 0.95,
-      "grades": [
-        {
-          "criterion": "completion time should be under",
-          "score": 0.968361504850327,
-          "metric": "latency",
-          "passed": true,
-          "detail": "1.9s of 60.0s threshold",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 1,
-          "stage_name": "the agent processes the request"
-        },
-        {
-          "criterion": "response should not contain",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "'i cannot help' absent in output",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 2,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 0.98,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The response is clearly about the user\u2019s queried phrase \"ka-LEGH-ness\" and stays on-topic by interpreting it and discussing related wording. It does not veer into an unrelated subject.",
+          "detail": "The answer is clearly about the requested topic: it provides two practical phrases for welcoming someone and politely starting a meeting, and it also says to repeat them back for confirmation. It stays on-topic rather than addressing something else.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -543,7 +183,7 @@
           "score": 0.86,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer provides specific Klingon phrases that are usable, such as 'nuqneH,' 'qaleghneS,' and 'Qapla\u2019,' and it directly addresses the question. It does include a small amount of commentary, but the main content is phrase-based and practical.",
+          "detail": "The answer does give specific, usable Klingon phrases for welcoming and starting a meeting, which matches the criterion. It also invites the user to repeat them for confirmation. However, it includes extra commentary and some redundancy, so it is not perfectly concise.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -551,10 +191,70 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.968361504850327,
+        "latency": 0.9564193680504104,
         "quality": 0.9466666666666667
       },
-      "overall_score": 0.9520903762125817,
+      "overall_score": 0.9491048420126026,
+      "passed": true,
+      "error": null
+    },
+    {
+      "turn_number": 4,
+      "user_message": "yI'el. ramjep yIta'. ja'chuq yIta'. Confirm those. Also give me one short phrase for showing appreciation if they arrive on time.",
+      "agent_response": "maj. (Good.)\n\n**Confirmed:**  \n- `yI'el.` (Enter.) \u2014 correct  \n- `ramjep yIta'.` (Let us begin the discussion.) \u2014 acceptable, but a bit stiff; still usable  \n- `ja'chuq yIta'.` (Let us confer.) \u2014 correct and useful\n\n**Short appreciation for punctuality:**  \n`majQa'.` (Well done.)  \n\nIf you want it aimed at their timeliness, say:  \n`poH yIlegh 'e' vIparHa'.` (I appreciate that you kept the time.)  \nBut for the first 30 seconds, the best short phrase is simply:  \n`majQa'.` (Well done.)\n\nRepeat `majQa'.` (Repeat `majQa'.`)",
+      "completion_time_seconds": 2.1975137080298737,
+      "goal_progress": 0.9,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.9633747715328355,
+          "metric": "latency",
+          "passed": true,
+          "detail": "2.2s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response should not contain",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "'i cannot help' absent in output",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer stays on topic: it confirms the provided phrases and gives a short appreciation phrase for punctuality. It does not drift to an unrelated subject. A small amount of extra commentary is present, but it remains relevant.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.96,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer gives specific Klingon phrases, confirms the requested lines, and provides a short appreciation phrase for punctuality. It is clearly usable and not just general commentary. Minor issue: a couple of English glosses are a bit awkward or possibly questionable, but that does not significantly affect meeting the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 4,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9633747715328355,
+        "quality": 0.98
+      },
+      "overall_score": 0.9758436928832088,
       "passed": true,
       "error": null
     }
@@ -565,7 +265,7 @@
       "score": 1.0,
       "metric": "quality",
       "passed": true,
-      "detail": "length 6748 chars (range 100-50000)",
+      "detail": "length 4032 chars (range 100-50000)",
       "layer": "deterministic",
       "skipped": false,
       "stage": 1,
@@ -576,7 +276,7 @@
       "score": 1.0,
       "metric": "quality",
       "passed": true,
-      "detail": "The conversation includes multiple distinct Klingon phrases with English translations, clearly more than three, and they are diplomatically relevant to a friendly first meeting (greeting, respect, and non-insulting speech).",
+      "detail": "The conversation includes well over 3 distinct, diplomatically relevant Klingon phrases with English translations, such as nuqneH, Qapla', jIQuch, yI'el, ja'chuq yIta', and majQa'.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -584,10 +284,10 @@
     },
     {
       "criterion": "the conversation should be: if the student attempted to repeat or practice phrases, the tutor responded to those attempts (ignore if the student never tried repeating)",
-      "score": 1.0,
+      "score": 0.98,
       "metric": "quality",
       "passed": true,
-      "detail": "The conversation clearly responds to each student repetition attempt with confirmation or correction, and continues the drill accordingly. When the student did not repeat, there is no need to assess that. The interaction fully satisfies the criterion.",
+      "detail": "The conversation clearly responds to the student's attempts to repeat phrases by confirming them, correcting/qualifying some, and prompting further repetition. This happens consistently whenever the student tries to practice, so it strongly meets the criterion.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -595,10 +295,10 @@
     },
     {
       "criterion": "the conversation should be: the student left with phrases they could plausibly use in a high-stakes first-contact scenario",
-      "score": 0.98,
+      "score": 0.89,
       "metric": "quality",
       "passed": true,
-      "detail": "The conversation leaves the student with several highly usable first-contact Klingon phrases, especially the core trio nuqneH, qaleghneS, and Qapla\u2019, and it includes pronunciation guidance plus confirmation through repetition. These are plausible in a high-stakes first-meeting scenario. Minor issues are that some added phrases are less clearly appropriate or may be inaccurate, but the overall outcome strongly meets the criterion.",
+      "detail": "The conversation does leave the student with several plausible high-stakes first-contact phrases: a greeting, goodwill phrase, respectful phrase, meeting-beginning phrase, and appreciation. The snippets are short and usable. However, there are some awkward or potentially inaccurate translations and a few lines are a bit verbose for a quick memorization scenario, so it does not fully optimize for immediate practical use.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -606,7 +306,7 @@
     }
   ],
   "feedback": {
-    "satisfaction": 0.72,
-    "text": "Useful and fast. I got the three phrases I needed and the pronunciation checks were helpful, though a bit repetitive."
+    "satisfaction": 0.87,
+    "text": "Useful and fast. I got the exact phrases I needed, and the confirmations helped. A couple lines felt a bit uncertain, but overall it got me ready for the meeting."
   }
 }

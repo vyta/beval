@@ -1,41 +1,11 @@
 [
   {
-    "conversation_id": "eager_linguist:learn_greetings:2",
-    "persona_id": "eager_linguist",
-    "goal_id": "learn_greetings",
-    "actor_index": 2,
-    "satisfaction": 0.98,
-    "text": "Really great\u2014my Klingon basics clicked fast, the pronunciation help was clear, and I loved the cultural context around directness.",
-    "goal_achieved": true,
-    "termination_reason": "goal_achieved"
-  },
-  {
-    "conversation_id": "eager_linguist:learn_greetings:1",
-    "persona_id": "eager_linguist",
-    "goal_id": "learn_greetings",
-    "actor_index": 1,
-    "satisfaction": 0.94,
-    "text": "I really enjoyed it \u2014 the explanations made the Klingon feel culturally grounded, and I got to practice the phrases back with enough feedback to feel confident.",
-    "goal_achieved": true,
-    "termination_reason": "goal_achieved"
-  },
-  {
     "conversation_id": "starfleet_diplomat:mission_critical_phrases:1",
     "persona_id": "starfleet_diplomat",
     "goal_id": "mission_critical_phrases",
     "actor_index": 1,
-    "satisfaction": 0.84,
-    "text": "Useful and fast. I got the core lines I needed, and the checks were clear enough, though there was a bit more clutter and correction than I wanted.",
-    "goal_achieved": true,
-    "termination_reason": "goal_achieved"
-  },
-  {
-    "conversation_id": "eager_linguist:understand_warrior_phrases:1",
-    "persona_id": "eager_linguist",
-    "goal_id": "understand_warrior_phrases",
-    "actor_index": 1,
     "satisfaction": 0.78,
-    "text": "I got the honor/determination/cultural pride set I was aiming for, and I loved the back-and-forth on nuance and grammar. A few of the Klingon forms felt a bit uncertain or self-corrected, so it wasn\u2019t perfect, but overall it was very satisfying.",
+    "text": "Useful and fast. I got the phrases I needed and immediate confirmation, but it was a bit repetitive and not as crisp as I wanted.",
     "goal_achieved": true,
     "termination_reason": "goal_achieved"
   },
@@ -44,8 +14,28 @@
     "persona_id": "starfleet_diplomat",
     "goal_id": "mission_critical_phrases",
     "actor_index": 2,
-    "satisfaction": 0.72,
-    "text": "Useful and fast. I got the three phrases I needed and the pronunciation checks were helpful, though a bit repetitive.",
+    "satisfaction": 0.87,
+    "text": "Useful and fast. I got the exact phrases I needed, and the confirmations helped. A couple lines felt a bit uncertain, but overall it got me ready for the meeting.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:learn_greetings:1",
+    "persona_id": "eager_linguist",
+    "goal_id": "learn_greetings",
+    "actor_index": 1,
+    "satisfaction": 0.28,
+    "text": "I liked the encouragement and the cultural context, but the Klingon examples felt shaky and inconsistent, so I\u2019m left less confident than I wanted to be.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:learn_greetings:2",
+    "persona_id": "eager_linguist",
+    "goal_id": "learn_greetings",
+    "actor_index": 2,
+    "satisfaction": 0.34,
+    "text": "I liked the enthusiasm and the practice prompts, but the Klingon content felt pretty unreliable in places, so I\u2019d need a cleaner, more accurate lesson to feel satisfied.",
     "goal_achieved": true,
     "termination_reason": "goal_achieved"
   },
@@ -54,8 +44,18 @@
     "persona_id": "eager_linguist",
     "goal_id": "understand_warrior_phrases",
     "actor_index": 2,
-    "satisfaction": 0.72,
-    "text": "I got the core phrases I wanted and the cultural distinctions were really helpful, though a few corrections felt a bit inconsistent, so I\u2019d call it a strong but not perfect exchange.",
+    "satisfaction": 0.97,
+    "text": "I got exactly what I was hoping for: clear nuance on Qapla', strong distinctions between honor and success, and enough pronunciation support to actually practice. The mini dialogue and call-and-response style made it feel really immersive and helpful.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:understand_warrior_phrases:1",
+    "persona_id": "eager_linguist",
+    "goal_id": "understand_warrior_phrases",
+    "actor_index": 1,
+    "satisfaction": 0.86,
+    "text": "I got a lot of useful Klingon honor phrases and context, and the pronunciation/rhythm feedback was really helpful, though a few constructions felt a bit inconsistent at times.",
     "goal_achieved": true,
     "termination_reason": "goal_achieved"
   }

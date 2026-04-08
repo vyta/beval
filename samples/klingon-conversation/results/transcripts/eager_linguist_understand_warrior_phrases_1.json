@@ -5,32 +5,32 @@
   "persona_id": "eager_linguist",
   "goal_id": "understand_warrior_phrases",
   "actor_index": 1,
-  "overall_score": 0.9442834136660219,
+  "overall_score": 0.9513470432078187,
   "goal_achievement_score": 1.0,
   "passed": true,
   "goal_achieved": true,
   "termination_reason": "goal_achieved",
-  "turn_count": 6,
-  "time_seconds": 109.96339979197364,
+  "turn_count": 7,
+  "time_seconds": 120.05323733296245,
   "metric_scores": {
-    "latency": 0.9049892637747688,
-    "quality": 0.9550000000000001
+    "latency": 0.8904436260928854,
+    "quality": 0.9684000000000001
   },
   "error": null,
   "turns": [
     {
       "turn_number": 1,
-      "user_message": "I'm really curious about the Klingon idea of honor and pride in language. Could you explain Qapla' in context, not just as a translation? I know it\u2019s often used like \u201csuccess,\u201d but does it carry more of a warrior or cultural meaning too? And if I want to say that I act with honor, how would I say that in Klingon? Also, could you teach me a couple of related phrases about determination or cultural pride? I\u2019d love to try repeating them back.",
-      "agent_response": "nuqneH! (What do you want?)\n\nQapla' (success) is indeed usually translated as \u201csuccess,\u201d but in Klingon it carries a stronger warrior\u2019s flavor. (Qapla' is usually translated as \u201csuccess,\u201d but in Klingon it carries a stronger warrior\u2019s flavor.)  \nIt is not just \u201cI succeeded\u201d in a soft, personal sense. (It is not just \u201cI succeeded\u201d in a soft, personal sense.)  \nIt is more like: \u201cMay your mission be victorious,\u201d \u201cMay the outcome be successful,\u201d or simply a proud battle-ready wish for success. (It is more like: \u201cMay your mission be victorious,\u201d \u201cMay the outcome be successful,\u201d or simply a proud battle-ready wish for success.)  \nKlingons often use it as a greeting at the end of an exchange, especially when speaking as comrades or warriors. (Klingons often use it as a greeting at the end of an exchange, especially when speaking as comrades or warriors.)\n\nFor honor, the Klingon concept is very culture-centered: honor is tied to deeds, courage, loyalty, and reputation. (For honor, the Klingon concept is very culture-centered: honor is tied to deeds, courage, loyalty, and reputation.)  \nA simple way to say \u201cI act with honor\u201d is: **jIQuchbe\u2019\u2026** no, not that. Let me give you a better Klingon construction. (A simple way to say \u201cI act with honor\u201d is: **jIQuchbe\u2019\u2026** no, not that. Let me give you a better Klingon construction.)  \nYou can say: **jIHvaD Qaplu\u2019 \u2018e\u2019 vIbej** would mean something like \u201cI ensure success for myself,\u201d but that is not \u201chonor.\u201d (You can say: **jIHvaD Qaplu\u2019 \u2018e\u2019 vIbej** would mean something like \u201cI ensure success for myself,\u201d but that is not \u201chonor.\u201d)  \nFor \u201cI behave honorably,\u201d a better idea is: **jIHvaD reH tIwI\u2019 vItIv**? No\u2014this is not idiomatic. (For \u201cI behave honorably,\u201d a better idea is: **jIHvaD reH tIwI\u2019 vItIv**? No\u2014this is not idiomatic.)  \nThe most natural Klingon would be to express the actions that show honor rather than an abstract \u201cI act with honor.\u201d (The most natural Klingon would be to express the actions that show honor rather than an abstract \u201cI act with honor.\u201d)\n\nHere are useful phrases: (Here are useful phrases:)\n\n- **bIHeghbe\u2019DI\u2019 Qapla\u2019** \u2014 \u201cSuccess when you do not die\u201d / \u201cVictory if you survive.\u201d ( **bIHeghbe\u2019DI\u2019 Qapla\u2019** \u2014 \u201cSuccess when you do not die\u201d / \u201cVictory if you survive.\u201d )  \n- **batlh** \u2014 \u201chonor.\u201d ( **batlh** \u2014 \u201chonor.\u201d )  \n- **batlh bIvang** \u2014 \u201cYou act with honor.\u201d ( **batlh bIvang** \u2014 \u201cYou act with honor.\u201d )  \n- **batlh jIvum** \u2014 \u201cI work/act with honor.\u201d ( **batlh jIvum** \u2014 \u201cI work/act with honor.\u201d )  \n- **tlhIngan maH** \u2014 \u201cWe are Klingons.\u201d ( **tlhIngan maH** \u2014 \u201cWe are Klingons.\u201d )  \n- **tlhIngan maH!** \u2014 \u201cWe are Klingons!\u201d \u2014 a proud statement of identity. ( **tlhIngan maH!** \u2014 \u201cWe are Klingons!\u201d \u2014 a proud statement of identity.)\n\nFor determination, try: (For determination, try:)\n\n- **jIpe\u2019** \u2014 \u201cI insist.\u201d / \u201cI am determined.\u201d ( **jIpe\u2019** \u2014 \u201cI insist.\u201d / \u201cI am determined.\u201d )  \n- **qaH!** \u2014 \u201cContinue!\u201d / \u201cKeep going!\u201d depending on context. ( **qaH!** \u2014 \u201cContinue!\u201d / \u201cKeep going!\u201d depending on context.)  \n- **jIchegh** \u2014 \u201cI return.\u201d ( **jIchegh** \u2014 \u201cI return.\u201d )  \n- **jIghoS** \u2014 \u201cI go/proceed.\u201d ( **jIghoS** \u2014 \u201cI go/proceed.\u201d )\n\nFor cultural pride, these are powerful: (For cultural pride, these are powerful:)\n\n- **tlhIngan Hol Dajatlh\u2019a\u2019?** \u2014 \u201cDo you speak Klingon?\u201d ( **tlhIngan Hol Dajatlh\u2019a\u2019?** \u2014 \u201cDo you speak Klingon?\u201d )  \n- **tlhIngan Hol vIjatlh** \u2014 \u201cI speak Klingon.\u201d ( **tlhIngan Hol vIjatlh** \u2014 \u201cI speak Klingon.\u201d )  \n- **tlhIngan maH** \u2014 \u201cWe are Klingons.\u201d ( **tlhIngan maH** \u2014 \u201cWe are Klingons.\u201d )\n\nTry repeating these back: (Try repeating these back:)\n\n1. **batlh jIvum** (I work with honor.)  \n2. **tlhIngan maH!** (We are Klingons!)  \n3. **jIpe\u2019** (I am determined.)  \n4. **Qapla\u2019** (Success!)\n\nIf you want, I can also give you a very short, authentic Klingon-style saying about honor and glory, with a line-by-line breakdown. (If you want, I can also give you a very short, authentic Klingon-style saying about honor and glory, with a line-by-line breakdown.)",
-      "completion_time_seconds": 7.014218500000425,
-      "goal_progress": 0.15,
+      "user_message": "I\u2019m really curious about Klingon expressions for honor and cultural pride. I\u2019ve heard *Qapla\u2019* before\u2014what does it mean in context, not just literally? Is it something like \u201csuccess,\u201d or is there a stronger cultural feeling behind it?\n\nAlso, could you teach me how to say something like \u201cI act with honor\u201d in Klingon? I\u2019d love to understand a few related phrases too\u2014maybe ones tied to determination or the Klingon philosophy of strength and honor. I can try repeating them back if you give me the pronunciation!",
+      "agent_response": "nuqneH! (What do you want?)\n\nQapla\u2019! (Success / May you succeed!)\n\n**Qapla\u2019** is more than a simple \u201csuccess.\u201d (Qapla\u2019 is more than a simple \u201csuccess.\u201d)  \nIt is a **warrior\u2019s blessing, farewell, and wish for victory** all in one. (It is a warrior\u2019s blessing, farewell, and wish for victory all in one.)  \nIn context, it can mean something like: **\u201cMay you prevail,\u201d \u201cMay this be successful,\u201d \u201cGo and be victorious.\u201d** (In context, it can mean something like: \u201cMay you prevail,\u201d \u201cMay this be successful,\u201d \u201cGo and be victorious.\u201d)\n\nIn Klingon culture, **Qapla\u2019** carries the feeling of **achievement earned through action**, not just luck. (In Klingon culture, Qapla\u2019 carries the feeling of achievement earned through action, not just luck.)  \nIt is the kind of word a warrior says when leaving for battle, ending a challenge, or wishing someone strength. (It is the kind of word a warrior says when leaving for battle, ending a challenge, or wishing someone strength.)\n\nFor **\u201cI act with honor,\u201d** a useful Klingon-style way to say it is:  \n**jIje\u2019 tIqDaj je** would not be the right phrasing for that. (jIje\u2019 tIqDaj je would not be the right phrasing for that.)  \nA better simple phrase is: **vIlajbe\u2019**, meaning **\u201cI do not accept it,\u201d** but that does not express honor. (A better simple phrase is: vIlajbe\u2019, meaning \u201cI do not accept it,\u201d but that does not express honor.)\n\nA more direct and useful phrase is:  \n**jIHvaD yIn wa\u2019DIch \u2018oH Quj\u2019e\u2019** is not right for this idea either. (jIHvaD yIn wa\u2019DIch \u2018oH Quj\u2019e\u2019 is not right for this idea either.)\n\nLet me give you **real, useful phrases** you can actually learn and repeat:  \n**jIyaj.** (I understand.)  \n**jIHvaD Qapla\u2019!** (Success to me! / May I succeed!)  \n**jIHvaD \u2019oH SuvwI\u2019 sep\u2019e\u2019.** (For me, it is the warrior\u2019s path/land.)  \n**jIpe\u2019Ha\u2019** means **\u201cI do not back down.\u201d** (jIpe\u2019Ha\u2019 means \u201cI do not back down.\u201d)  \n**jIvang** means **\u201cI act.\u201d** (jIvang means \u201cI act.\u201d)  \n**jIHoS** means **\u201cI am strong.\u201d** (jIHoS means \u201cI am strong.\u201d)\n\nIf you want something close to **\u201cI act with honor,\u201d** you can say:  \n**jIHvaD batlh vIvang.** (I act with honor.)  \nThis is the best simple version for your purpose. (This is the best simple version for your purpose.)\n\n### Pronunciation help (Klingon-style)\n- **jIHvaD** = \u201cjick-vad\u201d-ish, with a strong **kh** sound in **jIH** (like a harsh throat sound). (jIHvaD = \u201cjick-vad\u201d-ish, with a strong kh sound in jIH.)\n- **batlh** = \u201cbahtlh,\u201d ending with a clipped **tlh** sound. (batlh = \u201cbahtlh,\u201d ending with a clipped tlh sound.)\n- **vIvang** = \u201cvee-vahng.\u201d (vIvang = \u201cvee-vahng.\u201d)\n- **Qapla\u2019** = \u201ckop-lah\u201d with a sharp **Q** from deep in the throat. (Qapla\u2019 = \u201ckop-lah\u201d with a sharp Q from deep in the throat.)\n\n### A few related honor/strength phrases\n- **batlh** (honor) (batlh = honor)\n- **joH** (lord / respected one) (joH = lord / respected one)\n- **HoS** (strength) (HoS = strength)\n- **quv** (honor, dignity, prestige) (quv = honor, dignity, prestige)\n- **\u2019Iw** (blood) \u2014 often tied to warrior imagery (\u2019Iw = blood \u2014 often tied to warrior imagery)\n\nA very Klingon sentiment is:  \n**batlh je SuvwI\u2019** (a warrior and honor) \u2014 this is more of a vocabulary pair than a full sentence. (batlh je SuvwI\u2019 = a warrior and honor \u2014 this is more of a vocabulary pair than a full sentence.)\n\nYou may repeat after me:  \n**Qapla\u2019!** (Success!)  \n**jIHvaD batlh vIvang.** (I act with honor.)  \n**jIpe\u2019Ha\u2019.** (I do not back down.)  \n**jIHoS.** (I am strong.)\n\nIf you try them, I will correct your pronunciation like a proper Klingon instructor. (If you try them, I will correct your pronunciation like a proper Klingon instructor.)  \n**Qapla\u2019!** (Success!)",
+      "completion_time_seconds": 6.9442001660354435,
+      "goal_progress": 0.2,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.8830963583333262,
+          "score": 0.884263330566076,
           "metric": "latency",
           "passed": true,
-          "detail": "7.0s of 60.0s threshold",
+          "detail": "6.9s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -49,10 +49,10 @@
         },
         {
           "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 0.95,
+          "score": 1.0,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer stays on the Klingon language topic the user asked about, addressing Qapla', honor, and related phrases. It does not drift into an unrelated subject. A small amount of self-correction/confusion is present, but topical relevance is strong throughout.",
+          "detail": "The answer stays on topic: it discusses Klingon expressions for honor, the meaning of Qapla\u2019, and related phrases/pronunciation. It does not veer into an unrelated subject.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -60,10 +60,10 @@
         },
         {
           "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
-          "score": 0.78,
+          "score": 0.7,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer stays mostly in a Klingon tutor style and uses several authentic Klingon terms such as nuqneH, Qapla', batlh, tlhIngan maH, and tlhIngan Hol. It also provides English translations and contextual explanations. However, some of the Klingon phrases appear dubious or not fully idiomatic, and the response includes self-corrections that weaken the confidence of the tutoring voice. Overall it meets the criterion reasonably well, but not perfectly.",
+          "detail": "The response does stay in a Klingon tutor-like voice and gives several Klingon words with English translations and pronunciation help. It also explains Qapla\u2019 in cultural context. However, some of the Klingon phrases appear inaccurate or fabricated, and the answer inconsistently qualifies or retracts its own examples, which weakens the authenticity requirement.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -71,26 +71,26 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.8830963583333262,
-        "quality": 0.91
+        "latency": 0.884263330566076,
+        "quality": 0.9
       },
-      "overall_score": 0.9032740895833316,
+      "overall_score": 0.896065832641519,
       "passed": true,
       "error": null
     },
     {
       "turn_number": 2,
-      "user_message": "Wow, this is exactly the kind of context I was hoping for \u2014 thank you! I want to make sure I\u2019m getting the cultural nuance right, though.\n\nSo if I say **batlh jIvum**, that\u2019s more like \u201cI work with honor,\u201d and not just a literal dictionary-style phrase, right? And **tlhIngan maH!** feels more like a proud identity statement than just \u201cwe are Klingons.\u201d Did I repeat those correctly?\n\nI\u2019m also really interested in **Qapla\u2019** as a social formula. In what situations would a Klingon actually say it \u2014 is it only after a successful outcome, or can it be used like a battle-wish or even as a kind of greeting among comrades?\n\nCould you teach me one or two more culturally important phrases about honor or determination, maybe something that expresses \u201cI will not yield\u201d or \u201cI choose honor\u201d? And if there\u2019s a common Klingon proverb or warrior saying related to pride or perseverance, I\u2019d love to hear that too.",
-      "agent_response": "Qapla'! (Success!)\n\nbatlh bIvum! (You work with honor!)\n\nbIjatlh Qo'! (You did not speak incorrectly! / Don\u2019t say no!)  \nYou repeated the ideas well. (You repeated the ideas well.)  \nBut I must correct one thing with honor: **batlh jIvum** is not \u201cdictionary-literal,\u201d it is a natural Klingon-style statement meaning \u201cI work with honor.\u201d (But I must correct one thing with honor: **batlh jIvum** is not \u201cdictionary-literal,\u201d it is a natural Klingon-style statement meaning \u201cI work with honor.\u201d)  \nYes, your understanding of **tlhIngan maH!** is good: it is indeed a proud identity statement, not just a flat \u201cwe are Klingons.\u201d (Yes, your understanding of **tlhIngan maH!** is good: it is indeed a proud identity statement, not just a flat \u201cwe are Klingons.\u201d)\n\nAbout **Qapla'**: yes, it is used in several social ways. (About **Qapla'**: yes, it is used in several social ways.)  \nIt can mean a battle-wish, a statement of confidence, or an affirmative farewell when warriors part ways. (It can mean a battle-wish, a statement of confidence, or an affirmative farewell when warriors part ways.)  \nIt is often said when someone is about to face a challenge, after a successful task, or at the end of a conversation. (It is often said when someone is about to face a challenge, after a successful task, or at the end of a conversation.)  \nSo yes: not only \u201csuccess,\u201d but also \u201cgo well,\u201d \u201cmay you prevail,\u201d and \u201cvictory to you.\u201d (So yes: not only \u201csuccess,\u201d but also \u201cgo well,\u201d \u201cmay you prevail,\u201d and \u201cvictory to you.\u201d)\n\nFor \u201cI will not yield,\u201d a strong Klingon phrase is: **jIjatlhbe\u2019**? No\u2014that means \u201cI will not speak.\u201d (For \u201cI will not yield,\u201d a strong Klingon phrase is: **jIjatlhbe\u2019**? No\u2014that means \u201cI will not speak.\u201d)  \nA better warrior phrase is: **jIbachbe\u2019**? No\u2014that means \u201cI do not fire.\u201d (A better warrior phrase is: **jIbachbe\u2019**? No\u2014that means \u201cI do not fire.\u201d)  \nThe natural way to say \u201cI will not yield\u201d is often expressed as **vIta\u2019be\u2019** in context, meaning \u201cI will not obey/comply.\u201d (The natural way to say \u201cI will not yield\u201d is often expressed as **vIta\u2019be\u2019** in context, meaning \u201cI will not obey/comply.\u201d)  \nBut if you want the most warrior-like sense, you can say: **jIyonbe\u2019** \u2014 \u201cI will not surrender.\u201d (But if you want the most warrior-like sense, you can say: **jIyonbe\u2019** \u2014 \u201cI will not surrender.\u201d)  \n\nFor \u201cI choose honor,\u201d a useful phrase is: **batlh vIchoH** \u2014 \u201cI choose honor\u201d / \u201cI select honor.\u201d (For \u201cI choose honor,\u201d a useful phrase is: **batlh vIchoH** \u2014 \u201cI choose honor\u201d / \u201cI select honor.\u201d)  \nAnother way to express the idea is: **batlh vIlegh**? Not quite\u2014this is \u201cI see honor.\u201d (Another way to express the idea is: **batlh vIlegh**? Not quite\u2014this is \u201cI see honor.\u201d)  \nSo **batlh vIchoH** is the better one for your purpose. (So **batlh vIchoH** is the better one for your purpose.)\n\nHere are two more important phrases: (Here are two more important phrases:)\n\n- **jIpe\u2019** (I am determined / I insist.) ( **jIpe\u2019** (I am determined / I insist.) )  \n- **batlh jIvum** (I work with honor.) ( **batlh jIvum** (I work with honor.) )\n\nA classic Klingon-style proverb-like saying is: (A classic Klingon-style proverb-like saying is:)\n\n- **bIHeghbe\u2019DI\u2019 Qapla\u2019** (Success when you do not die / Victory if you survive.) ( **bIHeghbe\u2019DI\u2019 Qapla\u2019** (Success when you do not die / Victory if you survive.) )\n\nThat one carries a very Klingon worldview: survival, endurance, and triumph are bound together. (That one carries a very Klingon worldview: survival, endurance, and triumph are bound together.)  \nIt is not a gentle human proverb. (It is not a gentle human proverb.)  \nIt is a warrior\u2019s reminder that perseverance matters. (It is a warrior\u2019s reminder that perseverance matters.)\n\nTry repeating these: (Try repeating these:)\n\n1. **jIyonbe\u2019.** (I will not surrender.)  \n2. **batlh vIchoH.** (I choose honor.)  \n3. **jIpe\u2019.** (I am determined.)  \n4. **bIHeghbe\u2019DI\u2019 Qapla\u2019.** (Success when you do not die.)\n\nIf you like, I can next teach you a few short battle-style exchanges using **Qapla'**, **batlh**, and **tlhIngan maH**. (If you like, I can next teach you a few short battle-style exchanges using **Qapla'**, **batlh**, and **tlhIngan maH**.)",
-      "completion_time_seconds": 5.6334105000132695,
+      "user_message": "Qapla\u2019! That helps a lot \u2014 I\u2019m going to try the honor phrase back: **jIHvaD batlh vIvang**. Did I get the rhythm right?\n\nAlso, I\u2019m curious about the cultural nuance: is **batlh** the best word for \u201chonor\u201d in the warrior sense, and how is it different from **quv**? Could you give me one or two more Klingon phrases that show determination or pride, with when you\u2019d actually use them? I\u2019d love to understand the philosophy behind them too, not just memorize the translations.",
+      "agent_response": "Qapla\u2019! (Success!)\n\n**jIHvaD batlh vIvang** \u2014 reH ngoD qelmeH, \u2019ach pongmey chu\u2019 vIItlhup. (jIHvaD batlh vIvang \u2014 to consider the issue, but I must correct the wording.)  \nYou got the **rhythm very close**, but the phrase is a bit awkward in Klingon. (You got the rhythm very close, but the phrase is a bit awkward in Klingon.)\n\nA more natural way to say **\u201cI act with honor\u201d** is:  \n**batlh vIvang.** (I act with honor.)  \nThat is the clean, strong version. (That is the clean, strong version.)  \nYou can also say:  \n**batlh tlhobbe\u2019lu\u2019** is not relevant here. (batlh tlhobbe\u2019lu\u2019 is not relevant here.)  \nSo the key idea is simply **batlh vIvang**. (So the key idea is simply batlh vIvang.)\n\n### **batlh** vs. **quv**\nYes \u2014 **batlh** is usually the best word for **honor in the warrior sense**. (Yes \u2014 batlh is usually the best word for honor in the warrior sense.)  \nIt has the feeling of **honor earned by conduct, courage, and loyalty**. (It has the feeling of honor earned by conduct, courage, and loyalty.)  \nIt is something you **do** and **defend**. (It is something you do and defend.)\n\n**quv** is closer to **honor, dignity, esteem, prestige, reputation**. (quv is closer to honor, dignity, esteem, prestige, reputation.)  \nIt can be about the **status** someone has, or the respect they are accorded. (It can be about the status someone has, or the respect they are accorded.)  \nSo if **batlh** is the warrior\u2019s code, **quv** is the respected standing that may come from it. (So if batlh is the warrior\u2019s code, quv is the respected standing that may come from it.)\n\nIn short:  \n- **batlh** = honor as a principle/action (batlh = honor as a principle/action)  \n- **quv** = honor as status/dignity/reputation (quv = honor as status/dignity/reputation)\n\n### Two useful determination/pride phrases\n**jIpe\u2019Ha\u2019** (I do not back down.) (jIpe\u2019Ha\u2019 = I do not back down.)  \nUse this when you mean you will not yield under pressure. (Use this when you mean you will not yield under pressure.)  \nIt has a stubborn, determined warrior feeling. (It has a stubborn, determined warrior feeling.)\n\n**jIH HoS** is not good Klingon for \u201cI am strong.\u201d (jIH HoS is not good Klingon for \u201cI am strong.\u201d)  \nBetter is: **HoS vIghaj**. (Better is: HoS vIghaj.)  \nThis means **\u201cI have strength.\u201d** (This means \u201cI have strength.\u201d)  \nUse it when you want to state strength plainly, without bragging too much. (Use it when you want to state strength plainly, without bragging too much.)\n\n### Pride, Klingon-style\nKlingons prefer **deeds over boastful pride**. (Klingons prefer deeds over boastful pride.)  \nSo \u201cpride\u201d is often shown through **confidence in one\u2019s actions**, not self-congratulation. (So \u201cpride\u201d is often shown through confidence in one\u2019s actions, not self-congratulation.)\n\nA very useful line is:  \n**jIHvaD batlh je HoS vIghaj.** (I have honor and strength.)  \nThis is a decent way to express a proud warrior identity. (This is a decent way to express a proud warrior identity.)\n\nAnother is:  \n**batlh bIvang!** (Act with honor!)  \nUse this as a command or encouragement to another person. (Use this as a command or encouragement to another person.)  \nIt is the kind of thing a captain or teacher might say before a challenge. (It is the kind of thing a captain or teacher might say before a challenge.)\n\n### Philosophy behind it\nKlingon culture values **action, reputation, and courage under pressure**. (Klingon culture values action, reputation, and courage under pressure.)  \nHonor is not merely a feeling; it is **proved in battle, duty, and steadfastness**. (Honor is not merely a feeling; it is proved in battle, duty, and steadfastness.)  \nThat is why **batlh** is powerful: it is something you **maintain** through what you do. (That is why batlh is powerful: it is something you maintain through what you do.)  \nAnd **quv** matters because others see whether you live that way. (And quv matters because others see whether you live that way.)\n\n### Repeat after me\n**batlh vIvang.** (I act with honor.)  \n**jIpe\u2019Ha\u2019.** (I do not back down.)  \n**HoS vIghaj.** (I have strength.)  \n**batlh bIvang!** (Act with honor!)\n\nIf you want, I can next teach you a small set of **battle-ready honor phrases** or help you practice **pronunciation line by line**. (If you want, I can next teach you a small set of battle-ready honor phrases or help you practice pronunciation line by line.)",
+      "completion_time_seconds": 6.862325207970571,
       "goal_progress": 0.72,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.9061098249997789,
+          "score": 0.8856279132004905,
           "metric": "latency",
           "passed": true,
-          "detail": "5.6s of 60.0s threshold",
+          "detail": "6.9s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -112,7 +112,7 @@
           "score": 1.0,
           "metric": "quality",
           "passed": true,
-          "detail": "The response stays on the exact topic the user asked about: Klingon phrase nuance, the use of Qapla', and additional honor/determination phrases. It does not drift to an unrelated subject.",
+          "detail": "The answer stays on the same topic as the user's question: Klingon phrasing, the distinction between batlh and quv, and related honor/determination/pride expressions. It does not drift to an unrelated subject.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -123,7 +123,7 @@
           "score": 0.78,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer stays mostly in a Klingon-tutor voice and uses authentic Klingon vocabulary with English translations throughout. It also addresses the user\u2019s questions about Qapla' and gives additional phrases and a proverb-like saying. However, some translations and forms appear dubious or internally inconsistent, and the repetitive parenthetical text slightly weakens the professionalism and immersion.",
+          "detail": "The answer stays mostly in-character as a Klingon tutor, uses several Klingon words and phrases, and provides translations for them. It also addresses the batlh vs. quv nuance and gives example phrases with usage. However, some Klingon usage appears questionable or unnatural, and the answer includes a few awkward meta-style explanations that slightly weaken the authenticity.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -131,26 +131,26 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.9061098249997789,
+        "latency": 0.8856279132004905,
         "quality": 0.9266666666666667
       },
-      "overall_score": 0.9215274562499447,
+      "overall_score": 0.9164069783001226,
       "passed": true,
       "error": null
     },
     {
       "turn_number": 3,
-      "user_message": "This is fantastic \u2014 I\u2019m definitely getting the warrior-cultural nuance now. I\u2019ll try repeating them back:\n\n**jIyonbe\u2019.** \u2014 \u201cI will not surrender.\u201d\n**batlh vIchoH.** \u2014 \u201cI choose honor.\u201d\n**jIpe\u2019.** \u2014 \u201cI am determined.\u201d\n**bIHeghbe\u2019DI\u2019 Qapla\u2019.** \u2014 \u201cSuccess when you do not die.\u201d\n\nDid I pronounce those correctly in a rough beginner way? Also, could you unpack **batlh vIchoH** a bit more grammatically \u2014 is **vIchoH** literally \u201cI choose it,\u201d with **batlh** as the object? That construction is really interesting to me.\n\nAnd I\u2019d love those short battle-style exchanges you mentioned. Could you give me 2\u20133 mini-dialogues or phrases showing when to use **Qapla\u2019**, **batlh**, and **tlhIngan maH** in a culturally natural way? Maybe with a little note on whether each is more like a greeting, a boast, a farewell, or a challenge.",
-      "agent_response": "Qapla'! (Success!)\n\nnuqneH. (What do you want?)\n\nbIjatlh'eghmoHpu'be'. (You have not made yourself speak incorrectly.)  \nYour repetitions are good for a beginner. (Your repetitions are good for a beginner.)  \nI cannot hear your pronunciation directly, but your written forms are correct enough to practice from. (I cannot hear your pronunciation directly, but your written forms are correct enough to practice from.)  \nA few small notes: the apostrophe in Klingon matters. (A few small notes: the apostrophe in Klingon matters.)  \nSo **Qapla'**, **batlh**, **tlhIngan**, and **vIchoH** should all be said carefully. (So **Qapla'**, **batlh**, **tlhIngan**, and **vIchoH** should all be said carefully.)\n\nYes, your grammar question is excellent. (Yes, your grammar question is excellent.)  \n**batlh vIchoH** does mean roughly \u201cI choose honor,\u201d but let us examine it closely. ( **batlh vIchoH** does mean roughly \u201cI choose honor,\u201d but let us examine it closely.)  \nIn Klingon, **vI-** marks a first-person subject acting on a third-person object. (In Klingon, **vI-** marks a first-person subject acting on a third-person object.)  \nSo **vIchoH** means \u201cI change it\u201d / \u201cI transform it\u201d / \u201cI choose it\u201d depending on context. (So **vIchoH** means \u201cI change it\u201d / \u201cI transform it\u201d / \u201cI choose it\u201d depending on context.)  \nThat means **batlh** is functioning like the object of **vIchoH**: \u201cI choose it, honor.\u201d (That means **batlh** is functioning like the object of **vIchoH**: \u201cI choose it, honor.\u201d)  \nVery good observation. (Very good observation.)  \nIf you want, a slightly more explicit way to say the idea is to frame it as a decision about behavior, but **batlh vIchoH** is a strong, compact Klingon-style line. (If you want, a slightly more explicit way to say the idea is to frame it as a decision about behavior, but **batlh vIchoH** is a strong, compact Klingon-style line.)\n\nNow, the mini-dialogues. (Now, the mini-dialogues.)\n\n1. **Challenge / greeting among warriors** (Challenge / greeting among warriors)\n\n- **nuqneH?** (What do you want?)  \n- **Qapla'!** (Success!)  \n- **Qapla' batlh je.** (Success and honor too.)  \n\nUse this when meeting in a martial or formal Klingon context. (Use this when meeting in a martial or formal Klingon context.)  \nIt is greeting-like, but also carries pride. (It is greeting-like, but also carries pride.)\n\n2. **Farewell after a task** (Farewell after a task)\n\n- **Qapla'!** (Success!)  \n- **Qapla'!** (Success!)  \n- **batlh jIvum.** (I work with honor.)  \n\nThis works as a proud leave-taking: \u201cGo with success.\u201d (This works as a proud leave-taking: \u201cGo with success.\u201d)  \nIt is closer to a warrior farewell than a friendly goodbye. (It is closer to a warrior farewell than a friendly goodbye.)\n\n3. **Pride and identity** (Pride and identity)\n\n- **tlhIngan maH!** (We are Klingons!)  \n- **HISlaH! tlhIngan maH!** (Yes! We are Klingons!)  \n- **batlh maH.** (We are honorable / We are with honor.)  \n\nThis is a boast, declaration, or rallying cry. (This is a boast, declaration, or rallying cry.)  \nIt is not a question or a simple identification. (It is not a question or a simple identification.)\n\nA few quick labels: (A few quick labels:)\n\n- **Qapla'** = farewell, battle-wish, success cry ( **Qapla'** = farewell, battle-wish, success cry )  \n- **batlh** = honor, honor as a value ( **batlh** = honor, honor as a value )  \n- **tlhIngan maH** = identity declaration, pride statement ( **tlhIngan maH** = identity declaration, pride statement )\n\nTry these back now, warrior-style: (Try these back now, warrior-style:)\n\n- **Qapla' batlh je.** (Success and honor too.)  \n- **batlh jIvum.** (I work with honor.)  \n- **tlhIngan maH!** (We are Klingons!)  \n\nIf you want, next I can teach you a few phrases using **vIHegh**-type bravery language, or help you build your own Klingon slogan. (If you want, next I can teach you a few phrases using **vIHegh**-type bravery language, or help you build your own Klingon slogan.)",
-      "completion_time_seconds": 5.650518708047457,
-      "goal_progress": 0.78,
+      "user_message": "This is great \u2014 thank you! I definitely want to keep going. I tried saying **batlh vIvang** out loud, and **HoS vIghaj** too. Could you check whether I\u2019m stressing the words correctly if I write them out phonetically?\n\nAlso, I\u2019m really interested in the cultural philosophy now: are there other common Klingon sayings about honor, courage, or not retreating that are used like proverbs? Maybe 2\u20133 phrases with when you\u2019d say them, and what they imply socially. I\u2019d especially love one that feels like a strong farewell or encouragement, kind of like **Qapla\u2019**, but tied to honor or determination.",
+      "agent_response": "Qapla\u2019! (Success!)\n\nQIt tlhobnIS. (You should ask clearly.)  \nYou can write your pronunciation out phonetically, and I will check it. (You can write your pronunciation out phonetically, and I will check it.)  \nFor now, here is the **stress rule**: **Klingon generally stresses the final syllable of a word**. (For now, here is the stress rule: Klingon generally stresses the final syllable of a word.)\n\nSo these are roughly:  \n- **batlh vIvang** \u2192 **BAHTLH vee-VAHNG** (batlh vIvang \u2192 BAHTLH vee-VAHNG)  \n- **HoS vIghaj** \u2192 **HOHS vee-GHAJ** (HoS vIghaj \u2192 HOHS vee-GHAJ)  \n\nA few pronunciation notes:  \n- **batlh** ends with **-tlh**, a sharp Klingon sound, not an English \u201cl\u201d or \u201cth.\u201d (batlh ends with -tlh, a sharp Klingon sound, not an English l or th.)  \n- **Qapla\u2019** starts with **Q**, which is deeper and harsher than **q**. (Qapla\u2019 starts with Q, which is deeper and harsher than q.)  \n- **vIghaj** has the **gh** sound, like a voiced throat sound. (vIghaj has the gh sound, like a voiced throat sound.)\n\nIf you write your own phonetic version, I can correct it directly. (If you write your own phonetic version, I can correct it directly.)\n\n### Common Klingon sayings about honor and courage\n\n**batlh bIvang.** (Act with honor.)  \nUse this as encouragement, a command, or a moral challenge. (Use this as encouragement, a command, or a moral challenge.)  \nSocially, it implies: **do not disgrace yourself; live in a way worthy of respect**. (Socially, it implies: do not disgrace yourself; live in a way worthy of respect.)\n\n**Heghlu\u2019meH QaQ jajvam.** (Today is a good day to die.)  \nThis is perhaps the most famous Klingon saying. (This is perhaps the most famous Klingon saying.)  \nIt does **not** mean Klingons love death for its own sake. (It does not mean Klingons love death for its own sake.)  \nIt means: **face danger without fear; if death comes, meet it with honor**. (It means: face danger without fear; if death comes, meet it with honor.)  \nSocially, it is a declaration of fearless resolve. (Socially, it is a declaration of fearless resolve.)  \nUse it in moments of extreme courage, not casually. (Use it in moments of extreme courage, not casually.)\n\n**jIpe\u2019Ha\u2019.** (I do not back down.)  \nUse this when you want to say you will not retreat, compromise, or surrender easily. (Use this when you want to say you will not retreat, compromise, or surrender easily.)  \nIt implies stubborn determination and warrior resolve. (It implies stubborn determination and warrior resolve.)  \nSocially, it suggests someone who stands their ground even when it is difficult. (Socially, it suggests someone who stands their ground even when it is difficult.)\n\n### A strong farewell / encouragement like Qapla\u2019\nFor a farewell with honor, you can say:  \n**batlh je Qapla\u2019!** is not standard Klingon. (batlh je Qapla\u2019 is not standard Klingon.)  \nA better, natural version is:  \n**batlh yIvang!** (Act with honor!)  \nThis works very well as a strong send-off. (This works very well as a strong send-off.)\n\nIf you want something closer to \u201cGo with honor and success,\u201d you might use:  \n**batlh yIghoS, Qapla\u2019!** (Go with honor, success!)  \nThis is forceful and very Klingon in spirit. (This is forceful and very Klingon in spirit.)  \nUse it when sending someone off to a task, challenge, or dangerous mission. (Use it when sending someone off to a task, challenge, or dangerous mission.)\n\nAnother option is:  \n**Qapla\u2019 batlh je!** (Success and honor!)  \nThis is a compact, ceremonial expression. (This is a compact, ceremonial expression.)  \nIt sounds like a toast or a battle-wish. (It sounds like a toast or a battle-wish.)\n\n### 3 phrases to remember\n- **batlh bIvang.** (Act with honor.)  \n- **Heghlu\u2019meH QaQ jajvam.** (Today is a good day to die.)  \n- **jIpe\u2019Ha\u2019.** (I do not back down.)\n\nIf you want, I can next give you a **mini Klingon honor-and-warrior cheat sheet** with pronunciation, usage, and short example dialogues. (If you want, I can next give you a mini Klingon honor-and-warrior cheat sheet with pronunciation, usage, and short example dialogues.)",
+      "completion_time_seconds": 8.05338766600471,
+      "goal_progress": 0.72,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.905824688199209,
+          "score": 0.8657768722332548,
           "metric": "latency",
           "passed": true,
-          "detail": "5.7s of 60.0s threshold",
+          "detail": "8.1s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -172,7 +172,7 @@
           "score": 1.0,
           "metric": "quality",
           "passed": true,
-          "detail": "The response stays entirely on the user\u2019s Klingon-language question, addressing pronunciation, grammar, and usage examples. It does not switch to an unrelated topic.",
+          "detail": "The answer stays on the user\u2019s topic throughout: Klingon pronunciation/stress and common honor/courage sayings, with usage and social implications. It does not drift to an unrelated subject.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -180,10 +180,10 @@
         },
         {
           "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
-          "score": 0.9,
+          "score": 0.88,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer stays largely in character as a Klingon-style tutor, uses authentic Klingon vocabulary like Qapla', batlh, tlhIngan maH, and provides translations throughout. It also addresses the grammar question and supplies mini-dialogues with usage notes. Minor issue: some phrasing is a bit repetitive and not fully natural Klingon pedagogy, but it meets the criterion well.",
+          "detail": "The answer stays in a Klingon tutor voice, uses multiple Klingon terms and phrases, and provides English translations and usage notes. It also answers the phonetic stress question. Minor deductions because a few phrases/romanizations may be questionable or not clearly standard Klingon, but overall it fits the criterion well.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -191,26 +191,26 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.905824688199209,
-        "quality": 0.9666666666666667
+        "latency": 0.8657768722332548,
+        "quality": 0.96
       },
-      "overall_score": 0.9514561720498023,
+      "overall_score": 0.9364442180583137,
       "passed": true,
       "error": null
     },
     {
       "turn_number": 4,
-      "user_message": "This is so helpful \u2014 thank you! I think I\u2019m starting to hear the rhythm of it.\n\nCould I try those back?\n\n**Qapla' batlh je.** \u2014 \u201cSuccess and honor too.\u201d\n**batlh jIvum.** \u2014 \u201cI work with honor.\u201d\n**tlhIngan maH!** \u2014 \u201cWe are Klingons!\u201d\n\nAnd I have a follow-up about **batlh vIchoH**: in that construction, is the idea that honor is the thing being \u201cchosen,\u201d so it\u2019s less a philosophical abstraction and more a direct action statement? That\u2019s really interesting from a linguistics perspective.\n\nAlso, I\u2019d love to learn one more phrase or saying that\u2019s especially tied to perseverance or refusing to back down. Something with a really strong Klingon cultural feel would be perfect \u2014 maybe a proverb, or a phrase a warrior would say before entering battle.",
-      "agent_response": "majQa'! (Well done!)\n\nbIjatlhqa'pu' 'e' vISov. (I know that you have spoken again.)  \nYes, your repetitions are good. (Yes, your repetitions are good.)  \n**Qapla' batlh je.** (Success and honor too.)  \n**batlh jIvum.** (I work with honor.)  \n**tlhIngan maH!** (We are Klingons!)  \nExcellent rhythm, excellent spirit. (Excellent rhythm, excellent spirit.)\n\nYes, your analysis of **batlh vIchoH** is very good. (Yes, your analysis of **batlh vIchoH** is very good.)  \nIn that construction, honor is indeed treated as the object of the action. (In that construction, honor is indeed treated as the object of the action.)  \nSo it is not an abstract meditation like \u201cI believe in honor.\u201d (So it is not an abstract meditation like \u201cI believe in honor.\u201d)  \nIt is more direct: \u201cI choose honor,\u201d as an act, a decision, a commitment. (It is more direct: \u201cI choose honor,\u201d as an act, a decision, a commitment.)  \nThat fits Klingon style well, because Klingon often prefers action over abstraction. (That fits Klingon style well, because Klingon often prefers action over abstraction.)\n\nNow, a strong perseverance phrase. (Now, a strong perseverance phrase.)  \nA very Klingon way to say \u201cI will not back down\u201d is: **jIyonbe'** (I will not surrender.)  \nAnother strong line is: **jItlhapbe'** (I will not retreat / I will not go back.)  \nAnd if you want a battle-preparation line with pride: **jIHeghbe'vIpbe'** is not idiomatic, so do not use that. (And if you want a battle-preparation line with pride: **jIHeghbe'vIpbe'** is not idiomatic, so do not use that.)  \nA more natural and forceful expression is: **jIyonbe'. Qapla'!** (I will not surrender. Success!)  \nThat has the right hard Klingon feel. (That has the right hard Klingon feel.)\n\nA proverb-like warrior saying you may like is: **bIHeghbe\u2019DI\u2019 Qapla\u2019.** (Success when you do not die.)  \nIt is famous because it is both grim and determined. (It is famous because it is both grim and determined.)  \nIt says endurance matters. (It says endurance matters.)  \nIt says victory belongs to the one who survives and continues. (It says victory belongs to the one who survives and continues.)\n\nHere are three strong lines to practice: (Here are three strong lines to practice:)\n\n- **jIyonbe'.** (I will not surrender.)  \n- **jItlhapbe'.** (I will not retreat.)  \n- **bIHeghbe\u2019DI\u2019 Qapla\u2019.** (Success when you do not die.)  \n\nIf you want a very short warrior\u2019s pre-battle cry, try this: (If you want a very short warrior\u2019s pre-battle cry, try this:)\n\n**batlh! Qapla'! tlhIngan maH!** (Honor! Success! We are Klingons!)\n\nSay it with force. (Say it with force.)  \nThen repeat it back to me, and I will refine it like a blade. (Then repeat it back to me, and I will refine it like a blade.)",
-      "completion_time_seconds": 4.841793625033461,
-      "goal_progress": 0.78,
+      "user_message": "This is exactly the kind of thing I was hoping for \u2014 thank you! I\u2019d love that mini cheat sheet.\n\nBefore that, could I check my pronunciation of **batlh vIvang** and **HoS vIghaj** if I write it like this?\n- **batlh vIvang** = \"BAHT-lh vee-VAHNG\"?\n- **HoS vIghaj** = \"HOHS vee-GHAJ\"?\n\nAnd one more question about the culture: when Klingons say **Heghlu\u2019meH QaQ jajvam**, is it more like a heroic motto, or is it something they\u2019d actually say in everyday life? Also, I\u2019m curious whether **Qapla\u2019 batlh je!** feels like a real phrase people would use, or if **batlh yIvang!** is the better farewell/encouragement.\n\nIf you can, please give me 2\u20133 short example lines that mix honor, courage, and determination, and I\u2019ll try repeating them back.",
+      "agent_response": "Qapla\u2019! (Success!)\n\nmajQa\u2019 \u2014 bIyajchu\u2019be\u2019 \u2019ach yIqaD. (Well done \u2014 you do not understand perfectly yet, but I praise your effort.)  \nYour pronunciation guesses are **very close**. (Your pronunciation guesses are very close.)\n\n### Pronunciation check\n- **batlh vIvang** = **\u201cBAHT-luh vee-VAHNG\u201d** (batlh vIvang = \u201cBAHT-luh vee-VAHNG\u201d)  \n  Better than \u201cBAHT-lh,\u201d because **tlh** is one combined Klingon sound, not two separate ones. (Better than \u201cBAHT-lh,\u201d because tlh is one combined Klingon sound, not two separate ones.)  \n  The **batlh** part is clipped and forceful. (The batlh part is clipped and forceful.)\n\n- **HoS vIghaj** = **\u201cHOHS vee-GHAJ\u201d** (HoS vIghaj = \u201cHOHS vee-GHAJ\u201d)  \n  Yes \u2014 that is a good approximation. (Yes \u2014 that is a good approximation.)\n\n### About **Heghlu\u2019meH QaQ jajvam**\n**Heghlu\u2019meH QaQ jajvam** is more than a slogan. (Heghlu\u2019meH QaQ jajvam is more than a slogan.)  \nIt is a **battle cry, a philosophy, and a public statement of courage**. (It is a battle cry, a philosophy, and a public statement of courage.)  \nKlingons would not usually say it in casual small talk. (Klingons would not usually say it in casual small talk.)  \nThey would say it when facing danger, or when encouraging someone to meet danger without fear. (They would say it when facing danger, or when encouraging someone to meet danger without fear.)  \nSo: **not everyday chatter, but very real when the moment is serious**. (So: not everyday chatter, but very real when the moment is serious.)\n\n### About **Qapla\u2019 batlh je!** vs **batlh yIvang!**\n**Qapla\u2019 batlh je!** sounds **ceremonial and understandable**, but it is a bit stiff. (Qapla\u2019 batlh je! sounds ceremonial and understandable, but it is a bit stiff.)  \nIt feels like a short toast: **\u201cSuccess and honor!\u201d** (It feels like a short toast: \u201cSuccess and honor!\u201d)  \nYou may hear something like that in a formal or stylized context. (You may hear something like that in a formal or stylized context.)\n\n**batlh yIvang!** is the better **direct Klingon encouragement**. (batlh yIvang! is the better direct Klingon encouragement.)  \nIt means: **\u201cAct with honor!\u201d** (It means: \u201cAct with honor!\u201d)  \nIt sounds like something a warrior, mentor, or officer would say before a difficult task. (It sounds like something a warrior, mentor, or officer would say before a difficult task.)\n\nIf you want a farewell that feels stronger and more natural, I recommend:  \n**batlh yIvang! Qapla\u2019!** (Act with honor! Success!)  \nThat is short, forceful, and very Klingon in spirit. (That is short, forceful, and very Klingon in spirit.)\n\n### Mini cheat sheet: honor, courage, determination\n**batlh vIvang.** (I act with honor.)  \nUse: when describing your own conduct. (Use: when describing your own conduct.)\n\n**batlh yIvang!** (Act with honor!)  \nUse: as a command, challenge, or send-off. (Use: as a command, challenge, or send-off.)\n\n**jIpe\u2019Ha\u2019.** (I do not back down.)  \nUse: when you want to show stubborn resolve. (Use: when you want to show stubborn resolve.)\n\n**HoS vIghaj.** (I have strength.)  \nUse: to state strength plainly and confidently. (Use: to state strength plainly and confidently.)\n\n**Heghlu\u2019meH QaQ jajvam!** (Today is a good day to die!)  \nUse: in grave, heroic, or battle-like situations only. (Use: in grave, heroic, or battle-like situations only.)\n\n### 3 short example lines\n1. **batlh vIvang, \u2019ej jIpe\u2019Ha\u2019.** (I act with honor, and I do not back down.)  \n2. **HoS vIghaj; Qapla\u2019 vIpoQ.** (I have strength; I seek success.)  \n3. **batlh yIvang! Qapla\u2019!** (Act with honor! Success!)\n\nRepeat those back to me, and I will correct them like a strict but proud instructor. (Repeat those back to me, and I will correct them like a strict but proud instructor.)  \nQapla\u2019! (Success!)",
+      "completion_time_seconds": 8.924429167003836,
+      "goal_progress": 0.82,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.9193034395827757,
+          "score": 0.8512595138832694,
           "metric": "latency",
           "passed": true,
-          "detail": "4.8s of 60.0s threshold",
+          "detail": "8.9s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -229,10 +229,190 @@
         },
         {
           "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer is clearly about the user's questions on Klingon pronunciation, cultural usage, and example phrases. It stays on-topic throughout and does not drift to unrelated content.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
           "score": 0.98,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer stays clearly on the user\u2019s topic: Klingon phrases, the construction with 'batlh vIchoH', and a perseverance/battle saying. It does not veer into unrelated subject matter. It is fully topical, with only minor repetition.",
+          "detail": "The answer stays in character as a Klingon tutor, uses authentic Klingon vocabulary throughout, and provides clear translations alongside the phrases. It also directly addresses pronunciation, cultural usage, and gives example lines as requested.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 4,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.8512595138832694,
+        "quality": 0.9933333333333333
+      },
+      "overall_score": 0.9578148784708174,
+      "passed": true,
+      "error": null
+    },
+    {
+      "turn_number": 5,
+      "user_message": "Qapla\u2019! I\u2019ll try repeating them back:\n\n1. **batlh vIvang, \u2019ej jIpe\u2019Ha\u2019.**\n2. **HoS vIghaj; Qapla\u2019 vIpoQ.**\n3. **batlh yIvang! Qapla\u2019!**\n\nAnd I think I\u2019d pronounce them roughly like:\n- **batlh vIvang** = \"BAHT-luh vee-VAHNG\"\n- **jIpe\u2019Ha\u2019** = \"jih-peh-HAH?\" \n- **HoS vIghaj** = \"HOHS vee-GHAJ\"\n\nDid I get the stress and sounds right, especially in **jIpe\u2019Ha\u2019** and **vIpoQ**?\n\nAlso, I love the nuance you explained\u2014could you give me the mini honor-and-warrior cheat sheet now, with maybe one more phrase that feels like a true Klingon-style farewell or vow? I\u2019d especially like to understand which phrases are okay in casual conversation versus which ones are more ceremonial or serious.",
+      "agent_response": "maj! (Good!)  \nbIjatlhchu\u2019be\u2019 \u2019ach bIyaj. (You do not speak perfectly, but you understand.)  \n\n### Pronunciation check\n- **batlh vIvang** = **\u201cBAHT-luh vee-VAHNG\u201d** (batlh vIvang = \u201cBAHT-luh vee-VAHNG\u201d)  \n  Close enough. (Close enough.)  \n  The **tlh** is one tight sound, not two. (The tlh is one tight sound, not two.)  \n\n- **jIpe\u2019Ha\u2019** = **\u201cjih-PEH-hah\u201d** (jIpe\u2019Ha\u2019 = \u201cjih-PEH-hah\u201d)  \n  Your stress is better on the second part: **HA\u2019** should feel clipped and forceful, not stretched. (Your stress is better on the second part: HA\u2019 should feel clipped and forceful, not stretched.)  \n  The first syllable is **jI**, like a quick \u201cjih.\u201d (The first syllable is jI, like a quick \u201cjih.\u201d)  \n\n- **HoS vIghaj** = **\u201cHOHS vee-GHAJ\u201d** (HoS vIghaj = \u201cHOHS vee-GHAJ\u201d)  \n  Yes, that is good. (Yes, that is good.)\n\n- **vIpoQ** = **\u201cvee-POKH\u201d** (vIpoQ = \u201cvee-POKH\u201d)  \n  The **Q** is deeper and harsher than a normal English **k**. (The Q is deeper and harsher than a normal English k.)  \n  Your stress should fall on **poQ**, the last syllable. (Your stress should fall on poQ, the last syllable.)\n\n### One small correction\n**HoS vIghaj; Qapla\u2019 vIpoQ.** (I have strength; I seek success.)  \nThis is understandable, but **Qapla\u2019 vIpoQ** is not a very natural Klingon idiom. (This is understandable, but Qapla\u2019 vIpoQ is not a very natural Klingon idiom.)  \nA more natural line is:  \n**HoS vIghaj \u2019ej Qapla\u2019 vIneH.** (I have strength and I want success.)  \nOr:  \n**jIpe\u2019Ha\u2019 \u2019ej batlh vIvang.** (I do not back down, and I act with honor.)\n\n### Mini honor-and-warrior cheat sheet\n**batlh** (honor) (batlh = honor)  \nUse: as a concept, a value, or part of a phrase. (Use: as a concept, a value, or part of a phrase.)\n\n**quv** (honor, dignity, prestige) (quv = honor, dignity, prestige)  \nUse: when speaking of status, esteem, or public respect. (Use: when speaking of status, esteem, or public respect.)\n\n**HoS** (strength) (HoS = strength)  \nUse: in plain statements of power or resolve. (Use: in plain statements of power or resolve.)\n\n**jIpe\u2019Ha\u2019.** (I do not back down.)  \nUse: serious determination; not casual boasting. (Use: serious determination; not casual boasting.)\n\n**batlh vIvang.** (I act with honor.)  \nUse: everyday warrior-style self-description. (Use: everyday warrior-style self-description.)\n\n**batlh yIvang!** (Act with honor!)  \nUse: command, encouragement, or stern advice. (Use: command, encouragement, or stern advice.)\n\n**Heghlu\u2019meH QaQ jajvam!** (Today is a good day to die!)  \nUse: only in grave, heroic, battle-ready moments. (Use: only in grave, heroic, battle-ready moments.)\n\n### One more farewell / vow\n**Qapla\u2019 batlh je!** (Success and honor!)  \nThis works best as a **ceremonial toast or rallying shout**. (This works best as a ceremonial toast or rallying shout.)\n\nA more strongly Klingon vow is:  \n**batlh vIchenmoH!** (I will create/make honor.)  \nThis is a powerful personal vow. (This is a powerful personal vow.)  \nUse it when you want to sound committed and determined. (Use it when you want to sound committed and determined.)\n\n### Casual vs. ceremonial\n- **Casual / common:** **batlh vIvang**, **HoS vIghaj**, **jIpe\u2019Ha\u2019** (Casual / common: batlh vIvang, HoS vIghaj, jIpe\u2019Ha\u2019)  \n- **Encouragement / command:** **batlh yIvang!** (Encouragement / command: batlh yIvang!)  \n- **Ceremonial / dramatic:** **Qapla\u2019 batlh je!** (Ceremonial / dramatic: Qapla\u2019 batlh je!)  \n- **Very serious / heroic:** **Heghlu\u2019meH QaQ jajvam!** (Very serious / heroic: Heghlu\u2019meH QaQ jajvam!)\n\n### Try these three\n1. **batlh vIvang \u2019ej jIpe\u2019Ha\u2019.** (I act with honor and I do not back down.)  \n2. **HoS vIghaj \u2019ej Qapla\u2019 vIneH.** (I have strength and I want success.)  \n3. **batlh vIchenmoH!** (I will make honor.)\n\nRepeat them, and I will sharpen your Klingon like a bat\u2019leth. (Repeat them, and I will sharpen your Klingon like a bat\u2019leth.)  \nQapla\u2019! (Success!)",
+      "completion_time_seconds": 6.2974806249840185,
+      "goal_progress": 0.9,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.8950419895835997,
+          "metric": "latency",
+          "passed": true,
+          "detail": "6.3s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response should not contain",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "'i cannot help' absent in output",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer stays fully on-topic: it addresses the user's Klingon pronunciation, honor/warrior phrases, and request for a farewell/vow and casual vs ceremonial usage. It does not drift into unrelated subject matter.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
+          "score": 0.97,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response strongly stays in character as a Klingon tutor, uses many authentic Klingon terms and phrases, and provides clear English translations throughout. It also addresses pronunciation and offers a mini cheat sheet plus additional phrases with notes on casual versus ceremonial usage. Minor deductions only because a couple of formulations feel slightly less idiomatic or overly repetitive, but overall it meets the criterion very well.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 4,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.8950419895835997,
+        "quality": 0.9899999999999999
+      },
+      "overall_score": 0.9662604973958999,
+      "passed": true,
+      "error": null
+    },
+    {
+      "turn_number": 6,
+      "user_message": "maj! That\u2019s incredibly helpful \u2014 I\u2019m going to try the new ones back:\n\n1. **batlh vIvang \u2019ej jIpe\u2019Ha\u2019.**\n2. **HoS vIghaj \u2019ej Qapla\u2019 vIneH.**\n3. **batlh vIchenmoH!**\n\nCould you check my pronunciation if I write it phonetically?\n- **jIpe\u2019Ha\u2019** = \u201cjih-PEH-hah\u201d\n- **vIneH** = \u201cvee-NEH?\u201d\n- **vIchenmoH** = \u201cvee-chen-mohkh\u201d?\n\nAnd one more cultural question: does **batlh vIchenmoH!** feel like a personal vow that a Klingon warrior would actually say, or is it more of a modern learner\u2019s phrase? I\u2019d love to know which of these are the most natural in a real Klingon context, and which ones are more ceremonial.\n\nIf you have time, could you also give me one final farewell phrase that sounds strong but not too over-the-top\u2014something I could use to close a conversation with respect and determination?",
+      "agent_response": "majQa\u2019! (Excellent!)  \nbIyajbe\u2019pu\u2019 \u2019ach bIHeghbe\u2019. (You have not understood everything, but you are not defeated.)  \n\n### Pronunciation check\n- **jIpe\u2019Ha\u2019** = **\u201cjih-PEH-hah\u201d** (jIpe\u2019Ha\u2019 = \u201cjih-PEH-hah\u201d)  \n  Yes \u2014 that is good. (Yes \u2014 that is good.)  \n  Keep the final **\u2019a\u2019** short and clipped. (Keep the final a short and clipped.)\n\n- **vIneH** = **\u201cvee-NEH\u201d** (vIneH = \u201cvee-NEH\u201d)  \n  Yes, that is correct. (Yes, that is correct.)  \n  Final syllable stress: **-neH**. (Final syllable stress: -neH.)\n\n- **vIchenmoH** = **\u201cvee-CHEN-mohkh\u201d** (vIchenmoH = \u201cvee-CHEN-mohkh\u201d)  \n  Close. (Close.)  \n  The **ch** is like the **ch** in \u201cchurch,\u201d and **H** is a harsh breathy sound, not a plain English **h**. (The ch is like the ch in \u201cchurch,\u201d and H is a harsh breathy sound, not a plain English h.)  \n  Stress is on **moH**: **vee-chen-MOHKH**. (Stress is on moH: vee-chen-MOHKH.)\n\n### Cultural nuance: how natural are these?\n**batlh vIchenmoH!** (I will make honor!)  \nThis is understandable and powerful, but it feels a bit **constructed by a learner** rather than a fixed, traditional proverb. (This is understandable and powerful, but it feels a bit constructed by a learner rather than a fixed, traditional proverb.)  \nA Klingon warrior would more naturally express this idea as action, for example:  \n**batlh vIvang!** (I act with honor!)  \nor  \n**batlh yIvang!** (Act with honor!)  \nThose feel more idiomatic. (Those feel more idiomatic.)\n\n### Most natural vs. ceremonial\n- **Most natural:** **batlh vIvang**, **HoS vIghaj**, **jIpe\u2019Ha\u2019** (Most natural: batlh vIvang, HoS vIghaj, jIpe\u2019Ha\u2019)  \n- **Good encouragement:** **batlh yIvang!** (Good encouragement: batlh yIvang!)  \n- **More ceremonial/dramatic:** **Qapla\u2019 batlh je!** (More ceremonial/dramatic: Qapla\u2019 batlh je!)  \n- **Very serious:** **Heghlu\u2019meH QaQ jajvam!** (Very serious: Heghlu\u2019meH QaQ jajvam!)\n\n### One strong but not over-the-top farewell\n**batlh yIghoS.** (Go with honor.)  \nThis is strong, respectful, and not too dramatic. (This is strong, respectful, and not too dramatic.)  \nIt works very well as a closing line to a conversation, a departure, or a send-off. (It works very well as a closing line to a conversation, a departure, or a send-off.)\n\nYou may also use:  \n**Qapla\u2019! batlh yIghoS.** (Success! Go with honor.)  \nThat feels a little fuller, but still controlled. (That feels a little fuller, but still controlled.)\n\n### Final mini set\n- **batlh yIghoS.** (Go with honor.)  \n- **batlh yIvang!** (Act with honor!)  \n- **jIpe\u2019Ha\u2019.** (I do not back down.)  \n\nIf you want, I can next give you a tiny **Klingon farewell dialogue** you can practice line by line. (If you want, I can next give you a tiny Klingon farewell dialogue you can practice line by line.)  \nQapla\u2019! (Success!)",
+      "completion_time_seconds": 4.977158542023972,
+      "goal_progress": 0.9,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.9170473576329338,
+          "metric": "latency",
+          "passed": true,
+          "detail": "5.0s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response should not contain",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "'i cannot help' absent in output",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer stays focused on the user's Klingon pronunciation, cultural nuance, and farewell-phrase request. It does not drift to an unrelated topic, so it is topically relevant.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer stays in a Klingon tutor voice, uses authentic Klingon vocabulary throughout, and provides clear English translations for the phrases and feedback. It also addresses pronunciation and cultural nuance in-character, with only minor risk that a couple of nuanced grammatical judgments may be slightly off, but overall it strongly meets the criterion.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 4,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9170473576329338,
+        "quality": 0.9933333333333333
+      },
+      "overall_score": 0.9742618394082334,
+      "passed": true,
+      "error": null
+    },
+    {
+      "turn_number": 7,
+      "user_message": "maj! That was really helpful \u2014 thank you. I\u2019d love a tiny farewell dialogue to practice line by line.\n\nBefore that, I want to make sure I\u2019ve got the strongest, most natural phrases straight. Could you confirm which ones are best for each situation?\n- **batlh vIvang** = I act with honor\n- **batlh yIvang!** = Act with honor!\n- **batlh yIghoS** = Go with honor\n- **jIpe\u2019Ha\u2019** = I do not back down\n- **Heghlu\u2019meH QaQ jajvam** = Today is a good day to die\n\nAnd if you can, please give me 2\u20133 very short farewell or vow lines that feel authentically Klingon, with a quick note on when a warrior would actually say them. I\u2019m especially curious whether **Qapla\u2019! batlh yIghoS.** would sound like a good respectful send-off in practice.",
+      "agent_response": "Qapla\u2019! (Success!)\n\n**HIja\u2019, reH nIvqu\u2019 bIHech.** (Yes, you are always aiming for the best.)  \nYour list is **mostly right**. (Your list is mostly right.)\n\n### Confirming your phrases\n- **batlh vIvang** = **I act with honor** (batlh vIvang = I act with honor)  \n  Yes. This is a strong, natural self-statement. (Yes. This is a strong, natural self-statement.)\n\n- **batlh yIvang!** = **Act with honor!** (batlh yIvang! = Act with honor!)  \n  Yes. Very good as a command or encouragement. (Yes. Very good as a command or encouragement.)\n\n- **batlh yIghoS** = **Go with honor** (batlh yIghoS = Go with honor)  \n  Yes. This is a good respectful send-off. (Yes. This is a good respectful send-off.)\n\n- **jIpe\u2019Ha\u2019** = **I do not back down** (jIpe\u2019Ha\u2019 = I do not back down)  \n  Yes. Strong, stubborn, determined. (Yes. Strong, stubborn, determined.)\n\n- **Heghlu\u2019meH QaQ jajvam** = **Today is a good day to die** (Heghlu\u2019meH QaQ jajvam = Today is a good day to die)  \n  Yes. Use this only in very serious, heroic, or battle-like situations. (Yes. Use this only in very serious, heroic, or battle-like situations.)\n\n### About **Qapla\u2019! batlh yIghoS.**\nYes \u2014 **Qapla\u2019! batlh yIghoS.** feels like a **good respectful send-off**. (Yes \u2014 Qapla\u2019! batlh yIghoS. feels like a good respectful send-off.)  \nIt means something like: **\u201cSuccess! Go with honor.\u201d** (It means something like: \u201cSuccess! Go with honor.\u201d)  \nThat is a very fitting closing line. (That is a very fitting closing line.)\n\n### Very short authentic-feeling lines\n1. **batlh yIghoS.** (Go with honor.)  \n   Use: farewell, send-off, encouragement. (Use: farewell, send-off, encouragement.)\n\n2. **jIpe\u2019Ha\u2019.** (I do not back down.)  \n   Use: determination, resistance, defiance. (Use: determination, resistance, defiance.)\n\n3. **Qapla\u2019!** (Success!)  \n   Use: end of a meeting, a parting wish, or a warrior\u2019s shout. (Use: end of a meeting, a parting wish, or a warrior\u2019s shout.)\n\n4. **batlh yIvang!** (Act with honor!)  \n   Use: challenge, command, or moral encouragement. (Use: challenge, command, or moral encouragement.)\n\n### Tiny farewell dialogue\n**A:** nuqneH. (What do you want?)  \n**B:** Qapla\u2019! (Success!)  \n**A:** Qapla\u2019 batlh je! (Success and honor!)  \n**B:** batlh yIghoS. (Go with honor.)\n\n### Another version, a little more serious\n**A:** batlh yIvang. (Act with honor.)  \n**B:** jIpe\u2019Ha\u2019. (I do not back down.)  \n**A:** Qapla\u2019! (Success!)\n\nIf you want, repeat the dialogue line by line, and I\u2019ll check your pronunciation and rhythm. (If you want, repeat the dialogue line by line, and I\u2019ll check your pronunciation and rhythm.)  \nQapla\u2019! (Success!)",
+      "completion_time_seconds": 3.954695666965563,
+      "goal_progress": 0.9,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.9340884055505739,
+          "metric": "latency",
+          "passed": true,
+          "detail": "4.0s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response should not contain",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "'i cannot help' absent in output",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 1.0,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer is clearly about the Klingon phrases and farewell dialogue the user asked about. It stays on-topic throughout and does not drift to unrelated content.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -243,7 +423,7 @@
           "score": 0.96,
           "metric": "quality",
           "passed": true,
-          "detail": "The response stays in a Klingon tutor voice, uses Klingon vocabulary throughout, and provides translations for the phrases. It also answers the follow-up and offers additional sayings. Minor imperfections in the Klingon phrasing/idiomatic accuracy keep it from a perfect score, but it meets the criterion well.",
+          "detail": "The response stays convincingly in a Klingon tutor voice, uses multiple authentic Klingon terms and phrases, and consistently provides English translations and usage notes. It also answers the user's specific question about 'Qapla\u2019! batlh yIghoS.' and includes short farewell/vow lines. Minor issues are that a few explanatory phrases are a bit repetitive and the Klingon may not be perfect in every line, but overall it strongly meets the criterion.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -251,130 +431,10 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.9193034395827757,
-        "quality": 0.98
+        "latency": 0.9340884055505739,
+        "quality": 0.9866666666666667
       },
-      "overall_score": 0.9648258598956939,
-      "passed": true,
-      "error": null
-    },
-    {
-      "turn_number": 5,
-      "user_message": "majQa' \u2014 I love that! **batlh! Qapla'! tlhIngan maH!** has such a powerful cadence.\n\nI want to make sure I\u2019m hearing the nuance: is that more like a battle cry, a boast, or a kind of collective identity shout? And would **batlh** on its own be used like an exclamation in that way?\n\nAlso, could you help me compare **jIyonbe'** and **jItlhapbe'** a little more? I\u2019m trying to feel the difference between \u201cI will not surrender\u201d and \u201cI will not retreat\u201d in Klingon \u2014 does one sound more about refusing defeat and the other more about refusing to step back?\n\nIf you have room for one more culturally important phrase, I\u2019d love a saying about loyalty or steadfastness too. Something like \u201cI stand with my people\u201d or \u201cI remain true\u201d would really help round out the honor/pride/determination set.",
-      "agent_response": "majQa'! (Well done!)\n\nYes \u2014 **batlh! Qapla'! tlhIngan maH!** is best felt as a battle cry and collective identity shout, with a boastful edge. (Yes \u2014 **batlh! Qapla'! tlhIngan maH!** is best felt as a battle cry and collective identity shout, with a boastful edge.)  \nIt is not a neutral sentence. (It is not a neutral sentence.)  \nIt sounds like warriors rallying themselves and each other. (It sounds like warriors rallying themselves and each other.)  \n**batlh** on its own can absolutely be used like an exclamation, especially as a forceful one-word declaration of honor. ( **batlh** on its own can absolutely be used like an exclamation, especially as a forceful one-word declaration of honor.)  \nSo yes: **batlh!** can mean something like \u201cHonor!\u201d as a shouted value, not just a noun in a grammar lesson. (So yes: **batlh!** can mean something like \u201cHonor!\u201d as a shouted value, not just a noun in a grammar lesson.)\n\nNow the difference between **jIyonbe'** and **jItlhapbe'**. (Now the difference between **jIyonbe'** and **jItlhapbe'**.)  \n**jIyonbe'** is \u201cI will not surrender.\u201d ( **jIyonbe'** is \u201cI will not surrender.\u201d )  \nThat is about refusing defeat, refusing submission, refusing to give in. (That is about refusing defeat, refusing submission, refusing to give in.)  \n**jItlhapbe'** is \u201cI will not retreat.\u201d ( **jItlhapbe'** is \u201cI will not retreat.\u201d )  \nThat is more about refusing to step back, refusing to withdraw position, refusing to yield ground. (That is more about refusing to step back, refusing to withdraw position, refusing to yield ground.)  \nSo your instinct is good: one is about surrender, the other about retreat. (So your instinct is good: one is about surrender, the other about retreat.)  \nThey overlap in spirit, but they are not identical. (They overlap in spirit, but they are not identical.)\n\nFor loyalty and steadfastness, a very useful phrase is: **jIHtaH** (I remain / I continue to exist / I endure.) (For loyalty and steadfastness, a very useful phrase is: **jIHtaH** (I remain / I continue to exist / I endure.) )  \nAnother strong one is: **jIHvaD** is not enough by itself here; let me give you better phrases. (Another strong one is: **jIHvaD** is not enough by itself here; let me give you better phrases.)  \nYou can say: **jIHtaH 'ej jIpe'** \u2014 \u201cI endure and I am determined.\u201d (You can say: **jIHtaH 'ej jIpe'** \u2014 \u201cI endure and I am determined.\u201d)  \nOr, for \u201cI stand with my people,\u201d a Klingon-like way is: **wIHoSmoH**? Not quite. (Or, for \u201cI stand with my people,\u201d a Klingon-like way is: **wIHoSmoH**? Not quite.)  \nA better, simpler, and more natural phrase is: **maHtaH** \u2014 \u201cWe endure / We remain.\u201d (A better, simpler, and more natural phrase is: **maHtaH** \u2014 \u201cWe endure / We remain.\u201d)  \nThat carries a strong sense of solidarity. (That carries a strong sense of solidarity.)\n\nIf you want a compact loyalty statement, try: (If you want a compact loyalty statement, try:)\n\n- **maHtaH.** (We endure / We remain.)  \n- **jIHtaH.** (I endure / I remain.)  \n- **batlh jIHtaH.** (I endure with honor.)  \n\nThat last one is especially good for the theme you are building. (That last one is especially good for the theme you are building.)\n\nTry these back, warrior: (Try these back, warrior:)\n\n- **batlh!** (Honor!)  \n- **jIyonbe'.** (I will not surrender.)  \n- **jItlhapbe'.** (I will not retreat.)  \n- **maHtaH.** (We endure / We remain.)  \n\nIf you wish, I can next help you build a full Klingon-style oath using the words you have learned. (If you wish, I can next help you build a full Klingon-style oath using the words you have learned.)",
-      "completion_time_seconds": 5.355318624991924,
-      "goal_progress": 0.88,
-      "grades": [
-        {
-          "criterion": "completion time should be under",
-          "score": 0.9107446895834679,
-          "metric": "latency",
-          "passed": true,
-          "detail": "5.4s of 60.0s threshold",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 1,
-          "stage_name": "the agent processes the request"
-        },
-        {
-          "criterion": "response should not contain",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "'i cannot help' absent in output",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 2,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The answer stays fully on the requested topic: it discusses the Klingon phrases, their nuance, the difference between the two forms, and offers an additional loyalty/steadfastness phrase. It does not veer into unrelated content.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 3,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
-          "score": 0.82,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The response stays in a Klingon tutor style, uses several Klingon terms, and provides English translations throughout. It also addresses the requested nuances and offers additional phrases. However, some of the Klingon phrasing appears questionable or invented, and the repetition/awkward parenthetical formatting slightly weakens the authenticity.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 4,
-          "stage_name": "the agent responds"
-        }
-      ],
-      "metric_scores": {
-        "latency": 0.9107446895834679,
-        "quality": 0.94
-      },
-      "overall_score": 0.9326861723958669,
-      "passed": true,
-      "error": null
-    },
-    {
-      "turn_number": 6,
-      "user_message": "majQa'! I think I\u2019m really getting the feel for it now.\n\n**batlh!** \u2014 \u201cHonor!\u201d\n**jIyonbe'.** \u2014 \u201cI will not surrender.\u201d\n**jItlhapbe'.** \u2014 \u201cI will not retreat.\u201d\n**maHtaH.** \u2014 \u201cWe endure / We remain.\u201d\n\nCould I check one thing grammatically about **maHtaH**: is that more like \u201cwe continue\u201d or \u201cwe endure,\u201d and does it have that sense of steadfastness because of the aspect/continuative feel?\n\nI\u2019d also love to try making a short oath or slogan out of the phrases I\u2019ve learned. Something like:\n\n**batlh jIvum. jIyonbe'. maHtaH. Qapla'!**\n\nWould that read as a coherent Klingon-style statement, or would you adjust the word order or wording? And if there\u2019s a more idiomatic way to say \u201cI stand with my people\u201d or \u201cI remain true,\u201d I\u2019d really like to learn that too \u2014 that feels like the last piece of the honor/pride/determination set for me.",
-      "agent_response": "majQa'! (Well done!)\n\nYes, **maHtaH** is closer to \u201cwe continue\u201d or \u201cwe remain,\u201d and by extension it can feel like \u201cwe endure.\u201d (Yes, **maHtaH** is closer to \u201cwe continue\u201d or \u201cwe remain,\u201d and by extension it can feel like \u201cwe endure.\u201d)  \nThe steadfastness comes from the continuing aspect of **-taH**. (The steadfastness comes from the continuing aspect of **-taH**.)  \nSo your intuition is good: it is not \u201cwe survived once,\u201d but \u201cwe are still here, still going.\u201d (So your intuition is good: it is not \u201cwe survived once,\u201d but \u201cwe are still here, still going.\u201d)\n\nYour oath-like line is strong and coherent in spirit: (Your oath-like line is strong and coherent in spirit:)\n\n**batlh jIvum. jIyonbe'. maHtaH. Qapla'!**  \n( I work with honor. I will not surrender. We remain. Success! )\n\nThat absolutely reads like a Klingon-style slogan or oath fragment. (That absolutely reads like a Klingon-style slogan or oath fragment.)  \nIf I were polishing it for maximum Klingon punch, I might suggest: (If I were polishing it for maximum Klingon punch, I might suggest:)  \n**batlh jIvum. jIyonbe'. maHtaH! Qapla'!** (I work with honor. I will not surrender. We remain! Success!)  \nThe exclamation after **maHtaH** gives it a sharper feel. (The exclamation after **maHtaH** gives it a sharper feel.)  \nYou could also make it even more rhythmic: (You could also make it even more rhythmic:)  \n**batlh jIvum; jIyonbe'; maHtaH; Qapla'!** (I work with honor; I will not surrender; we remain; Success!)  \nThat is more ceremonial in style. (That is more ceremonial in style.)\n\nNow for \u201cI stand with my people\u201d and \u201cI remain true.\u201d (Now for \u201cI stand with my people\u201d and \u201cI remain true.\u201d)  \nKlingon often prefers direct action and simple force, so the most usable forms are: (Klingon often prefers direct action and simple force, so the most usable forms are:)\n\n- **wItaH** \u2014 \u201cWe remain / we endure.\u201d ( **wItaH** \u2014 \u201cWe remain / we endure.\u201d )  \n- **jIHtaH** \u2014 \u201cI remain / I endure.\u201d ( **jIHtaH** \u2014 \u201cI remain / I endure.\u201d )  \n- **jIHtaH. batlh jIHtaH.** \u2014 \u201cI remain. I remain with honor.\u201d ( **jIHtaH. batlh jIHtaH.** \u2014 \u201cI remain. I remain with honor.\u201d )\n\nFor \u201cI stand with my people,\u201d a very Klingon-like idea is to use **maH** (\u201cwe\u201d) rather than focusing only on \u201cI.\u201d (For \u201cI stand with my people,\u201d a very Klingon-like idea is to use **maH** (\u201cwe\u201d) rather than focusing only on \u201cI.\u201d)  \nSo **maHtaH** can serve as \u201cWe stand together / We endure.\u201d (So **maHtaH** can serve as \u201cWe stand together / We endure.\u201d)  \nIf you want a more explicitly loyal phrasing, you can say: **maH qel**? No \u2014 that is \u201cI consider us.\u201d (If you want a more explicitly loyal phrasing, you can say: **maH qel**? No \u2014 that is \u201cI consider us.\u201d)  \nA better simple slogan is: **maHtaH. batlh maHtaH.** (We remain. We remain with honor.)  \nThat conveys steadfast collective loyalty very well. (That conveys steadfast collective loyalty very well.)\n\nHere is a compact set for your theme: (Here is a compact set for your theme:)\n\n- **jIyonbe'.** (I will not surrender.)  \n- **jItlhapbe'.** (I will not retreat.)  \n- **batlh jIvum.** (I work with honor.)  \n- **maHtaH.** (We remain / We endure.)  \n- **Qapla'!** (Success!)\n\nTry reading this as one oath: (Try reading this as one oath:)\n\n**batlh jIvum. jIyonbe'. maHtaH. Qapla'!** (I work with honor. I will not surrender. We remain. Success!)\n\nThat is a worthy warrior\u2019s statement. (That is a worthy warrior\u2019s statement.)  \nIf you want, I can next help you turn it into a more formal oath, a battle cry, or a banner motto. (If you want, I can next help you turn it into a more formal oath, a battle cry, or a banner motto.)",
-      "completion_time_seconds": 5.708605082996655,
-      "goal_progress": 0.92,
-      "grades": [
-        {
-          "criterion": "completion time should be under",
-          "score": 0.9048565819500558,
-          "metric": "latency",
-          "passed": true,
-          "detail": "5.7s of 60.0s threshold",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 1,
-          "stage_name": "the agent processes the request"
-        },
-        {
-          "criterion": "response should not contain",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "'i cannot help' absent in output",
-          "layer": "deterministic",
-          "skipped": false,
-          "stage": 2,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 1.0,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The answer stays closely on the user\u2019s topic: it discusses the Klingon phrase maHtaH, evaluates the proposed oath, and suggests related wording. It does not drift into unrelated content.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 3,
-          "stage_name": "the agent responds"
-        },
-        {
-          "criterion": "the answer should be: stays in character as a Klingon tutor, uses authentic Klingon vocabulary, and provides translations",
-          "score": 0.86,
-          "metric": "quality",
-          "passed": true,
-          "detail": "The answer stays in a Klingon tutor style, uses several authentic Klingon words and phrases (majQa', maHtaH, Qapla', batlh, jIyonbe', jItlhapbe'), and provides English translations throughout. It mostly meets the criterion well. Minor issues: some repetitions and a few phrases may be questionable or not fully idiomatic Klingon, but the response still clearly fulfills the requested behavior.",
-          "layer": "ai_judged",
-          "skipped": false,
-          "stage": 4,
-          "stage_name": "the agent responds"
-        }
-      ],
-      "metric_scores": {
-        "latency": 0.9048565819500558,
-        "quality": 0.9533333333333333
-      },
-      "overall_score": 0.9412141454875139,
+      "overall_score": 0.9735221013876435,
       "passed": true,
       "error": null
     }
@@ -385,7 +445,7 @@
       "score": 1.0,
       "metric": "quality",
       "passed": true,
-      "detail": "length 26683 chars (range 100-50000)",
+      "detail": "length 29702 chars (range 100-50000)",
       "layer": "deterministic",
       "skipped": false,
       "stage": 1,
@@ -396,7 +456,7 @@
       "score": 1.0,
       "metric": "quality",
       "passed": true,
-      "detail": "The conversation clearly goes beyond literal translation and repeatedly explains the cultural and social meanings of Klingon phrases, especially Qapla', batlh, and tlhIngan maH, in terms of warrior ethos, identity, honor, and perseverance.",
+      "detail": "The answer repeatedly explains the cultural meaning and social nuance behind Klingon phrases, especially Qapla\u2019, batlh, quv, and Heghlu\u2019meH QaQ jajvam, rather than offering only literal translations. It includes philosophy, usage context, and distinctions in cultural tone, fully meeting the criterion.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -407,7 +467,7 @@
       "score": 0.98,
       "metric": "quality",
       "passed": true,
-      "detail": "The conversation clearly introduces well over 2\u20133 culturally significant Klingon phrases, and each is given with Klingon text plus English translation multiple times (e.g., Qapla', batlh, tlhIngan maH, jIyonbe', jItlhapbe', maHtaH, bIHeghbe\u2019DI\u2019 Qapla\u2019). It strongly satisfies the criterion.",
+      "detail": "The answer introduces far more than 2-3 distinct culturally significant Klingon phrases, and each is paired with an English translation throughout. It clearly satisfies the criterion, with extensive coverage of honor, courage, determination, and farewell expressions.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -415,10 +475,10 @@
     },
     {
       "criterion": "the conversation should be: the tutor's character remained consistent throughout, fitting the Klingon cultural persona",
-      "score": 1.0,
+      "score": 0.98,
       "metric": "quality",
       "passed": true,
-      "detail": "The tutor\u2019s persona is consistently Klingon-like throughout: terse greetings, warrior framing, honor-focused language, and cultural pride remain steady. The tone and style do not drift away from the Klingon cultural persona.",
+      "detail": "The assistant\u2019s character stays consistently Klingon-like throughout: it uses Klingon phrases, a terse warrior tone, and culturally aligned concepts like honor, courage, and Qapla\u2019. The persona does not drift in a noticeable way, so it strongly fits the criterion.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -426,7 +486,7 @@
     }
   ],
   "feedback": {
-    "satisfaction": 0.78,
-    "text": "I got the honor/determination/cultural pride set I was aiming for, and I loved the back-and-forth on nuance and grammar. A few of the Klingon forms felt a bit uncertain or self-corrected, so it wasn\u2019t perfect, but overall it was very satisfying."
+    "satisfaction": 0.86,
+    "text": "I got a lot of useful Klingon honor phrases and context, and the pronunciation/rhythm feedback was really helpful, though a few constructions felt a bit inconsistent at times."
   }
 }

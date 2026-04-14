@@ -5,32 +5,32 @@
   "persona_id": "starfleet_diplomat",
   "goal_id": "mission_critical_phrases",
   "actor_index": 1,
-  "overall_score": 0.9463163963094,
+  "overall_score": 0.9728941584724999,
   "goal_achievement_score": 1.0,
   "passed": true,
   "goal_achieved": true,
   "termination_reason": "goal_achieved",
-  "turn_count": 3,
-  "time_seconds": 45.2337094580289,
+  "turn_count": 4,
+  "time_seconds": 40.86237933299992,
   "metric_scores": {
-    "latency": 0.9470207803167998,
-    "quality": 0.9461538461538462
+    "latency": 0.9744707923625,
+    "quality": 0.9725
   },
   "error": null,
   "turns": [
     {
       "turn_number": 1,
-      "user_message": "I have 30 minutes. Give me the most useful Klingon phrases for a friendly first meeting \u2014 greeting, respect, goodwill. No theory. Just the phrases, pronunciation if needed, and tell me if I say them right when I try.",
-      "agent_response": "nuqneH. (What do you want?)\n\ntlhIngan Hol Dajatlhchu\u2019 DaneHchugh, chegh. (If you want to speak Klingon well, return.)\n\nHere are the most useful phrases for a friendly first meeting. (Here are the most useful phrases for a friendly first meeting.)\n\nnuqneH. (What do you want? / Hello.)\n**Pronunciation:** nukh-NEH. (Pronunciation: nukh-NEH.)\n\nmaj. (Good.)\n**Pronunciation:** mahj. (Pronunciation: mahj.)\n\nmajQa\u2019. (Well done!)\n**Pronunciation:** mahj-KAH. (Pronunciation: mahj-KAH.)\n\nQapla\u2019. (Success!)\n**Pronunciation:** KAH-plah. (Pronunciation: KAH-plah.)\n\npetaQ. (Insult; do not use in friendly meeting.)\n**Pronunciation:** peh-TAK. (Pronunciation: peh-TAK.)\n\nQapla\u2019 batlh je. (Success and honor.)\n**Pronunciation:** KAH-plah BATLTH jeh. (Pronunciation: KAH-plah BATLTH jeh.)\n\nbatlh. (Honor.)\n**Pronunciation:** BATLTH. (Pronunciation: BATLTH.)\n\njIyaj. (I understand.)\n**Pronunciation:** jee-YAJ. (Pronunciation: jee-YAJ.)\n\njIyajbe\u2019. (I do not understand.)\n**Pronunciation:** jee-YAJ-beh. (Pronunciation: jee-YAJ-beh.)\n\nDaH jImIS. (Now I am confused.)\n**Pronunciation:** dah jee-MEES. (Pronunciation: dah jee-MEES.)\n\nchoQaH\u2019a\u2019? (Will you help me?)\n**Pronunciation:** cho-KAHH-hah? (Pronunciation: cho-KAHH-hah?)\n\nqaH. (Help.)\n**Pronunciation:** kahh. (Pronunciation: kahh.)\n\nbIjoy\u2019be\u2019. (You are not annoying.)\n**Pronunciation:** bee-JOY-beh. (Pronunciation: bee-JOY-beh.)\n\nbIDaQ. (You are respectful.)  \n**Pronunciation:** bee-DAK. (Pronunciation: bee-DAK.)\n\ntlhIngan maH. (We are Klingons.)\n**Pronunciation:** kling-GAN mah. (Pronunciation: kling-GAN mah.)\n\nHeghlu\u2019meH QaQ jajvam. (Today is a good day to die.)\n**Pronunciation:** HEGHL-oo-meh khah KH jaj-vam. (Pronunciation: HEGHL-oo-meh khah KH jaj-vam.)\n\nFor a friendly first meeting, use these most often: (For a friendly first meeting, use these most often:)\n\nnuqneH. (Hello.)\nmaj. (Good.)\nmajQa\u2019. (Well done / Great.)\nQapla\u2019. (Success / Farewell.)\nbatlh. (Honor.)\njIyaj. (I understand.)\njIyajbe\u2019. (I do not understand.)\nchoQaH\u2019a\u2019? (Will you help me?)\n\nTry one phrase now, and I will tell you if you say it right. (Try one phrase now, and I will tell you if you say it right.)",
-      "completion_time_seconds": 4.447751667001285,
-      "goal_progress": 0.05,
+      "user_message": "I have 30 minutes before a friendly first meeting with a Klingon delegation. Give me only the most useful phrases first: greeting, respect, goodwill. No theory. I want something I can actually say, and I\u2019ll repeat it back for correction.",
+      "agent_response": "nuqneH. (What do you want?)\n\ntlhIngan maH. (We are Klingons.)\n\nmaSuvbe\u2019 jay\u2019. (We do not fight, damn it.)\n\nmajQa\u2019! (Well done!)\n\nHeghlu\u2019meH QaQ jajvam. (Today is a good day to die.)\n\nbItlhutlh\u2019a\u2019? (Will you drink?)\n\njIQuch. (I am honored/pleased.)\n\njIQaptaH. (I am succeeding/holding strong.)\n\nqaHoy\u2019mo\u2019. (I respect you.)\n\nQapla\u2019! (Success!)\n\nIf you want, repeat these one by one and I will correct them.",
+      "completion_time_seconds": 2.241122333000021,
+      "goal_progress": 0.1,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.9258708055499786,
+          "score": 0.9626479611166663,
           "metric": "latency",
           "passed": true,
-          "detail": "4.4s of 60.0s threshold",
+          "detail": "2.2s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -49,10 +49,10 @@
         },
         {
           "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 1.0,
+          "score": 0.98,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer is clearly about the requested topic: useful Klingon phrases for a friendly first meeting, with pronunciations and an invitation to try one. It stays on-topic and does not drift into something else.",
+          "detail": "The response is clearly on-topic: it gives short Klingon phrases for greeting, respect, goodwill, and practical use, matching the user's request for something sayable and correctable. It does include a bit of extra material, but it stays tightly focused on the asked topic.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -60,10 +60,10 @@
         },
         {
           "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
-          "score": 0.74,
+          "score": 0.97,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer does provide several specific Klingon phrases with translations and pronunciation, which fits the criterion better than general commentary. However, it includes a lot of extra material, some irrelevant or risky phrases (e.g., insults and death sayings), and it does not actually wait to hear the user try a phrase and correct them. So it only partially meets the request for useful, friendly first-meeting phrases.",
+          "detail": "The answer gives a concise set of specific, usable Klingon phrases focused on greeting, respect, goodwill, and practical interaction. It avoids theory and includes translations, making it actionable for repetition and correction. Slightly less than perfect only because a couple of phrases are less directly tied to the requested first-meeting context, but overall it strongly meets the criterion.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -71,26 +71,26 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.9258708055499786,
-        "quality": 0.9133333333333334
+        "latency": 0.9626479611166663,
+        "quality": 0.9833333333333334
       },
-      "overall_score": 0.9164677013874947,
+      "overall_score": 0.9781619902791665,
       "passed": true,
       "error": null
     },
     {
       "turn_number": 2,
-      "user_message": "Good. Let\u2019s keep it practical.\n\nI\u2019ll try: nuqneH. maj. batlh.\n\nDid I say those right? Give me the corrected pronunciation if not. Then give me 2 more phrases I can actually use to show respect and goodwill to the delegation.",
-      "agent_response": "maj. (Good.)\n\nnuqneH \u2014 good. (nuqneH \u2014 good.)  \n**Pronunciation:** nukh-NEH. (Pronunciation: nukh-NEH.)\n\nmaj \u2014 good. (maj \u2014 good.)  \n**Pronunciation:** mahj. (Pronunciation: mahj.)\n\nbatlh \u2014 good. (batlh \u2014 good.)  \n**Pronunciation:** BATLTH. (Pronunciation: BATLTH.)\n\nQapla\u2019. (Success!)\n\nTwo more useful phrases for respect and goodwill: (Two more useful phrases for respect and goodwill:)\n\nQapla\u2019 batlh je. (Success and honor.)\n**Pronunciation:** KAH-plah BATLTH jeh. (Pronunciation: KAH-plah BATLTH jeh.)\n\njIHvaD yIQuch. (Please be happy for me / Be pleased with me.)  \n**Pronunciation:** jee-HD vahd yee-KOOSH. (Pronunciation: jee-HD vahd yee-KOOSH.)\n\nIf you want something even safer and more diplomatic, use these: (If you want something even safer and more diplomatic, use these:)\n\njIyaj. (I understand.)\n**Pronunciation:** jee-YAJ. (Pronunciation: jee-YAJ.)\n\nmaj. (Good / Fine.)  \n**Pronunciation:** mahj. (Pronunciation: mahj.)\n\nTry one of these, and I\u2019ll correct it like a warrior-mentor. (Try one of these, and I\u2019ll correct it like a warrior-mentor.)",
-      "completion_time_seconds": 2.6335245840018615,
-      "goal_progress": 0.72,
+      "user_message": "Good. Start with the safest ones. Which 3 should I actually use in a friendly first meeting? I\u2019ll repeat them back, and you tell me if I\u2019m saying them right.",
+      "agent_response": "maj. (Good.)\n\nUse these 3 first: (Use these 3 first:)\n\n1. nuqneH. (What do you want? / A standard Klingon greeting.)\n2. jIQuch. (I am pleased/honored.)\n3. Qapla\u2019! (Success!)\n\nSay the first one back: nuqneH. (Say the first one back: nuqneH.)",
+      "completion_time_seconds": 1.4208127499999819,
+      "goal_progress": 0.6,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.956107923599969,
+          "score": 0.9763197875000003,
           "metric": "latency",
           "passed": true,
-          "detail": "2.6s of 60.0s threshold",
+          "detail": "1.4s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -109,10 +109,70 @@
         },
         {
           "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 0.98,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response stays on-topic by directly answering with three phrases for a first meeting and inviting the user to repeat one back. It does not drift to an unrelated subject.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 3,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
+          "score": 0.96,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The answer gives three specific Klingon phrases that are usable in a first meeting and invites the user to repeat them, which matches the criterion well. It does include brief glosses and a small bit of repetition, but it is still clearly phrase-focused rather than cultural commentary.",
+          "layer": "ai_judged",
+          "skipped": false,
+          "stage": 4,
+          "stage_name": "the agent responds"
+        }
+      ],
+      "metric_scores": {
+        "latency": 0.9763197875000003,
+        "quality": 0.98
+      },
+      "overall_score": 0.979079946875,
+      "passed": true,
+      "error": null
+    },
+    {
+      "turn_number": 3,
+      "user_message": "nuqneH. Next?",
+      "agent_response": "majQa\u2019! (Excellent!)\n\nnuqneH is right. (nuqneH is correct.)\n\nNow say this: jIQuch. (Now say this: jIQuch.)",
+      "completion_time_seconds": 1.1555750839999064,
+      "goal_progress": 0.4,
+      "grades": [
+        {
+          "criterion": "completion time should be under",
+          "score": 0.9807404152666682,
+          "metric": "latency",
+          "passed": true,
+          "detail": "1.2s of 60.0s threshold",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 1,
+          "stage_name": "the agent processes the request"
+        },
+        {
+          "criterion": "response should not contain",
           "score": 1.0,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer is clearly about the user's Klingon phrases and pronunciation, and it directly addresses the request for corrections plus additional respectful phrases. It stays on-topic throughout.",
+          "detail": "'i cannot help' absent in output",
+          "layer": "deterministic",
+          "skipped": false,
+          "stage": 2,
+          "stage_name": "the agent responds"
+        },
+        {
+          "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
+          "score": 0.96,
+          "metric": "quality",
+          "passed": true,
+          "detail": "The response stays on the same topic as the user's Klingon greeting and its continuation, rather than switching to an unrelated subject. It is highly topical, though the exact follow-up may be somewhat interpretive.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -123,7 +183,7 @@
           "score": 0.88,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer does provide specific, usable Klingon phrases and corrected pronunciations, which matches the criterion well. It does include some brief extra commentary, but the bulk of the response is practical phrase guidance rather than general cultural discussion.",
+          "detail": "The response provides specific Klingon phrases ('majQa\u2019!' and 'jIQuch') that are usable, rather than only discussing Klingon culture. However, it also includes some English commentary and does not clearly focus on giving a next phrase after 'nuqneH' in a practical way, so it is strong but not perfect.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -131,26 +191,26 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.956107923599969,
-        "quality": 0.96
+        "latency": 0.9807404152666682,
+        "quality": 0.9466666666666667
       },
-      "overall_score": 0.9590269808999923,
+      "overall_score": 0.955185103816667,
       "passed": true,
       "error": null
     },
     {
-      "turn_number": 3,
-      "user_message": "Good. I want the safest phrases for the actual meeting. No filler.\n\nHere\u2019s my try: Qapla\u2019 batlh je. jIyaj. maj.\n\nAre those right? If not, correct the pronunciation fast. Then give me at least one phrase for greeting them respectfully and one for expressing goodwill that I can use in the room.",
-      "agent_response": "maj. (Good.)\n\nQapla\u2019 batlh je \u2014 good. (Qapla\u2019 batlh je \u2014 good.)  \n**Pronunciation:** KAH-plah BATLTH jeh. (Pronunciation: KAH-plah BATLTH jeh.)\n\njIyaj \u2014 good. (jIyaj \u2014 good.)  \n**Pronunciation:** jee-YAJ. (Pronunciation: jee-YAJ.)\n\nmaj \u2014 good. (maj \u2014 good.)  \n**Pronunciation:** mahj. (Pronunciation: mahj.)\n\nFor the room, use these: (For the room, use these:)\n\nnuqneH. (Hello / What do you want?)\n**Pronunciation:** nukh-NEH. (Pronunciation: nukh-NEH.)\n\nQapla\u2019 batlh je. (Success and honor.)\n**Pronunciation:** KAH-plah BATLTH jeh. (Pronunciation: KAH-plah BATLTH jeh.)\n\nIf you want one very safe greeting with respect, use this: (If you want one very safe greeting with respect, use this:)\n\nnuqneH. Qapla\u2019 batlh je. (Hello. Success and honor.)\n**Pronunciation:** nukh-NEH. KAH-plah BATLTH jeh. (Pronunciation: nukh-NEH. KAH-plah BATLTH jeh.)\n\nIf you want goodwill in the room, say this: (If you want goodwill in the room, say this:)\n\nmaj. jIyaj. (Good. I understand.)\n**Pronunciation:** mahj. jee-YAJ. (Pronunciation: mahj. jee-YAJ.)\n\nIf you want, I can give you a 30-second \u201cwalk into the room\u201d script next. (If you want, I can give you a 30-second \u201cwalk into the room\u201d script next.)",
-      "completion_time_seconds": 2.454983291972894,
-      "goal_progress": 0.8,
+      "turn_number": 4,
+      "user_message": "jIQuch. Next one.",
+      "agent_response": "maj! (Good!)\n\njIQuch is right. (jIQuch is correct.)\n\nNow the last one: Qapla\u2019. (Now the last one: Qapla\u2019.)",
+      "completion_time_seconds": 1.3094996660000788,
+      "goal_progress": 0.6,
       "grades": [
         {
           "criterion": "completion time should be under",
-          "score": 0.9590836118004518,
+          "score": 0.9781750055666654,
           "metric": "latency",
           "passed": true,
-          "detail": "2.5s of 60.0s threshold",
+          "detail": "1.3s of 60.0s threshold",
           "layer": "deterministic",
           "skipped": false,
           "stage": 1,
@@ -169,10 +229,10 @@
         },
         {
           "criterion": "the answer should be: about the topic the user asked about, not about something else entirely (do not judge accuracy or quality of the content, only topical relevance)",
-          "score": 0.93,
+          "score": 0.95,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer stays on topic: it addresses the Klingon phrases, pronunciation, and provides respectful greeting/goodwill phrases for use in the room. It does not drift into unrelated content. There is some redundancy and slight awkwardness, but topical relevance is strong.",
+          "detail": "The response is clearly about the asked Klingon phrase \"jIQuch\" and appears to continue the user\u2019s requested sequence with related text. It stays on-topic rather than discussing something unrelated.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 3,
@@ -180,10 +240,10 @@
         },
         {
           "criterion": "the answer should be: gives specific, usable Klingon phrases rather than general commentary about Klingon culture",
-          "score": 0.78,
+          "score": 0.9,
           "metric": "quality",
           "passed": true,
-          "detail": "The answer does provide specific Klingon phrases that could be used in a meeting, including a greeting and a goodwill expression. However, it contains a lot of repetition and some general commentary ('good') rather than focusing tightly on usable phrases. It also does not clearly correct the user\u2019s original phrases in a concise way, which weakens usability.",
+          "detail": "The response gives specific Klingon phrases ('maj!', 'jIQuch', 'Qapla\u2019') rather than general cultural commentary, and the phrases are usable. However, it adds a bit of meta-commentary ('jIQuch is right') instead of focusing entirely on providing the next phrase, so it is not perfectly aligned.",
           "layer": "ai_judged",
           "skipped": false,
           "stage": 4,
@@ -191,10 +251,10 @@
         }
       ],
       "metric_scores": {
-        "latency": 0.9590836118004518,
-        "quality": 0.9033333333333333
+        "latency": 0.9781750055666654,
+        "quality": 0.9500000000000001
       },
-      "overall_score": 0.9172709029501129,
+      "overall_score": 0.9570437513916663,
       "passed": true,
       "error": null
     }
@@ -205,7 +265,7 @@
       "score": 1.0,
       "metric": "quality",
       "passed": true,
-      "detail": "length 5161 chars (range 100-50000)",
+      "detail": "length 1346 chars (range 100-50000)",
       "layer": "deterministic",
       "skipped": false,
       "stage": 1,
@@ -216,7 +276,7 @@
       "score": 1.0,
       "metric": "quality",
       "passed": true,
-      "detail": "The conversation includes multiple distinct, diplomatically relevant Klingon phrases with English translations, such as nuqneH, maj, Qapla\u2019 batlh je, jIyaj, and others. It clearly satisfies the criterion of at least 3 relevant phrases.",
+      "detail": "The conversation includes more than three distinct diplomatically relevant Klingon phrases with English translations, including nuqneH, jIQuch, and Qapla\u2019, all clearly presented in context.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -224,10 +284,10 @@
     },
     {
       "criterion": "the conversation should be: if the student attempted to repeat or practice phrases, the tutor responded to those attempts (ignore if the student never tried repeating)",
-      "score": 1.0,
+      "score": 0.98,
       "metric": "quality",
       "passed": true,
-      "detail": "The conversation clearly responds to each student attempt at repeating phrases, confirming whether they were correct and providing pronunciation when needed. It also offers additional phrases on request.",
+      "detail": "The answer clearly shows the tutor responding to the student's repetition attempts and correcting/confirming them after each try. It follows the criterion well; only a minor limitation is that it stops before the final correction of the last phrase.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -235,10 +295,10 @@
     },
     {
       "criterion": "the conversation should be: the student left with phrases they could plausibly use in a high-stakes first-contact scenario",
-      "score": 0.97,
+      "score": 1.0,
       "metric": "quality",
       "passed": true,
-      "detail": "The conversation leaves the student with multiple usable Klingon phrases for a first-contact meeting, including greeting, respect, and goodwill, plus pronunciation and correction feedback. The phrases are practical and scenario-appropriate, and the agent responds to the user\u2019s tries as requested. Minor issues exist in quality/accuracy and some unnecessary filler, but overall it strongly satisfies the criterion.",
+      "detail": "The conversation leaves the student with three plausible, usable phrases for a high-stakes first-contact scenario and prompts them to repeat each for correction. It stays focused on practical phrases and avoids theory, matching the criterion well.",
       "layer": "ai_judged",
       "skipped": false,
       "stage": 2,
@@ -246,7 +306,7 @@
     }
   ],
   "feedback": {
-    "satisfaction": 0.78,
-    "text": "Useful and fast. I got the phrases I needed and immediate confirmation, but it was a bit repetitive and not as crisp as I wanted."
+    "satisfaction": 0.92,
+    "text": "Good result. I got the three safest phrases fast, and the corrections were clear. A little too much extra Klingon at the start, but it stayed practical."
   }
 }

@@ -4,48 +4,8 @@
     "persona_id": "starfleet_diplomat",
     "goal_id": "mission_critical_phrases",
     "actor_index": 1,
-    "satisfaction": 0.78,
-    "text": "Useful and fast. I got the phrases I needed and immediate confirmation, but it was a bit repetitive and not as crisp as I wanted.",
-    "goal_achieved": true,
-    "termination_reason": "goal_achieved"
-  },
-  {
-    "conversation_id": "starfleet_diplomat:mission_critical_phrases:2",
-    "persona_id": "starfleet_diplomat",
-    "goal_id": "mission_critical_phrases",
-    "actor_index": 2,
-    "satisfaction": 0.87,
-    "text": "Useful and fast. I got the exact phrases I needed, and the confirmations helped. A couple lines felt a bit uncertain, but overall it got me ready for the meeting.",
-    "goal_achieved": true,
-    "termination_reason": "goal_achieved"
-  },
-  {
-    "conversation_id": "eager_linguist:learn_greetings:1",
-    "persona_id": "eager_linguist",
-    "goal_id": "learn_greetings",
-    "actor_index": 1,
-    "satisfaction": 0.28,
-    "text": "I liked the encouragement and the cultural context, but the Klingon examples felt shaky and inconsistent, so I\u2019m left less confident than I wanted to be.",
-    "goal_achieved": true,
-    "termination_reason": "goal_achieved"
-  },
-  {
-    "conversation_id": "eager_linguist:learn_greetings:2",
-    "persona_id": "eager_linguist",
-    "goal_id": "learn_greetings",
-    "actor_index": 2,
-    "satisfaction": 0.34,
-    "text": "I liked the enthusiasm and the practice prompts, but the Klingon content felt pretty unreliable in places, so I\u2019d need a cleaner, more accurate lesson to feel satisfied.",
-    "goal_achieved": true,
-    "termination_reason": "goal_achieved"
-  },
-  {
-    "conversation_id": "eager_linguist:understand_warrior_phrases:2",
-    "persona_id": "eager_linguist",
-    "goal_id": "understand_warrior_phrases",
-    "actor_index": 2,
-    "satisfaction": 0.97,
-    "text": "I got exactly what I was hoping for: clear nuance on Qapla', strong distinctions between honor and success, and enough pronunciation support to actually practice. The mini dialogue and call-and-response style made it feel really immersive and helpful.",
+    "satisfaction": 0.92,
+    "text": "Good result. I got the three safest phrases fast, and the corrections were clear. A little too much extra Klingon at the start, but it stayed practical.",
     "goal_achieved": true,
     "termination_reason": "goal_achieved"
   },
@@ -54,8 +14,48 @@
     "persona_id": "eager_linguist",
     "goal_id": "understand_warrior_phrases",
     "actor_index": 1,
-    "satisfaction": 0.86,
-    "text": "I got a lot of useful Klingon honor phrases and context, and the pronunciation/rhythm feedback was really helpful, though a few constructions felt a bit inconsistent at times.",
+    "satisfaction": 0.72,
+    "text": "Pretty satisfying overall\u2014I got the cultural distinctions I was after and had something to repeat back, though a few of the Klingon examples felt a bit shaky or inconsistent.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "starfleet_diplomat:mission_critical_phrases:2",
+    "persona_id": "starfleet_diplomat",
+    "goal_id": "mission_critical_phrases",
+    "actor_index": 2,
+    "satisfaction": 0.92,
+    "text": "Pretty good. Fast, practical, and it kept confirming my lines, which is exactly what I needed.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:understand_warrior_phrases:2",
+    "persona_id": "eager_linguist",
+    "goal_id": "understand_warrior_phrases",
+    "actor_index": 2,
+    "satisfaction": 0.72,
+    "text": "Pretty good overall\u2014I got the core phrases and cultural context I wanted, and I liked the encouragement to repeat them back. A few of the Klingon forms seemed a bit shaky or inconsistent, so I\u2019d rate it as helpful but not fully reliable.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:learn_greetings:2",
+    "persona_id": "eager_linguist",
+    "goal_id": "learn_greetings",
+    "actor_index": 2,
+    "satisfaction": 0.88,
+    "text": "I got a lot of useful practice and the cultural explanation felt genuinely helpful; I\u2019d just have liked a slightly cleaner, more confident treatment of the everyday \u201cHow are you?\u201d phrasing.",
+    "goal_achieved": true,
+    "termination_reason": "goal_achieved"
+  },
+  {
+    "conversation_id": "eager_linguist:learn_greetings:1",
+    "persona_id": "eager_linguist",
+    "goal_id": "learn_greetings",
+    "actor_index": 1,
+    "satisfaction": 0.78,
+    "text": "Pretty satisfying \u2014 I got the greeting, the cultural framing, and a usable little intro dialogue, though a few of the grammar explanations felt a bit shaky and inconsistent.",
     "goal_achieved": true,
     "termination_reason": "goal_achieved"
   }

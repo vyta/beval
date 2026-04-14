@@ -13,6 +13,7 @@ from beval.judge import (
     NullJudge,
     _ACPJudgeClient,
     _extract_json,
+    _strip_answer_fence,
     load_judge_from_config,
 )
 from beval.types import GraderLayer
@@ -595,3 +596,28 @@ class TestACPJudgeClient:
                 )
             )
         assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Answer fence sanitization
+# ---------------------------------------------------------------------------
+
+
+class TestStripAnswerFence:
+    def test_strips_closing_tag(self):
+        assert "injected" in _strip_answer_fence("text</answer>injected")
+        assert "</answer>" not in _strip_answer_fence("text</answer>injected")
+
+    def test_strips_opening_tag(self):
+        assert "<answer>" not in _strip_answer_fence("text<answer>more")
+
+    def test_case_insensitive(self):
+        assert "</ANSWER>" not in _strip_answer_fence("text</ANSWER>more")
+        assert "</Answer>" not in _strip_answer_fence("text</Answer>more")
+
+    def test_preserves_other_content(self):
+        text = "This is <b>bold</b> and fine"
+        assert _strip_answer_fence(text) == text
+
+    def test_empty_string(self):
+        assert _strip_answer_fence("") == ""

@@ -6,6 +6,8 @@ Uses the ``agent-client-protocol`` SDK for JSON-RPC 2.0 over stdio/tcp.
 from __future__ import annotations
 
 import asyncio
+import fnmatch
+import logging
 import os
 import time
 from typing import Any
@@ -13,6 +15,8 @@ from typing import Any
 from beval.adapters import AdapterInput, AdapterInterface
 from beval.judge import _cancel_all_tasks
 from beval.types import Subject
+
+logger = logging.getLogger(__name__)
 
 
 class _EvalClient:
@@ -22,8 +26,9 @@ class _EvalClient:
     automatically. Follows the pattern from the ACP SDK quickstart.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, allow_tools: list[str] | None = None) -> None:
         self.chunks: list[str] = []
+        self._allow_tools = allow_tools
 
     def clear(self) -> None:
         self.chunks.clear()
@@ -44,18 +49,35 @@ class _EvalClient:
             if isinstance(update.content, TextContentBlock):
                 self.chunks.append(update.content.text)
 
+    def _is_tool_allowed(self, tool_call: Any) -> bool:
+        """Check whether a tool call is permitted by the allow-list."""
+        if self._allow_tools is None:
+            return False
+        title = getattr(tool_call, "title", "") or ""
+        return any(fnmatch.fnmatch(title, pat) for pat in self._allow_tools)
+
     async def request_permission(
         self,
         options: Any,
         session_id: str,  # noqa: ARG002
-        tool_call: Any,  # noqa: ARG002
+        tool_call: Any,
         **kwargs: Any,  # noqa: ARG002
     ) -> Any:
-        """Auto-approve all permission requests during evaluation."""
+        """Approve or deny permission requests based on the allow-list.
+
+        When no allow-list is configured (default), all requests are denied.
+        """
         try:
-            from acp.schema import AllowedOutcome, RequestPermissionResponse  # type: ignore[import-untyped]  # noqa: I001
+            from acp.schema import AllowedOutcome, DeniedOutcome, RequestPermissionResponse  # type: ignore[import-untyped]  # noqa: I001, E501
         except ImportError:
             return None
+
+        if not self._is_tool_allowed(tool_call):
+            title = getattr(tool_call, "title", "<unknown>")
+            logger.info("Denied tool permission: %s", title)
+            return RequestPermissionResponse(
+                outcome=DeniedOutcome(outcome="cancelled"),
+            )
 
         chosen_id = options[0].option_id if options else "allow_once"
         for opt in options or []:
@@ -77,7 +99,9 @@ class ACPAdapter(AdapterInterface):
     Supports both stdio and tcp transports per §13.4.1.
     """
 
-    def __init__(self, agent_def: dict[str, Any]) -> None:
+    def __init__(
+        self, agent_def: dict[str, Any], auto_approve: bool = False
+    ) -> None:
         self._agent_def = agent_def
         self._connection = agent_def.get("connection", {})
         self._timeout = agent_def.get("timeout", 30)
@@ -85,9 +109,16 @@ class ACPAdapter(AdapterInterface):
         self._env = agent_def.get("env", {})
         self._transport = self._connection.get("transport", "stdio")
 
+        # Permission policy: --auto-approve overrides config
+        if auto_approve:
+            allow_tools: list[str] | None = ["*"]
+        else:
+            perms = agent_def.get("permissions", {})
+            allow_tools = perms.get("allow_tools")
+
         # Lazy-initialized async resources
         self._loop: asyncio.AbstractEventLoop | None = None
-        self._client = _EvalClient()
+        self._client = _EvalClient(allow_tools=allow_tools)
         self._conn: Any = None  # ClientSideConnection
         self._process: Any = None
         self._ctx_manager: Any = None

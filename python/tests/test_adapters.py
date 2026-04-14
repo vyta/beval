@@ -260,7 +260,7 @@ class TestCreateAdapter:
         with patch("beval.adapters.acp.ACPAdapter") as mock_cls:
             mock_cls.return_value = MagicMock()
             create_adapter(agent_def)
-            mock_cls.assert_called_once_with(agent_def)
+            mock_cls.assert_called_once_with(agent_def, auto_approve=False)
 
     def test_dispatches_a2a(self) -> None:
         agent_def = {
@@ -843,3 +843,122 @@ class TestReporterAgentField:
         }
         result = _strip_defaults(d)
         assert result["agent"] == {"name": "x", "protocol": "acp"}
+
+
+# ---------------------------------------------------------------------------
+# Permission policy tests (_EvalClient allow-list)
+# ---------------------------------------------------------------------------
+
+
+class TestPermissionPolicy:
+    """Tests for _EvalClient's tool permission allow-list."""
+
+    @pytest.fixture()
+    def _mock_acp_schema(self):
+        """Ensure ACP schema types are importable."""
+        pytest.importorskip("acp.schema")
+
+    def _make_tool_call(self, title: str) -> MagicMock:
+        tc = MagicMock()
+        tc.title = title
+        tc.tool_call_id = "tc-1"
+        return tc
+
+    def _make_options(self) -> list[MagicMock]:
+        opt = MagicMock()
+        opt.option_id = "allow_once"
+        opt.kind = "allow"
+        return [opt]
+
+    @pytest.mark.usefixtures("_mock_acp_schema")
+    def test_default_denies_all(self) -> None:
+        """No allow_tools → deny all tool calls."""
+        import asyncio
+
+        from acp.schema import DeniedOutcome
+
+        from beval.adapters.acp import _EvalClient
+
+        client = _EvalClient()  # default: allow_tools=None
+        tc = self._make_tool_call("web_search")
+        result = asyncio.run(
+            client.request_permission(self._make_options(), "s1", tc)
+        )
+        assert isinstance(result.outcome, DeniedOutcome)
+
+    @pytest.mark.usefixtures("_mock_acp_schema")
+    def test_wildcard_approves_all(self) -> None:
+        """allow_tools=["*"] approves every tool call."""
+        import asyncio
+
+        from acp.schema import AllowedOutcome
+
+        from beval.adapters.acp import _EvalClient
+
+        client = _EvalClient(allow_tools=["*"])
+        tc = self._make_tool_call("anything")
+        result = asyncio.run(
+            client.request_permission(self._make_options(), "s1", tc)
+        )
+        assert isinstance(result.outcome, AllowedOutcome)
+
+    @pytest.mark.usefixtures("_mock_acp_schema")
+    def test_pattern_match_approves(self) -> None:
+        """Glob pattern matches the tool title."""
+        import asyncio
+
+        from acp.schema import AllowedOutcome
+
+        from beval.adapters.acp import _EvalClient
+
+        client = _EvalClient(allow_tools=["web_*"])
+        tc = self._make_tool_call("web_search")
+        result = asyncio.run(
+            client.request_permission(self._make_options(), "s1", tc)
+        )
+        assert isinstance(result.outcome, AllowedOutcome)
+
+    @pytest.mark.usefixtures("_mock_acp_schema")
+    def test_pattern_mismatch_denies(self) -> None:
+        """Tool title not matching any pattern is denied."""
+        import asyncio
+
+        from acp.schema import DeniedOutcome
+
+        from beval.adapters.acp import _EvalClient
+
+        client = _EvalClient(allow_tools=["web_*"])
+        tc = self._make_tool_call("delete_file")
+        result = asyncio.run(
+            client.request_permission(self._make_options(), "s1", tc)
+        )
+        assert isinstance(result.outcome, DeniedOutcome)
+
+    def test_auto_approve_overrides_config(self) -> None:
+        """ACPAdapter with auto_approve=True ignores config allow_tools."""
+        from beval.adapters.acp import ACPAdapter
+
+        adapter = ACPAdapter(
+            {
+                "name": "test",
+                "protocol": "acp",
+                "connection": {"transport": "stdio", "command": ["echo"]},
+                "permissions": {"allow_tools": []},  # would deny all
+            },
+            auto_approve=True,
+        )
+        assert adapter._client._allow_tools == ["*"]
+
+    def test_config_allow_tools_read(self) -> None:
+        """ACPAdapter reads allow_tools from agent_def permissions."""
+        from beval.adapters.acp import ACPAdapter
+
+        adapter = ACPAdapter(
+            {
+                "name": "test",
+                "protocol": "acp",
+                "connection": {"transport": "stdio", "command": ["echo"]},
+                "permissions": {"allow_tools": ["read_*", "search"]},
+            },
+        )
+        assert adapter._client._allow_tools == ["read_*", "search"]

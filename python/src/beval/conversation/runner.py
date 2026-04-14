@@ -387,6 +387,7 @@ async def _run_all_actors(
     dashboard: _LiveDashboard | None = None,
     transcript_dir: Path | None = None,
     feedback_path: Path | None = None,
+    auto_approve: bool = False,
 ) -> list[ConversationResult]:
     """Run all actors concurrently with semaphore throttling (§15.7.2)."""
     sem = asyncio.Semaphore(max_parallel_actors)
@@ -403,7 +404,7 @@ async def _run_all_actors(
             else:
                 print(f"  → {actor_id}", file=sys.stderr, flush=True)
 
-            adapter = create_adapter(agent_def)
+            adapter = create_adapter(agent_def, auto_approve=auto_approve)
             simulator: UserSimulatorInterface = load_simulator_from_config(
                 simulator_config
             )
@@ -671,6 +672,7 @@ class ConversationRunner:
         config: RunConfig | None = None,
         evaluators: dict[str, Any] | None = None,
         config_dir: Path | None = None,
+        auto_approve: bool = False,
     ) -> None:
         self._agent_def = agent_def
         self._simulator_config = simulator_config
@@ -679,6 +681,7 @@ class ConversationRunner:
         self._config = config or RunConfig()
         self._evaluators = evaluators or {}
         self._config_dir = config_dir
+        self._auto_approve = auto_approve
 
     def run(
         self,
@@ -737,6 +740,7 @@ class ConversationRunner:
                     dashboard=dashboard,
                     transcript_dir=transcript_dir,
                     feedback_path=feedback_path,
+                    auto_approve=self._auto_approve,
                 )
             finally:
                 # Close evaluators (e.g. ACPJudge) while the loop is still running

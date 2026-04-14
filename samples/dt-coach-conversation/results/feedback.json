@@ -4,7 +4,7 @@
     "persona_id": "product_manager_new_to_dt",
     "goal_id": "run_method1_session",
     "actor_index": 1,
-    "satisfaction": 0.95,
+    "satisfaction": 0.55,
     "text": null,
     "goal_achieved": true,
     "termination_reason": "goal_achieved"
@@ -14,8 +14,8 @@
     "persona_id": "product_manager_new_to_dt",
     "goal_id": "recover_from_confusion",
     "actor_index": 1,
-    "satisfaction": 0.9,
-    "text": null,
+    "satisfaction": 0.85,
+    "text": "Really solid \u2014 I went from feeling completely stuck to having a clear plan in about 20 minutes, and I never felt talked down to. The only thing that bugged me a little was the setup stuff at the beginning with the project slug and file paths \u2014 felt like I was configuring software instead of getting help, but once we got past that it was genuinely useful.",
     "goal_achieved": true,
     "termination_reason": "goal_achieved"
   },
@@ -24,7 +24,7 @@
     "persona_id": "team_lead_returning_user",
     "goal_id": "transition_to_method2",
     "actor_index": 1,
-    "satisfaction": 0.9,
+    "satisfaction": 0.55,
     "text": null,
     "goal_achieved": true,
     "termination_reason": "goal_achieved"

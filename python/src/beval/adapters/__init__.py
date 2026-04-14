@@ -137,10 +137,20 @@ def load_agent(
     return resolved
 
 
-def create_adapter(agent_def: dict[str, Any]) -> AdapterInterface:
+def create_adapter(
+    agent_def: dict[str, Any], *, auto_approve: bool = False
+) -> AdapterInterface:
     """Instantiate the appropriate adapter for an agent definition.
 
     See SPEC §13.4 for protocol-specific adapters.
+
+    Parameters
+    ----------
+    agent_def
+        Resolved agent definition dictionary.
+    auto_approve
+        When True, approve all agent tool-call permission requests
+        regardless of the agent's ``permissions.allow_tools`` config.
 
     Raises
     ------
@@ -152,7 +162,7 @@ def create_adapter(agent_def: dict[str, Any]) -> AdapterInterface:
     if protocol == "acp":
         from beval.adapters.acp import ACPAdapter
 
-        return ACPAdapter(agent_def)
+        return ACPAdapter(agent_def, auto_approve=auto_approve)
     elif protocol == "a2a":
         from beval.adapters.a2a import A2AAdapter
 

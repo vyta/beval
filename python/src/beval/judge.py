@@ -38,6 +38,14 @@ from beval.types import Grade, GraderLayer  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
+_ANSWER_FENCE_RE = re.compile(r"</?\s*answer\b[^>]*>", re.IGNORECASE)
+
+
+def _strip_answer_fence(text: str) -> str:
+    """Strip <answer>/</ answer> fence tags from text to prevent breakout."""
+    return _ANSWER_FENCE_RE.sub("", text) if text else text
+
+
 _JUDGE_SYSTEM_PROMPT = """\
 You are an evaluation judge. Your task is to assess whether an AI agent's \
 answer meets the given criterion.
@@ -481,6 +489,7 @@ class LLMJudge(Judge):
         answer = subject_answer
         if self._max_answer_chars is not None:
             answer = answer[: self._max_answer_chars]
+        answer = _strip_answer_fence(answer)
 
         user_msg = _JUDGE_USER_TEMPLATE.format(
             criterion=criterion,
@@ -561,7 +570,11 @@ class _ACPJudgeClient:
         tool_call: Any,  # noqa: ARG002
         **kwargs: Any,  # noqa: ARG002
     ) -> Any:
-        """Auto-approve all permission requests during evaluation."""
+        """Auto-approve all permission requests.
+
+        The judge is trusted infrastructure configured by the evaluator,
+        not the agent under test — approve-all is intentional here.
+        """
         try:
             from acp.schema import AllowedOutcome, RequestPermissionResponse  # noqa: I001
         except ImportError:
@@ -617,7 +630,7 @@ class ACPJudge(Judge):
         prompt = _ACP_JUDGE_PROMPT_TEMPLATE.format(
             criterion=criterion,
             input=user_input,
-            answer=subject_answer,
+            answer=_strip_answer_fence(subject_answer),
         )
 
         try:

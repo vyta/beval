@@ -215,8 +215,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="LLM judge model identifier (overrides config/env).",
     )
-
-    # --- validate ---
+    run_parser.add_argument(
+        "--auto-approve",
+        action="store_true",
+        default=False,
+        help="Auto-approve all agent tool-call permission requests.",
+    )
     validate_parser = subparsers.add_parser(
         "validate", help="Validate case files, configuration, and schemas."
     )
@@ -354,6 +358,12 @@ def _build_parser() -> argparse.ArgumentParser:
         type=str,
         default=None,
         help="LLM judge model identifier (overrides config/env).",
+    )
+    converse_run.add_argument(
+        "--auto-approve",
+        action="store_true",
+        default=False,
+        help="Auto-approve all agent tool-call permission requests.",
     )
 
     return parser
@@ -518,7 +528,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
             try:
                 agent_def = _load_agent(agent_ref, config_agents=config_agents)
-                adapter = create_adapter(agent_def)
+                adapter = create_adapter(
+                    agent_def, auto_approve=getattr(args, "auto_approve", False)
+                )
                 handler = adapter_as_handler(adapter)
                 agent_info = {
                     "name": agent_def["name"],
@@ -1324,6 +1336,7 @@ def _cmd_converse_run(args: argparse.Namespace) -> int:
         config=config,
         evaluators=evaluators,
         config_dir=config_dir,
+        auto_approve=getattr(args, "auto_approve", False),
     )
 
     label = getattr(args, "label", None)

@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -117,11 +118,17 @@ def _format_traits(persona: Persona) -> str:
     return "\n".join(lines) if lines else "(none specified)"
 
 
+def _strip_fence(text: str, tag: str) -> str:
+    """Strip structural fence tags from text to prevent breakout (§15.15.1)."""
+    return re.sub(rf"</?\s*{re.escape(tag)}\b[^>]*>", "", text, flags=re.IGNORECASE)
+
+
 def _format_history(history: list[TurnResult]) -> str:
     parts = []
     for t in history:
         parts.append(f"User: {t.user_message}")
-        parts.append(f"Assistant: <agent_response>{t.agent_response}</agent_response>")
+        safe = _strip_fence(t.agent_response, "agent_response")
+        parts.append(f"Assistant: <agent_response>{safe}</agent_response>")
         parts.append("")
     return "\n".join(parts)
 
@@ -203,9 +210,19 @@ def _parse_dynamic_case(raw: str) -> DynamicCase:
     if not isinstance(then_raw, list):
         logger.warning("Simulator 'then' is not a list, using []: %s", raw[:200])
         then_raw = []
-    then = tuple(str(c) for c in then_raw if c)
+    then = tuple(_sanitize_criterion(str(c)) for c in then_raw if c)
 
     return DynamicCase(query=query, then=then, progress=progress)
+
+
+_XML_TAG_RE = re.compile(r"<[^>]+>")
+_MAX_CRITERION_LEN = 500
+
+
+def _sanitize_criterion(text: str) -> str:
+    """Strip XML tags and cap length for dynamic criteria strings."""
+    cleaned = _XML_TAG_RE.sub("", text).strip()
+    return cleaned[:_MAX_CRITERION_LEN] if len(cleaned) > _MAX_CRITERION_LEN else cleaned
 
 
 def _parse_feedback(raw: str) -> UserFeedback:
@@ -472,7 +489,8 @@ class ACPSimulator(UserSimulatorInterface):
         from beval.adapters.acp import _EvalClient
 
         if self._client is None:
-            self._client = _EvalClient()
+            # Simulator is trusted infrastructure — approve all permissions
+            self._client = _EvalClient(allow_tools=["*"])
 
         if self._conn is None:
             if self._transport == "stdio":

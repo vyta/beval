@@ -881,9 +881,7 @@ class TestPermissionPolicy:
 
         client = _EvalClient()  # default: allow_tools=None
         tc = self._make_tool_call("web_search")
-        result = asyncio.run(
-            client.request_permission(self._make_options(), "s1", tc)
-        )
+        result = asyncio.run(client.request_permission(self._make_options(), "s1", tc))
         assert isinstance(result.outcome, DeniedOutcome)
 
     @pytest.mark.usefixtures("_mock_acp_schema")
@@ -897,9 +895,7 @@ class TestPermissionPolicy:
 
         client = _EvalClient(allow_tools=["*"])
         tc = self._make_tool_call("anything")
-        result = asyncio.run(
-            client.request_permission(self._make_options(), "s1", tc)
-        )
+        result = asyncio.run(client.request_permission(self._make_options(), "s1", tc))
         assert isinstance(result.outcome, AllowedOutcome)
 
     @pytest.mark.usefixtures("_mock_acp_schema")
@@ -913,9 +909,7 @@ class TestPermissionPolicy:
 
         client = _EvalClient(allow_tools=["web_*"])
         tc = self._make_tool_call("web_search")
-        result = asyncio.run(
-            client.request_permission(self._make_options(), "s1", tc)
-        )
+        result = asyncio.run(client.request_permission(self._make_options(), "s1", tc))
         assert isinstance(result.outcome, AllowedOutcome)
 
     @pytest.mark.usefixtures("_mock_acp_schema")
@@ -929,9 +923,7 @@ class TestPermissionPolicy:
 
         client = _EvalClient(allow_tools=["web_*"])
         tc = self._make_tool_call("delete_file")
-        result = asyncio.run(
-            client.request_permission(self._make_options(), "s1", tc)
-        )
+        result = asyncio.run(client.request_permission(self._make_options(), "s1", tc))
         assert isinstance(result.outcome, DeniedOutcome)
 
     def test_auto_approve_overrides_config(self) -> None:

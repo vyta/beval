@@ -222,7 +222,9 @@ _MAX_CRITERION_LEN = 500
 def _sanitize_criterion(text: str) -> str:
     """Strip XML tags and cap length for dynamic criteria strings."""
     cleaned = _XML_TAG_RE.sub("", text).strip()
-    return cleaned[:_MAX_CRITERION_LEN] if len(cleaned) > _MAX_CRITERION_LEN else cleaned
+    return (
+        cleaned[:_MAX_CRITERION_LEN] if len(cleaned) > _MAX_CRITERION_LEN else cleaned
+    )
 
 
 def _parse_feedback(raw: str) -> UserFeedback:

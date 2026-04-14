@@ -68,7 +68,11 @@ class _EvalClient:
         When no allow-list is configured (default), all requests are denied.
         """
         try:
-            from acp.schema import AllowedOutcome, DeniedOutcome, RequestPermissionResponse  # type: ignore[import-untyped]  # noqa: I001, E501
+            from acp.schema import (
+                AllowedOutcome,
+                DeniedOutcome,
+                RequestPermissionResponse,
+            )  # type: ignore[import-untyped]  # noqa: I001, E501
         except ImportError:
             return None
 
@@ -99,9 +103,7 @@ class ACPAdapter(AdapterInterface):
     Supports both stdio and tcp transports per §13.4.1.
     """
 
-    def __init__(
-        self, agent_def: dict[str, Any], auto_approve: bool = False
-    ) -> None:
+    def __init__(self, agent_def: dict[str, Any], auto_approve: bool = False) -> None:
         self._agent_def = agent_def
         self._connection = agent_def.get("connection", {})
         self._timeout = agent_def.get("timeout", 30)

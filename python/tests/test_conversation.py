@@ -161,10 +161,7 @@ class TestParseDynamicCase:
 
     def test_criteria_length_capped(self):
         long_criterion = "x" * 1000
-        raw = (
-            '{"progress": 0.3, "query": "Hi",'
-            f' "then": ["{long_criterion}"]}}'
-        )
+        raw = f'{{"progress": 0.3, "query": "Hi", "then": ["{long_criterion}"]}}'
         dc = _parse_dynamic_case(raw)
         assert len(dc.then[0]) == 500
 

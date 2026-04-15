@@ -1,0 +1,428 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "conversation-results.schema.json",
+  "title": "beval Conversation Run Result",
+  "description": "Schema for beval conversation simulation run results per spec/conversation-sim.spec.md §15.10.",
+  "type": "object",
+  "required": ["mode", "config", "summary", "conversations"],
+  "additionalProperties": false,
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "Optional identifier for the run."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the run completed."
+    },
+    "mode": {
+      "$ref": "#/$defs/EvaluationMode",
+      "description": "Evaluation mode used for this run."
+    },
+    "config": {
+      "$ref": "#/$defs/RunConfig",
+      "description": "Non-sensitive configuration values used for this run."
+    },
+    "summary": {
+      "$ref": "#/$defs/ConversationRunSummary",
+      "description": "Aggregate summary of all conversation results."
+    },
+    "conversations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ConversationResult" },
+      "description": "Per-conversation evaluation results."
+    }
+  },
+  "$defs": {
+    "EvaluationMode": {
+      "type": "string",
+      "enum": ["dev", "dev+process", "validation", "monitoring"],
+      "description": "Evaluation mode controlling which grader layers are active."
+    },
+    "Score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "A normalized score in the range 0.0 to 1.0."
+    },
+    "GraderLayer": {
+      "type": "string",
+      "enum": ["deterministic", "process", "ai_judged"],
+      "description": "The grader layer that produced this grade."
+    },
+    "RunConfig": {
+      "type": "object",
+      "description": "Non-sensitive configuration snapshot for the run.",
+      "required": ["grade_pass_threshold", "case_pass_threshold"],
+      "additionalProperties": false,
+      "properties": {
+        "grade_pass_threshold": {
+          "$ref": "#/$defs/Score",
+          "description": "Threshold above which a grade passes."
+        },
+        "case_pass_threshold": {
+          "$ref": "#/$defs/Score",
+          "description": "Threshold at or above which a conversation passes."
+        },
+        "pass_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Per-conversation pass threshold (conversation mode)."
+        },
+        "case_pass_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Required fraction of conversations passing (conversation mode)."
+        },
+        "turn_pass_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Required fraction of turns passing within a conversation."
+        },
+        "conversation_pass_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Required fraction of conversations passing overall."
+        },
+        "run_pass_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Required pass rate for the overall run to pass."
+        },
+        "min_satisfaction": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Minimum average satisfaction score for the run to pass; null if not set."
+        },
+        "skip_mode": {
+          "type": "string",
+          "enum": ["exclude", "optimistic", "strict"],
+          "description": "How skipped grades affect aggregation."
+        },
+        "metric_weights": {
+          "type": "object",
+          "description": "Per-metric weights for weighted score aggregation.",
+          "additionalProperties": { "type": "number", "minimum": 0 }
+        },
+        "active_layers": {
+          "type": ["array", "null"],
+          "items": { "type": "string" },
+          "description": "Explicitly active grader layers; null to use mode defaults."
+        },
+        "agent": {
+          "$ref": "#/$defs/AgentInfo",
+          "description": "Agent identity when an agent adapter was used."
+        }
+      }
+    },
+    "AgentInfo": {
+      "type": "object",
+      "description": "Non-sensitive agent identity included in results.",
+      "required": ["name", "protocol"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Agent identifier."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["acp", "a2a", "custom"],
+          "description": "Connection protocol used."
+        }
+      }
+    },
+    "ConversationRunSummary": {
+      "type": "object",
+      "description": "Aggregate summary across all conversations in the run.",
+      "required": [
+        "overall_score", "goal_achievement_rate",
+        "passed", "failed", "errored", "cancelled", "total",
+        "total_turns", "metrics", "run_passed"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "overall_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Mean of all ConversationResult.overall_scores."
+        },
+        "goal_achievement_rate": {
+          "$ref": "#/$defs/Score",
+          "description": "Fraction of conversations where goal_achieved=true."
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of conversations that passed."
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of conversations that failed."
+        },
+        "errored": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of conversations that errored during execution."
+        },
+        "cancelled": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of conversations that were cancelled."
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of conversations in the run."
+        },
+        "total_turns": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sum of turn counts across all conversations."
+        },
+        "mean_turns_to_goal": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Mean turn count across goal-achieved conversations; null if no goal achieved."
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Per-metric average scores across all conversations.",
+          "additionalProperties": {
+            "$ref": "#/$defs/Score"
+          }
+        },
+        "avg_satisfaction": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Mean satisfaction across conversations that collected feedback; null if no feedback."
+        },
+        "run_passed": {
+          "type": "boolean",
+          "description": "Whether the overall run passed based on run_pass_rate and min_satisfaction thresholds."
+        }
+      }
+    },
+    "Grade": {
+      "type": "object",
+      "description": "Result of executing one grader.",
+      "required": ["criterion", "score", "metric", "passed", "detail", "layer", "skipped"],
+      "additionalProperties": false,
+      "properties": {
+        "criterion": {
+          "type": "string",
+          "description": "The criterion string that triggered this grader."
+        },
+        "score": {
+          "$ref": "#/$defs/Score",
+          "description": "Grader score for this criterion."
+        },
+        "metric": {
+          "type": "string",
+          "description": "Metric category for this grade (e.g., latency, quality)."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether the score exceeded the grade pass threshold."
+        },
+        "detail": {
+          "type": ["string", "null"],
+          "description": "Human-readable detail about the grading result."
+        },
+        "layer": {
+          "$ref": "#/$defs/GraderLayer",
+          "description": "Which grader layer produced this grade."
+        },
+        "skipped": {
+          "type": "boolean",
+          "description": "Whether the grader was skipped due to evaluation mode."
+        },
+        "stage": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "description": "One-based turn number for per-turn grades; null for conversation-level grades."
+        },
+        "stage_name": {
+          "type": ["string", "null"],
+          "description": "Turn label (e.g., 'turn 3') for per-turn grades; null for conversation-level grades."
+        }
+      }
+    },
+    "TurnResult": {
+      "type": "object",
+      "description": "Recorded outcome of one conversation turn.",
+      "required": [
+        "turn_number", "user_message", "agent_response",
+        "completion_time_seconds", "goal_progress",
+        "grades", "metric_scores", "overall_score", "passed", "error"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "turn_number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "One-based turn index within the conversation."
+        },
+        "user_message": {
+          "type": "string",
+          "description": "The message generated by the simulator and sent to the agent."
+        },
+        "agent_response": {
+          "type": "string",
+          "description": "The agent's text response for this turn."
+        },
+        "completion_time_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Adapter response time for this turn in seconds."
+        },
+        "goal_progress": {
+          "$ref": "#/$defs/Score",
+          "description": "DynamicCase.progress value for this turn (0.0–1.0 fraction of goal achieved)."
+        },
+        "grades": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Grade" },
+          "description": "Per-turn grade results from goal.graders.per_turn criterion strings."
+        },
+        "metric_scores": {
+          "type": "object",
+          "description": "Per-metric average scores for this turn.",
+          "additionalProperties": {
+            "$ref": "#/$defs/Score"
+          }
+        },
+        "overall_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Mean of non-skipped per-turn grades for this turn."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether this turn's overall_score met the pass threshold."
+        },
+        "error": {
+          "type": ["string", "null"],
+          "description": "Error message if this turn errored; null otherwise."
+        }
+      }
+    },
+    "ConversationResult": {
+      "type": "object",
+      "description": "Aggregated evaluation result for a single conversation (one actor running one persona/goal pair).",
+      "required": [
+        "id", "name", "category", "persona_id", "goal_id", "actor_index",
+        "overall_score", "goal_achievement_score", "passed",
+        "goal_achieved", "termination_reason", "turn_count",
+        "time_seconds", "metric_scores", "error", "turns", "grades"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ConversationCase identity: {persona_id}:{goal_id}:{actor_index}."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable label including actor index."
+        },
+        "category": {
+          "type": "string",
+          "description": "Grouping key derived as '{persona_id}/{goal_id}'. Matches CaseResult.category shape for result tooling reuse."
+        },
+        "persona_id": {
+          "type": "string",
+          "description": "ID of the persona used in this conversation."
+        },
+        "goal_id": {
+          "type": "string",
+          "description": "ID of the goal pursued in this conversation."
+        },
+        "actor_index": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "One-based actor index within the actor_count for this persona/goal pair."
+        },
+        "overall_score": {
+          "$ref": "#/$defs/Score",
+          "description": "Mean of all non-skipped per-turn and conversation-level grades."
+        },
+        "goal_achievement_score": {
+          "$ref": "#/$defs/Score",
+          "description": "1.0 if termination_reason=goal_achieved; otherwise the last DynamicCase.progress value."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether overall_score met the case_pass_threshold."
+        },
+        "goal_achieved": {
+          "type": "boolean",
+          "description": "True if the conversation terminated with reason=goal_achieved."
+        },
+        "termination_reason": {
+          "type": "string",
+          "enum": [
+            "goal_achieved",
+            "terminated_max_turns",
+            "terminated_timeout",
+            "cancelled",
+            "agent_error",
+            "simulator_error"
+          ],
+          "description": "Why the conversation ended."
+        },
+        "turn_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of turns completed in this conversation."
+        },
+        "time_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total wall-clock execution time in seconds."
+        },
+        "metric_scores": {
+          "type": "object",
+          "description": "Per-metric average scores across all turns and conversation-level grades.",
+          "additionalProperties": {
+            "$ref": "#/$defs/Score"
+          }
+        },
+        "error": {
+          "type": ["string", "null"],
+          "description": "Error message if the conversation errored; null otherwise."
+        },
+        "turns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TurnResult" },
+          "description": "Ordered array of turn results."
+        },
+        "grades": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Grade" },
+          "description": "Conversation-level grade results from goal.graders.conversation criterion strings."
+        },
+        "feedback": {
+          "oneOf": [
+            { "$ref": "#/$defs/UserFeedback" },
+            { "type": "null" }
+          ],
+          "description": "Post-conversation feedback from the simulated user persona; null if not collected."
+        }
+      }
+    },
+    "UserFeedback": {
+      "type": "object",
+      "description": "Post-conversation feedback from the simulated user persona.",
+      "required": ["satisfaction"],
+      "additionalProperties": false,
+      "properties": {
+        "satisfaction": {
+          "$ref": "#/$defs/Score",
+          "description": "User satisfaction score (0.0 = terrible, 1.0 = excellent)."
+        },
+        "text": {
+          "type": ["string", "null"],
+          "description": "Optional free-text feedback from the simulated user."
+        }
+      }
+    }
+  }
+}

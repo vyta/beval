@@ -1,0 +1,80 @@
+eval:
+  mode: validation
+  thresholds:
+    pass_score: 0.5
+    case_pass_rate: 0.6
+    turn_pass_rate: 0.6
+    conversation_pass_rate: 0.7
+    run_pass_rate: 1.0
+
+  agents:
+    default: dt-coach-tcp
+    definitions:
+      - name: dt-coach
+        description: >
+          Design Thinking Coach via ACP stdio transport.
+        protocol: acp
+        connection:
+          transport: stdio
+          command: ["copilot", "--acp", "--stdio", "--allow-all"]
+          cwd: ${AGENT_REPO_ROOT}
+          model: ${AGENT_MODEL:-claude-opus-4.6-1m}
+        init_prompt: "Launch .github/agents/design-thinking/dt-coach.agent.md"
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+
+      - name: dt-coach-tcp
+        description: >
+          Design Thinking Coach via ACP TCP transport.
+        protocol: acp
+        connection:
+          transport: tcp
+          host: ${AGENT_HOST:-127.0.0.1}
+          port: ${AGENT_PORT:-3000}
+          cwd: ${AGENT_REPO_ROOT}
+          model: ${AGENT_MODEL:-claude-opus-4.6-1m}
+        init_prompt: "Launch .github/agents/design-thinking/dt-coach.agent.md"
+        timeout: 120
+        retry:
+          max_attempts: 2
+          backoff: 5.0
+
+  judge:
+    protocol: acp
+    connection:
+      transport: tcp
+      host: ${JUDGE_HOST:-127.0.0.1}
+      port: ${JUDGE_PORT:-3001}
+      model: ${AGENT_MODEL:-claude-opus-4.6-1m}
+    timeout: 60
+
+  conversation:
+    simulator:
+      protocol: acp
+      connection:
+        transport: tcp
+        host: ${SIMULATOR_HOST:-127.0.0.1}
+        port: ${SIMULATOR_PORT:-3002}
+        model: ${AGENT_MODEL:-claude-opus-4.6-1m}
+      timeout: 60
+      max_dynamic_criteria_per_turn: 1
+
+    personas:
+      - file: personas.yaml
+
+    goals:
+      - file: goals.yaml
+
+    feedback_text_rate: 0.3
+    actor_count: 1          # increase for variance data
+    max_parallel_actors: 1
+    max_turns: 20
+    timeout_seconds: 1800
+    history_dir: .beval_history
+    history_retention_days: 30
+
+  output:
+    dir: results
+    format: json

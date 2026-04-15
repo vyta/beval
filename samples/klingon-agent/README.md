@@ -40,15 +40,37 @@ The `--judge-model` flag selects which model the judge uses (e.g. `gpt-4.1`,
 
 ## Option A: Local Agent
 
-### Prerequisites
-
-- LLM credentials configured (see above)
-- Optional: `KLINGON_MODEL` to override the agent's model (default: `gpt-4o-mini`)
 
 ### Install dependencies and start the server
 
+cd samples/klingon-agent
+
+# Azure AI Foundry (Entra ID — recommended)
+az login
+export AZURE_OPENAI_ENDPOINT=https://<resource>.services.ai.azure.com/api/projects/<project>/openai/v1
+export AZURE_OPENAI_API_VERSION=2025-04-01-preview
+export KLINGON_MODEL=o4-mini
+
+# OR standard OpenAI
+export OPENAI_API_KEY=sk-...
+export KLINGON_MODEL=o4-mini
+
+
 ```bash
-cd python && uv sync --extra a2a-server
+cd samples/klingon-agent
+
+# Azure AI Foundry (Entra ID — recommended)
+az login
+export AZURE_OPENAI_ENDPOINT=https://<resource>.services.ai.azure.com/api/projects/<project>/openai/v1
+export AZURE_OPENAI_API_VERSION=2025-04-01-preview
+export KLINGON_MODEL=o4-mini
+
+# OR standard OpenAI
+export OPENAI_API_KEY=sk-...
+export KLINGON_MODEL=o4-mini
+
+
+cd ../../python && uv sync --extra a2a-server
 
 # From the samples/klingon-agent/ directory:
 cd ../samples/klingon-agent

@@ -380,7 +380,7 @@ class TestResolveGrade:
         assert grade.passed is True  # runner enforces threshold
 
     def test_resolve_grade_threshold_boundary(self, sample_subject: Subject) -> None:
-        """Score exactly at threshold does not pass (> not >=, §5.3)."""
+        """Score exactly at threshold passes (>= not >, §5.3)."""
 
         def exact_threshold(
             criterion: str,
@@ -392,7 +392,7 @@ class TestResolveGrade:
                 criterion=criterion,
                 score=0.5,
                 metric="quality",
-                passed=True,
+                passed=False,
                 detail="At threshold.",
                 layer=GraderLayer.DETERMINISTIC,
             )
@@ -405,7 +405,7 @@ class TestResolveGrade:
             EvalContext(mode=EvaluationMode.DEV),
         )
         assert grade.score == 0.5
-        assert grade.passed is False  # 0.5 is NOT > 0.5
+        assert grade.passed is True  # 0.5 >= 0.5
 
     def test_resolve_grade_custom_threshold(self, sample_subject: Subject) -> None:
         """Custom grade_pass_threshold from config is honoured."""

@@ -193,6 +193,13 @@ class RunConfig:
     active_layers: frozenset[str] | None = None
     pass_at_k: int = 1
     agent: dict[str, str] | None = None
+    # Conversation threshold model (§15.8)
+    pass_score: float = 0.7
+    case_pass_rate: float = 0.9
+    turn_pass_rate: float = 0.9
+    conversation_pass_rate: float = 0.9
+    run_pass_rate: float = 1.0
+    min_satisfaction: float | None = None
 
 
 @dataclass

@@ -17,8 +17,23 @@ from beval.types import Subject
 logger = logging.getLogger(__name__)
 
 
+def _extract_artifact_text(artifact: Any) -> str:
+    """Extract concatenated text from an A2A Artifact's parts."""
+    parts = []
+    for part in getattr(artifact, "parts", []) or []:
+        root = getattr(part, "root", part)
+        text = getattr(root, "text", None)
+        if text:
+            parts.append(text)
+    return "".join(parts)
+
+
 class A2AAdapter(AdapterInterface):
     """Adapter for agents using the Agent2Agent (A2A) protocol.
+
+    Maintains ``context_id`` across calls so multi-turn conversation simulation
+    works correctly — subsequent messages are routed to the same server-side
+    conversation context rather than starting a fresh task each turn.
 
     Auth modes (``connection.auth.type``):
       - ``none`` (default): plain httpx client
@@ -30,6 +45,7 @@ class A2AAdapter(AdapterInterface):
         self._connection = agent_def.get("connection", {})
         self._timeout = agent_def.get("timeout", 30)
         self._retry = agent_def.get("retry", {})
+        self._context_id: str | None = None  # maintained across turns
 
     def invoke(self, adapter_input: AdapterInput) -> Subject:
         """Send message to A2A agent and return Subject."""
@@ -121,7 +137,11 @@ class A2AAdapter(AdapterInterface):
         return httpx.AsyncClient(timeout=timeout)
 
     async def _invoke_async(self, query: str) -> str:
-        """Async invocation via A2A SDK using ClientFactory."""
+        """Async invocation via A2A SDK using ClientFactory.
+
+        Passes ``context_id`` on every call after the first so the agent
+        can maintain conversation state across turns.
+        """
         try:
             from a2a.client import ClientConfig, ClientFactory
             from a2a.types import Message, Role
@@ -151,32 +171,46 @@ class A2AAdapter(AdapterInterface):
                 client_config=config,
             )
 
-            from a2a.client import create_text_message_object
+            from uuid import uuid4
 
-            message = create_text_message_object(
+            from a2a.types import Part, TextPart
+
+            message = Message(
                 role=Role.user,
-                content=query,
+                parts=[Part(root=TextPart(text=query))],
+                message_id=str(uuid4()),
+                context_id=self._context_id,  # None on first turn, set thereafter
             )
 
-            text_parts: list[str] = []
+            collected: list[str] = []
+            seen: set[str] = set()
+
+            def _add(text: str) -> None:
+                if text and text not in seen:
+                    seen.add(text)
+                    collected.append(text)
 
             async for event in client.send_message(request=message):
+                obj = event[0] if isinstance(event, tuple) else event
+                cid = getattr(obj, "context_id", None)
+                if cid:
+                    self._context_id = cid
+
                 if isinstance(event, Message):
                     for part in getattr(event, "parts", []) or []:
-                        root = getattr(part, "root", part)
-                        text = getattr(root, "text", None)
+                        text = getattr(getattr(part, "root", part), "text", None)
                         if text:
-                            text_parts.append(text)
-                else:
-                    # Task response: (Task, update)
-                    task = event[0] if isinstance(event, tuple) else event
-                    for artifact in getattr(task, "artifacts", []) or []:
-                        for part in getattr(artifact, "parts", []) or []:
-                            root = getattr(part, "root", part)
-                            text = getattr(root, "text", None)
-                            if text:
-                                text_parts.append(text)
+                            _add(text)
+                elif isinstance(event, tuple):
+                    task, update = event
+                    # Artifact from streaming update event
+                    upd_art = getattr(update, "artifact", None)
+                    if upd_art:
+                        _add(_extract_artifact_text(upd_art))
+                    # Artifacts from final task state
+                    for art in getattr(task, "artifacts", []) or []:
+                        _add(_extract_artifact_text(art))
 
-            return "".join(text_parts) if text_parts else ""
+            return "\n\n".join(collected)
         finally:
             await httpx_client.aclose()

@@ -37,6 +37,13 @@ _CONFIG_DEFAULTS: dict[str, Any] = {
     "active_layers": None,
     "pass_at_k": 1,
     "agent": None,
+    # Conversation threshold defaults (§15.8) — strip when at default
+    "pass_score": 0.7,
+    "case_pass_rate": 0.9,
+    "turn_pass_rate": 0.9,
+    "conversation_pass_rate": 0.9,
+    "run_pass_rate": 1.0,
+    "min_satisfaction": None,
 }
 
 # Patterns identifying sensitive keys for scrubbing (§10.1).

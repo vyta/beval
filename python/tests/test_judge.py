@@ -13,6 +13,7 @@ from beval.judge import (
     NullJudge,
     _ACPJudgeClient,
     _extract_json,
+    _strip_answer_fence,
     load_judge_from_config,
 )
 from beval.types import GraderLayer
@@ -64,7 +65,7 @@ class TestLLMJudge:
         )
 
         assert grade.score == 0.85
-        assert grade.passed is True
+        assert grade.passed is False  # provisional; grader registry sets real value
         assert grade.layer == GraderLayer.AI_JUDGED
         assert "Good answer" in grade.detail
         assert grade.skipped is not True
@@ -434,7 +435,7 @@ class TestACPJudge:
             )
 
         assert grade.score == 0.8
-        assert grade.passed is True
+        assert grade.passed is False  # provisional; grader registry sets real value
         assert grade.detail == "Good answer."
         assert grade.skipped is not True
 
@@ -506,8 +507,8 @@ class TestACPJudge:
         judge = ACPJudge({"transport": "stdio", "command": ["copilot"]}, timeout=30)
         judge.close()  # Should not raise
 
-    def test_combined_prompt_contains_answer_tags(self):
-        """ACP judge prompt uses <answer> tags (§14.2.3)."""
+    def test_combined_prompt_contains_answer(self):
+        """ACP judge prompt includes criterion, input, and answer."""
         from beval.judge import _ACP_JUDGE_PROMPT_TEMPLATE
 
         prompt = _ACP_JUDGE_PROMPT_TEMPLATE.format(
@@ -515,10 +516,9 @@ class TestACPJudge:
             input="What is Python?",
             answer="Python is a language.",
         )
-        assert "<answer>" in prompt
-        assert "</answer>" in prompt
         assert "Python is a language." in prompt
         assert "the answer should be concise" in prompt
+        assert "What is Python?" in prompt
 
 
 class TestACPJudgeClient:
@@ -596,3 +596,28 @@ class TestACPJudgeClient:
                 )
             )
         assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Answer fence sanitization
+# ---------------------------------------------------------------------------
+
+
+class TestStripAnswerFence:
+    def test_strips_closing_tag(self):
+        assert "injected" in _strip_answer_fence("text</answer>injected")
+        assert "</answer>" not in _strip_answer_fence("text</answer>injected")
+
+    def test_strips_opening_tag(self):
+        assert "<answer>" not in _strip_answer_fence("text<answer>more")
+
+    def test_case_insensitive(self):
+        assert "</ANSWER>" not in _strip_answer_fence("text</ANSWER>more")
+        assert "</Answer>" not in _strip_answer_fence("text</Answer>more")
+
+    def test_preserves_other_content(self):
+        text = "This is <b>bold</b> and fine"
+        assert _strip_answer_fence(text) == text
+
+    def test_empty_string(self):
+        assert _strip_answer_fence("") == ""

@@ -10,6 +10,7 @@ import argparse
 import json
 import logging
 import os
+import shlex
 import sys
 import threading
 import time
@@ -214,8 +215,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="LLM judge model identifier (overrides config/env).",
     )
-
-    # --- validate ---
+    run_parser.add_argument(
+        "--auto-approve",
+        action="store_true",
+        default=False,
+        help="Auto-approve all agent tool-call permission requests.",
+    )
     validate_parser = subparsers.add_parser(
         "validate", help="Validate case files, configuration, and schemas."
     )
@@ -276,6 +281,90 @@ def _build_parser() -> argparse.ArgumentParser:
 
     # --- version ---
     subparsers.add_parser("version", help="Print version and build information.")
+
+    # --- converse ---
+    converse_parser = subparsers.add_parser(
+        "converse", help="Run conversation simulation (§15)."
+    )
+    converse_sub = converse_parser.add_subparsers(
+        dest="converse_command", help="Conversation subcommands."
+    )
+    converse_run = converse_sub.add_parser(
+        "run", help="Execute a conversation simulation run."
+    )
+    converse_run.add_argument(
+        "-m",
+        "--mode",
+        type=str,
+        choices=["dev", "dev+process", "validation", "monitoring"],
+        default="dev",
+        help="Evaluation mode.",
+    )
+    converse_run.add_argument(
+        "-l", "--label", type=str, default=None, help="Run label for traceability."
+    )
+    converse_run.add_argument(
+        "-a",
+        "--agent",
+        type=str,
+        default=None,
+        help="Agent YAML file or config name (system under test).",
+    )
+    converse_run.add_argument(
+        "--simulator-model",
+        type=str,
+        default=None,
+        help="Shorthand: openai simulator model (overrides config/env).",
+    )
+    converse_run.add_argument(
+        "--simulator-agent",
+        type=str,
+        default=None,
+        help="Shorthand: ACP simulator command (overrides config/env).",
+    )
+    converse_run.add_argument(
+        "--actor-count",
+        type=int,
+        default=None,
+        help="Number of actors per persona/goal pair (overrides config).",
+    )
+    converse_run.add_argument(
+        "--max-parallel",
+        type=int,
+        default=None,
+        help="Maximum parallel actors (overrides config).",
+    )
+    converse_run.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default=None,
+        help="Results output path.",
+    )
+    converse_run.add_argument(
+        "--persona",
+        type=str,
+        default=None,
+        help="Run only the persona with this ID.",
+    )
+    converse_run.add_argument(
+        "--goal",
+        type=str,
+        default=None,
+        help="Run only the goal with this ID.",
+    )
+    converse_run.add_argument(
+        "--judge-model",
+        type=str,
+        default=None,
+        help="LLM judge model identifier (overrides config/env).",
+    )
+    converse_run.add_argument(
+        "--auto-approve",
+        action="store_true",
+        default=False,
+        help="Auto-approve all agent tool-call permission requests.",
+    )
 
     return parser
 
@@ -439,7 +528,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
             try:
                 agent_def = _load_agent(agent_ref, config_agents=config_agents)
-                adapter = create_adapter(agent_def)
+                adapter = create_adapter(
+                    agent_def, auto_approve=getattr(args, "auto_approve", False)
+                )
                 handler = adapter_as_handler(adapter)
                 agent_info = {
                     "name": agent_def["name"],
@@ -710,10 +801,7 @@ class _Spinner:
             idx += 1
 
 
-def _score_bar(score: float, width: int = 10) -> str:
-    """Render a score as a block bar like [########--]."""
-    filled = round(score * width)
-    return "[" + "#" * filled + "-" * (width - filled) + "]"
+from beval.conversation.dashboard import _score_bar  # noqa: E402
 
 
 def _truncate(text: str, max_len: int = 60) -> str:
@@ -1087,6 +1175,344 @@ def _cmd_init(args: argparse.Namespace) -> int:
     return EXIT_PASS
 
 
+def _cmd_converse(args: argparse.Namespace) -> int:
+    """Handle the converse command (§15)."""
+    sub = getattr(args, "converse_command", None)
+    if sub is None:
+        print("Error: provide a subcommand: run", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+    if sub == "run":
+        return _cmd_converse_run(args)
+    print(f"Error: unknown converse subcommand: {sub}", file=sys.stderr)
+    return EXIT_INPUT_ERROR
+
+
+def _cmd_converse_run(args: argparse.Namespace) -> int:
+    """Handle beval converse run (§15.14)."""
+    import dataclasses
+    import json as _json
+
+    from beval.adapters import load_agent
+    from beval.conversation.runner import ConversationRunner
+    from beval.types import EvaluationMode, RunConfig
+
+    # Suppress log noise when dashboard is active (TTY); keep WARNING otherwise
+    use_dashboard = sys.stderr.isatty() and not getattr(args, "quiet", False)
+    log_level = logging.ERROR if use_dashboard else logging.WARNING
+    if not logging.root.handlers:
+        logging.basicConfig(
+            level=log_level, stream=sys.stderr, format="  [%(levelname)s] %(message)s"
+        )
+    else:
+        logging.root.setLevel(log_level)
+
+    # Load config file
+    file_config = _load_config_file(getattr(args, "config", None))
+    conv_config: dict[str, Any] = file_config.get("conversation", {})
+
+    # ── Resolve agent (system under test) ────────────────────────────────
+    agent_ref = getattr(args, "agent", None)
+    config_agents = file_config.get("agents")
+    if agent_ref is None and config_agents:
+        agent_ref = config_agents.get("default")
+    if agent_ref is None:
+        print(
+            "Error: --agent is required (or set agents.default in config)",
+            file=sys.stderr,
+        )  # noqa: E501
+        return EXIT_INPUT_ERROR
+
+    try:
+        agent_def = load_agent(agent_ref, config_agents=config_agents)
+    except SystemExit:
+        print(f"Error: could not load agent: {agent_ref}", file=sys.stderr)
+        return EXIT_INPUT_ERROR
+    except Exception as exc:  # noqa: BLE001
+        print(f"Error loading agent: {exc}", file=sys.stderr)
+        return EXIT_INFRA_ERROR
+
+    # ── Resolve simulator (§15.6.6) ──────────────────────────────────────
+    sim_model = getattr(args, "simulator_model", None) or os.environ.get(
+        "BEVAL_SIMULATOR_MODEL"
+    )
+    sim_agent = getattr(args, "simulator_agent", None) or os.environ.get(
+        "BEVAL_SIMULATOR_AGENT"
+    )
+
+    if sim_model and sim_agent:
+        print(
+            "Error: --simulator-model and --simulator-agent are mutually exclusive",
+            file=sys.stderr,
+        )
+        return EXIT_INPUT_ERROR
+
+    if sim_model:
+        simulator_config: dict[str, Any] = {"protocol": "openai", "model": sim_model}
+    elif sim_agent:
+        simulator_config = {
+            "protocol": "acp",
+            "connection": {"transport": "stdio", "command": shlex.split(sim_agent)},
+        }
+    else:
+        raw_sim = conv_config.get("simulator") or {}
+        if not raw_sim:
+            print(
+                "Error: no simulator configured. Use --simulator-model, "
+                "--simulator-agent, BEVAL_SIMULATOR_MODEL, BEVAL_SIMULATOR_AGENT, "
+                "or eval.conversation.simulator in config.",
+                file=sys.stderr,
+            )
+            return EXIT_INPUT_ERROR
+        simulator_config = raw_sim
+
+    # ── Override conv_config with CLI flags ───────────────────────────────
+    if getattr(args, "actor_count", None) is not None:
+        conv_config = dict(conv_config)
+        conv_config["actor_count"] = args.actor_count
+    if getattr(args, "max_parallel", None) is not None:
+        conv_config = dict(conv_config)
+        conv_config["max_parallel_actors"] = args.max_parallel
+
+    # ── Build RunConfig ───────────────────────────────────────────────────
+    thresholds = file_config.get("thresholds", {})
+    pass_score = float(thresholds.get("pass_score", 0.7))
+    config = RunConfig(
+        grade_pass_threshold=pass_score,
+        case_pass_threshold=pass_score,
+        pass_score=pass_score,
+        case_pass_rate=float(thresholds.get("case_pass_rate", 0.9)),
+        turn_pass_rate=float(thresholds.get("turn_pass_rate", 0.9)),
+        conversation_pass_rate=float(thresholds.get("conversation_pass_rate", 0.9)),
+        run_pass_rate=float(thresholds.get("run_pass_rate", 1.0)),
+        min_satisfaction=(
+            float(thresholds["min_satisfaction"])
+            if "min_satisfaction" in thresholds
+            else None
+        ),
+    )
+
+    # ── Evaluation mode ───────────────────────────────────────────────────
+    mode_str = getattr(args, "mode", "dev")
+    if mode_str == "dev" and "mode" in file_config:
+        mode_str = file_config["mode"]
+    mode = EvaluationMode(mode_str)
+
+    # ── Judge (optional) ──────────────────────────────────────────────────
+    evaluators: dict[str, Any] = {}
+    judge_model = getattr(args, "judge_model", None)
+    if judge_model is None:
+        judge_model = file_config.get("judge_model")
+    if judge_model:
+        try:
+            from beval.judge import LLMJudge
+
+            evaluators["judge"] = LLMJudge(
+                judge_model, grade_pass_threshold=config.grade_pass_threshold
+            )
+        except ImportError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return EXIT_INPUT_ERROR
+    else:
+        judge_config = file_config.get("judge")
+        if judge_config and isinstance(judge_config, dict):
+            try:
+                from beval.judge import load_judge_from_config
+
+                evaluators["judge"] = load_judge_from_config(
+                    judge_config, grade_pass_threshold=config.grade_pass_threshold
+                )
+            except (ValueError, ImportError) as exc:
+                print(f"Error: {exc}", file=sys.stderr)
+                return EXIT_INPUT_ERROR
+
+    # ── Run ───────────────────────────────────────────────────────────────
+    config_file = getattr(args, "config", None)
+    config_dir = Path(config_file).resolve().parent if config_file else None
+    runner = ConversationRunner(
+        agent_def=agent_def,
+        simulator_config=simulator_config,
+        conv_config=conv_config,
+        mode=mode,
+        config=config,
+        evaluators=evaluators,
+        config_dir=config_dir,
+        auto_approve=getattr(args, "auto_approve", False),
+    )
+
+    label = getattr(args, "label", None)
+    output_path = getattr(args, "output", None)
+
+    # ── Transcript dir ────────────────────────────────────────────────────
+    transcript_dir: Path | None = None
+    if output_path:
+        _op = Path(output_path)
+        # Treat as directory if no file extension (e.g. "results/") or already a dir
+        base = _op if not _op.suffix else _op.parent
+        transcript_dir = base / "transcripts"
+        transcript_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Conversation list (always computed for count + dashboard) ──────────
+    from beval.conversation.runner import _build_conversations, load_personas_and_goals
+
+    _personas, _goal_pool = load_personas_and_goals(conv_config, config_dir)
+    _actor_count = int(conv_config.get("actor_count", 1))
+    _convs = _build_conversations(
+        _personas,
+        _goal_pool,
+        _actor_count,
+        persona_filter=getattr(args, "persona", None),
+        goal_filter=getattr(args, "goal", None),
+    )
+    n_convs = len(_convs)
+
+    # ── Dashboard ─────────────────────────────────────────────────────────
+    dashboard = None
+    if use_dashboard:
+        from beval.conversation.dashboard import _LiveDashboard
+
+        _max_turns = int(conv_config.get("max_turns", 20))
+        counts: dict[tuple[str, str], int] = {}
+        for _p, _g, _ in _convs:
+            key = (_p.id, _g.id)
+            counts[key] = counts.get(key, 0) + 1
+        _rows = [(pid, gid, cnt, _max_turns) for (pid, gid), cnt in counts.items()]
+        dashboard = _LiveDashboard(_rows)
+    print(
+        f"\n  Starting {n_convs} conversation(s)..."
+        + (f"  transcripts → {transcript_dir}" if transcript_dir else ""),
+        file=sys.stderr,
+        flush=True,
+    )
+
+    # ── Feedback path ──────────────────────────────────────────────────────
+    feedback_path: Path | None = None
+    if output_path:
+        _op2 = Path(output_path)
+        fb_base = _op2 if not _op2.suffix else _op2.parent
+        feedback_path = fb_base / "feedback.json"
+
+    try:
+        result = runner.run(
+            label=label,
+            persona_filter=getattr(args, "persona", None),
+            goal_filter=getattr(args, "goal", None),
+            dashboard=dashboard,
+            transcript_dir=transcript_dir,
+            feedback_path=feedback_path,
+        )
+    except SystemExit:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        print(f"Error: {exc}", file=sys.stderr)
+        return EXIT_INTERNAL_ERROR
+    finally:
+        if dashboard:
+            dashboard.finish()
+
+    # ── Output ────────────────────────────────────────────────────────────
+    def _to_dict(obj: Any) -> Any:
+        if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
+            return {k: _to_dict(v) for k, v in dataclasses.asdict(obj).items()}
+        if isinstance(obj, (list, tuple)):
+            return [_to_dict(i) for i in obj]
+        return obj
+
+    result_dict = _to_dict(result)
+    if output_path:
+        p = Path(output_path)
+        if p.is_dir():
+            p = p / "conversation_results.json"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "w", encoding="utf-8") as f:
+            _json.dump(result_dict, f, indent=2)
+        if not args.quiet:
+            print(f"\n  Results saved to: {p}", file=sys.stderr)
+            if feedback_path and feedback_path.exists():
+                print(f"  Feedback saved to: {feedback_path}", file=sys.stderr)
+    else:
+        print(_json.dumps(result_dict, indent=2))
+
+    # Console summary
+    s = result.summary
+    if not args.quiet:
+        # Determine overall pass/fail (same logic as exit code below)
+        if s.total > 0:
+            rate = s.passed / s.total
+            run_passed = rate >= config.run_pass_rate
+            if (
+                run_passed
+                and config.min_satisfaction is not None
+                and s.avg_satisfaction is not None
+                and s.avg_satisfaction < config.min_satisfaction
+            ):
+                run_passed = False
+        else:
+            run_passed = True
+        verdict = "PASS" if run_passed else "FAIL"
+
+        sat_str = (
+            f"  Sat: {s.avg_satisfaction:.2f}" if s.avg_satisfaction is not None else ""
+        )
+        print(
+            f"\n  {verdict}  Score: {s.overall_score:.2f}  "
+            f"Goal rate: {s.goal_achievement_rate:.0%}  "
+            f"Passed: {s.passed}/{s.total}  "
+            f"Turns: {s.total_turns}"
+            f"{sat_str}",
+            file=sys.stderr,
+        )
+
+        # Failure details
+        failed_convs = [c for c in result.conversations if not c.passed]
+        if failed_convs:
+            print(f"\n  Failed conversations ({len(failed_convs)}):", file=sys.stderr)
+            for conv in failed_convs:
+                sat_str = ""
+                if conv.feedback is not None:
+                    sat_str = f", satisfaction={conv.feedback.satisfaction:.2f}"
+                print(
+                    f"\n    {conv.id}  (score={conv.overall_score:.2f},"
+                    f" {conv.termination_reason}{sat_str})",
+                    file=sys.stderr,
+                )
+                # Turn-level failures
+                failed_turns = [t for t in conv.turns if t.grades and not t.passed]
+                if failed_turns:
+                    for t in failed_turns:
+                        failing_grades = [g for g in t.grades if not g.passed]
+                        for g in failing_grades:
+                            crit = g.criterion[:72]
+                            print(
+                                f"      turn {t.turn_number}: {g.score:.2f} — {crit}",
+                                file=sys.stderr,
+                            )
+                # Conversation-level failures
+                failing_conv_grades = [g for g in conv.grades if not g.passed]
+                for g in failing_conv_grades:
+                    crit = g.criterion[:72]
+                    print(f"      conv:     {g.score:.2f} — {crit}", file=sys.stderr)
+
+    # Exit code: pass if run pass rate threshold is met
+    if result.summary.total > 0:
+        rate = result.summary.passed / result.summary.total
+        if rate < config.run_pass_rate:
+            return EXIT_FAIL
+        if (
+            config.min_satisfaction is not None
+            and result.summary.avg_satisfaction is not None
+            and result.summary.avg_satisfaction < config.min_satisfaction
+        ):
+            if not args.quiet:
+                print(
+                    f"  FAIL: avg satisfaction {result.summary.avg_satisfaction:.2f}"
+                    f" < min_satisfaction {config.min_satisfaction:.2f}",
+                    file=sys.stderr,
+                )
+            return EXIT_FAIL
+        return EXIT_PASS
+    return EXIT_PASS
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI entrypoint for beval."""
     parser = _build_parser()
@@ -1101,6 +1527,7 @@ def main(argv: list[str] | None = None) -> int:
         "cache": _cmd_cache,
         "init": _cmd_init,
         "version": lambda _: _cmd_version(),
+        "converse": _cmd_converse,
     }
 
     if args.command is None:
@@ -1113,7 +1540,7 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_INPUT_ERROR
 
     try:
-        return handler(args)  # type: ignore[no-untyped-call]
+        return handler(args)
     except NotImplementedError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return EXIT_INPUT_ERROR

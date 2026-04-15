@@ -1,0 +1,36 @@
+goals:
+
+  # ── Goal 1: Learn basic greetings ───────────────────────────────────────
+  - id: learn_greetings
+    name: Learn Klingon greetings and farewells
+    tags: [greetings, beginner, core]
+    objective: >
+      You want to learn how to greet a Klingon, ask how they are, and say
+      goodbye. Start by asking for a basic greeting, then practice it by
+      trying to use it yourself. Ask about cultural context — why do Klingons
+      greet the way they do? By the end you should be able to say hello,
+      ask how someone is doing, and say farewell in Klingon with confidence.
+
+  # ── Goal 2: Warrior phrases ──────────────────────────────────────────────
+  - id: understand_warrior_phrases
+    name: Learn phrases of Klingon warrior culture
+    tags: [culture, intermediate, core]
+    objective: >
+      You want to understand the phrases Klingons use to express honor,
+      determination, and cultural pride. Ask about "Qapla'", what it means
+      in context, and related expressions of Klingon philosophy. Ask the
+      tutor to teach you how to say you act with honor. By the end you
+      should understand at least 3 culturally significant Klingon phrases
+      and when to use them.
+
+  # ── Goal 3: Mission-critical phrases ────────────────────────────────────
+  - id: mission_critical_phrases
+    name: Learn phrases for a diplomatic encounter
+    tags: [diplomacy, practical, core]
+    objective: >
+      You have 30 minutes before a friendly meeting with a Klingon
+      delegation and need to learn practical phrases fast. You want to
+      know how to greet them respectfully, express goodwill, and show
+      cultural awareness. Be direct — ask for the most important phrases,
+      try repeating them, and get confirmation you are saying them correctly.
+      End with at least 3 usable phrases for the meeting.

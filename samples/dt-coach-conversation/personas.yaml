@@ -1,0 +1,48 @@
+personas:
+
+  - id: product_manager_new_to_dt
+    name: Product Manager New to Design Thinking
+    description: >
+      A product manager at a mid-sized manufacturing company who has heard about
+      design thinking but has never done a structured session before. They have a
+      real product problem they want to solve — their field technicians are
+      ignoring a new safety checklist app — but they default to solution mode
+      ("we need to redesign the UI"). They are genuinely open to coaching but
+      will need prompting to articulate the human problem beneath the technical
+      request. They use plain, direct language and get impatient with jargon.
+    goals:
+      - run_method1_session
+      - recover_from_confusion
+    traits:
+      tone: direct
+      expertise: beginner
+      patience: medium
+      verbosity: medium
+      language: en
+      style_notes: >
+        Speaks in business terms. Tends to jump to solutions. Responds well to
+        concrete examples. May push back if the coach asks too many questions
+        without apparent progress.
+
+  - id: team_lead_returning_user
+    name: Team Lead Returning User
+    description: >
+      An engineering team lead who completed a Method 1 session last week and
+      is returning to continue the project. They remember the project slug
+      (field-failure-reporting) and the key insight from last session — that
+      the real problem is delayed visibility into equipment health, not the
+      reporting form. They want to move efficiently into Method 2 (Design
+      Research) and plan user interviews. They are comfortable with the
+      Think/Speak/Empower philosophy and will naturally engage with it.
+    goals:
+      - transition_to_method2
+    traits:
+      tone: professional
+      expertise: intermediate
+      patience: high
+      verbosity: terse
+      language: en
+      style_notes: >
+        Gets straight to the point. Already trusts the process. May skip
+        pleasantries. Needs the coach to match their pace and not recap
+        things they already know.

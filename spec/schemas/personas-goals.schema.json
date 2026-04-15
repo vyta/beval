@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "personas-goals.schema.json",
+  "title": "beval Persona and Goal Libraries",
+  "description": "Schema for persona library files and goal library files per spec/conversation-sim.spec.md §15.3 and §15.4.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "personas": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Persona" },
+      "description": "Array of persona definitions in this library file."
+    },
+    "goals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Goal" },
+      "description": "Array of goal definitions in this library file."
+    }
+  },
+  "$defs": {
+    "Persona": {
+      "type": "object",
+      "description": "A simulated user persona definition.",
+      "required": ["id", "name", "description", "goals"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier within a library file. Used in ConversationCase identity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable label for this persona."
+        },
+        "description": {
+          "type": "string",
+          "description": "Prose description passed verbatim to the simulator prompt. Should describe identity, background, and behavioral tendencies."
+        },
+        "goals": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Goal IDs this persona pursues. Must resolve against loaded goal definitions. At least one goal ID is required."
+        },
+        "traits": {
+          "$ref": "#/$defs/PersonaTraits",
+          "description": "Structured attributes for the simulator to embody."
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Arbitrary key-value pairs for tagging and filtering.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "PersonaTraits": {
+      "type": "object",
+      "description": "Structured behavioral attributes of a persona.",
+      "additionalProperties": false,
+      "properties": {
+        "tone": {
+          "type": "string",
+          "description": "Communication tone, e.g. friendly, formal, skeptical, hostile."
+        },
+        "expertise": {
+          "type": "string",
+          "description": "Domain expertise level, e.g. beginner, intermediate, expert."
+        },
+        "patience": {
+          "type": "string",
+          "description": "Patience level, e.g. low, medium, high. Affects give-up threshold."
+        },
+        "verbosity": {
+          "type": "string",
+          "description": "Message verbosity, e.g. terse, medium, verbose."
+        },
+        "language": {
+          "type": "string",
+          "default": "en",
+          "description": "BCP 47 language tag for the simulated user's language."
+        },
+        "style_notes": {
+          "type": "string",
+          "description": "Free-form additional style guidance for the simulator."
+        }
+      }
+    },
+    "Goal": {
+      "type": "object",
+      "description": "A conversation goal definition. Uses objective + evals structure where evals.query contains per-turn evaluation blocks and evals.conversation contains conversation-level evaluation blocks.",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier within a library file. Used in ConversationCase identity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable label for this goal."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Labels for filtering and categorization, same as Case tags."
+        },
+        "objective": {
+          "type": "string",
+          "description": "Prose description of what the simulated user is trying to accomplish. Passed verbatim to the simulator prompt and used as the assess_goal() basis."
+        },
+        "evals": {
+          "$ref": "#/$defs/GoalEvals",
+          "description": "Evaluation blocks for per-turn (query) and conversation-level grading."
+        }
+      }
+    },
+    "GoalEvals": {
+      "type": "object",
+      "description": "Evaluation blocks containing per-turn and conversation-level evaluation stages.",
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GoalStage" },
+          "description": "Per-turn evaluation stages applied to TurnSubject after every agent response."
+        },
+        "conversation": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GoalStage" },
+          "description": "Conversation-level evaluation stages applied to ConversationSubject after conversation ends."
+        }
+      }
+    },
+    "GoalStage": {
+      "type": "object",
+      "description": "A when/then evaluation stage in a Goal.",
+      "required": ["when", "then"],
+      "additionalProperties": false,
+      "properties": {
+        "when": {
+          "type": "string",
+          "description": "Lifecycle hook label used as a stage name in results. Common values: 'each turn' (graders applied to TurnSubject after every agent response), 'on finish' (graders applied to ConversationSubject after conversation ends)."
+        },
+        "then": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Criterion strings dispatched via the §4 grader registry by prefix matching, identical to static Case then clauses."
+        }
+      }
+    }
+  }
+}

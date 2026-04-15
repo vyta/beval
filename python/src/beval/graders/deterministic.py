@@ -22,7 +22,14 @@ def _completion_time_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:
     """Grade based on response completion time."""
-    threshold = float(args[0]) if args else 30.0
+    if args:
+        threshold = float(args[0])
+    else:
+        # Parse threshold from criterion string: "completion time should be under 120"
+        import re as _re
+
+        m = _re.search(r"[\d.]+", criterion)
+        threshold = float(m.group()) if m else 30.0
     elapsed = subject.completion_time
     passed = elapsed <= threshold
     score = max(0.0, 1.0 - (elapsed / threshold)) if threshold > 0 else 0.0
@@ -71,6 +78,7 @@ def _response_not_contains_grader(
 
 
 @grader("response length should be", layer=GraderLayer.DETERMINISTIC)
+@grader("conversation length should be", layer=GraderLayer.DETERMINISTIC)
 def _response_length_grader(
     criterion: str, args: list[Any], subject: Subject, context: EvalContext
 ) -> Grade:

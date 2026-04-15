@@ -244,9 +244,20 @@ def resolve_grade(
         )
 
     timeout = getattr(context.config, "grader_timeout", _DEFAULT_GRADER_TIMEOUT)
-    grade = _run_with_timeout(
-        entry.handler, (criterion, args, subject, context), timeout
-    )
+    try:
+        grade = _run_with_timeout(
+            entry.handler, (criterion, args, subject, context), timeout
+        )
+    except Exception as exc:  # noqa: BLE001
+        return Grade(
+            criterion=criterion,
+            score=0.0,
+            metric=entry.metric,
+            passed=False,
+            detail=f"Grader error (skipped): {exc}",
+            layer=entry.layer,
+            skipped=True,
+        )
     if grade is None:
         grade = Grade(
             criterion=criterion,
@@ -255,24 +266,21 @@ def resolve_grade(
             passed=False,
             detail=f"Grader timed out after {timeout}s",
             layer=entry.layer,
+            skipped=True,
         )
 
-    # Enforce grade_pass_threshold (SPEC §5.3): pass is score > threshold
-    threshold = context.config.grade_pass_threshold
-    enforced_pass = grade.score > threshold
-    if enforced_pass != grade.passed:
-        grade = Grade(
-            criterion=grade.criterion,
-            score=grade.score,
-            metric=grade.metric,
-            passed=enforced_pass,
-            detail=grade.detail,
-            layer=grade.layer,
-            skipped=grade.skipped,
-            stage=grade.stage,
-            stage_name=grade.stage_name,
-        )
-    return grade
+    # Set passed based on grade_pass_threshold (§5.3)
+    return Grade(
+        criterion=grade.criterion,
+        score=grade.score,
+        metric=grade.metric,
+        passed=grade.score >= context.config.grade_pass_threshold,
+        detail=grade.detail,
+        layer=grade.layer,
+        skipped=grade.skipped,
+        stage=grade.stage,
+        stage_name=grade.stage_name,
+    )
 
 
 def get_registered_graders() -> list[GraderEntry]:

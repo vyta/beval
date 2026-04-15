@@ -68,6 +68,8 @@ select = ["E", "F", "W", "I", "S", "B", "UP", "PIE"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
+# Prompt template strings contain long lines that cannot be wrapped
+"src/beval/conversation/simulator.py" = ["E501"]
 
 [tool.mypy]
 strict = true

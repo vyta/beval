@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import sys
+
 import yaml
 
 from beval.types import EvalContext, Subject
@@ -65,6 +67,11 @@ def _resolve_env_vars(value: Any) -> Any:
             if val is None:
                 if default is not None:
                     return default
+                print(
+                    f"Error: environment variable '{var_name}' is not set "
+                    f"(referenced in agent definition).",
+                    file=sys.stderr,
+                )
                 raise SystemExit(2)
             return val
 
@@ -104,14 +111,27 @@ def load_agent(
     if is_file:
         agent_path = Path(path_or_name)
         if not agent_path.is_file():
+            print(
+                f"Error: agent file not found: {path_or_name}",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
         with open(agent_path, encoding="utf-8") as f:
             agent_def = yaml.safe_load(f)
         if not isinstance(agent_def, dict):
+            print(
+                f"Error: agent file is not a valid YAML mapping: {path_or_name}",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
     else:
         # Bare name: look up in config agents definitions
         if not config_agents:
+            print(
+                f"Error: agent '{path_or_name}' not found "
+                f"(no agents defined in config).",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
         definitions = config_agents.get("definitions", [])
         agent_def = None
@@ -120,15 +140,29 @@ def load_agent(
                 agent_def = dict(defn)
                 break
         if agent_def is None:
+            print(
+                f"Error: agent '{path_or_name}' not found in config definitions.",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
 
     # Validate required fields (§13.2)
     missing = _REQUIRED_FIELDS - set(agent_def.keys())
     if missing:
+        print(
+            f"Error: agent definition missing required fields: "
+            f"{', '.join(sorted(missing))}",
+            file=sys.stderr,
+        )
         raise SystemExit(2)
 
     protocol = agent_def.get("protocol")
     if protocol not in _KNOWN_PROTOCOLS:
+        print(
+            f"Error: unknown agent protocol '{protocol}' "
+            f"(expected one of: {', '.join(sorted(_KNOWN_PROTOCOLS))}).",
+            file=sys.stderr,
+        )
         raise SystemExit(2)
 
     # Resolve ${VAR} references (§13.2)

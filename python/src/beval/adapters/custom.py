@@ -21,27 +21,67 @@ class CustomAdapter(AdapterInterface):
         class_name = connection.get("class")
 
         if not module_path or not class_name:
+            import sys
+
+            print(
+                "Error: custom adapter requires 'connection.module' and "
+                "'connection.class' in agent definition.",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
 
         try:
             mod = importlib.import_module(module_path)
         except ImportError as exc:
+            import sys
+
+            print(
+                f"Error: cannot import custom adapter module '{module_path}': {exc}\n"
+                f"Hint: ensure the module is on PYTHONPATH or the working directory "
+                f"contains '{module_path}.py'.",
+                file=sys.stderr,
+            )
             raise SystemExit(2) from exc
 
         cls = getattr(mod, class_name, None)
         if cls is None:
+            import sys
+
+            print(
+                f"Error: class '{class_name}' not found in module '{module_path}'.",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
 
         config = connection.get("config", {})
         try:
             self._inner: Any = cls(config) if config else cls()
         except Exception as exc:  # noqa: BLE001
+            import sys
+
+            print(
+                f"Error: failed to instantiate custom adapter "
+                f"'{class_name}': {exc}",
+                file=sys.stderr,
+            )
             raise SystemExit(2) from exc
 
         # Validate interface
         if not callable(getattr(self._inner, "invoke", None)):
+            import sys
+
+            print(
+                f"Error: custom adapter '{class_name}' must implement invoke().",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
         if not callable(getattr(self._inner, "close", None)):
+            import sys
+
+            print(
+                f"Error: custom adapter '{class_name}' must implement close().",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
 
     def invoke(self, adapter_input: AdapterInput) -> Subject:

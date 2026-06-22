@@ -1,0 +1,39 @@
+background:
+  category: foundry-agent-eval
+  given:
+    domain: general-assistant
+
+cases:
+  - id: basic-query
+    name: Agent answers a factual question
+    tags: [core]
+    given:
+      query: "What are the three primary colors?"
+    stages:
+      - when: the agent processes the question
+        then:
+          - completion time should be under: 30
+      - when: the agent responds
+        then:
+          - response length should be: [10, 2000]
+          - the answer should be: >
+              correctly identifies the three primary colors (red, blue, yellow
+              for traditional/subtractive, or red, green, blue for additive/light)
+              and provides a clear, helpful explanation
+
+  - id: follow-up
+    name: Agent handles a follow-up question
+    tags: [multi-turn]
+    given:
+      query: "Can you explain how mixing two of them creates a secondary color?"
+    stages:
+      - when: the agent processes the follow-up
+        then:
+          - completion time should be under: 30
+      - when: the agent responds
+        then:
+          - response length should be: [10, 3000]
+          - the answer should be: >
+              explains color mixing accurately, referencing at least one
+              secondary color (e.g., mixing red and blue makes purple),
+              and builds on the context of the previous question

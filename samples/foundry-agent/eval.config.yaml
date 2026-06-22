@@ -1,0 +1,19 @@
+eval:
+  mode: validation
+  agents:
+    default: foundry-agent
+    definitions:
+      - name: foundry-agent
+        protocol: custom
+        connection:
+          module: beval_foundry_adapter
+          class: FoundryAdapter
+          config:
+            endpoint: ${FOUNDRY_PROJECT_ENDPOINT}
+            agent_name: ${FOUNDRY_AGENT_NAME}
+            model: ${FOUNDRY_MODEL_NAME:-gpt-4o}
+        timeout: 60
+  judge:
+    protocol: openai
+    model: ${JUDGE_MODEL_NAME:-gemma4:e2b}        # whatever model you've pulled in Ollama
+    base_url: http://localhost:11434/v1

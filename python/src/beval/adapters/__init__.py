@@ -18,6 +18,7 @@ import yaml
 
 from beval.types import EvalContext, Subject
 
+
 @dataclass
 class AdapterInput:
     """Input passed to an adapter's invoke method. See SPEC §13.3."""

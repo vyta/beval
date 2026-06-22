@@ -7,19 +7,14 @@ from __future__ import annotations
 
 import os
 import re
+import sys
+import yaml
 from abc import ABC, abstractmethod
 from beval.types import EvalContext, Subject
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
-import sys
-
-import yaml
-
-
-
 
 @dataclass
 class AdapterInput:

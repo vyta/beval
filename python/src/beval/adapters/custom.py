@@ -60,8 +60,7 @@ class CustomAdapter(AdapterInterface):
             import sys
 
             print(
-                f"Error: failed to instantiate custom adapter "
-                f"'{class_name}': {exc}",
+                f"Error: failed to instantiate custom adapter '{class_name}': {exc}",
                 file=sys.stderr,
             )
             raise SystemExit(2) from exc

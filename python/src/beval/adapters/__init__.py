@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 import re
 from abc import ABC, abstractmethod
+from beval.types import EvalContext, Subject
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,7 +18,7 @@ import sys
 
 import yaml
 
-from beval.types import EvalContext, Subject
+
 
 
 @dataclass

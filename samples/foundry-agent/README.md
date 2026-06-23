@@ -24,7 +24,7 @@ via the `azure-ai-projects` SDK with Entra ID authentication.
 
 ## Prerequisites
 
-* Python 3.9+
+* Python 3.10+
 * Azure CLI (`az login`) for Entra ID authentication
 * A Microsoft Foundry project with a deployed prompt agent (or model deployment)
 * **Foundry User** role assigned at the project level

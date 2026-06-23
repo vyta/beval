@@ -55,7 +55,7 @@ class CustomAdapter(AdapterInterface):
 
         config = connection.get("config", {})
         try:
-            self._inner: Any = cls(config) if config else cls()
+            self._inner: Any = cls(config) if "config" in connection else cls()
         except Exception as exc:  # noqa: BLE001
             import sys
 

@@ -16,7 +16,7 @@ timeout: 60
 
 # Note: retry config is defined for schema compliance but has no effect
 # for custom adapters — the beval CustomAdapter wrapper does not implement
-# retry logic. See DR-07 in the planning log.
+# retry logic.
 retry:
   max_attempts: 2
   backoff: 2.0

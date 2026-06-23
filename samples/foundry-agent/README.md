@@ -178,7 +178,7 @@ eval:
           class: FoundryAdapter
           config:
             endpoint: ${FOUNDRY_PROJECT_ENDPOINT}
-            agent_name: ${FOUNDRY_AGENT_NAME}
+            agent_name: ${FOUNDRY_AGENT_NAME:-}
             model: ${FOUNDRY_MODEL_NAME:-gpt-4o}
         timeout: 60
 ```

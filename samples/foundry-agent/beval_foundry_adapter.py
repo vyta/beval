@@ -64,8 +64,14 @@ class FoundryAdapter(AdapterInterface):
         try:
             response = self._openai.responses.create(**kwargs)
         except ClientAuthenticationError as exc:
+            import sys
+
+            print(
+                "Error: authentication failed when calling Foundry "
+                "(run 'az login' and ensure you have access to the project).",
+                file=sys.stderr,
+            )
             raise SystemExit(3) from exc
-        except HttpResponseError as exc:
             raise RuntimeError(
                 f"Foundry API error (status {exc.status_code}): {exc.message}"
             ) from exc

@@ -19,6 +19,12 @@ class FoundryAdapter(AdapterInterface):
     def __init__(self, config: dict[str, Any]) -> None:
         endpoint = config.get("endpoint")
         if not endpoint:
+            import sys
+
+            print(
+                "Error: set FOUNDRY_PROJECT_ENDPOINT (adapter config 'endpoint' is required).",
+                file=sys.stderr,
+            )
             raise SystemExit(2)
 
         self._agent_name = config.get("agent_name")

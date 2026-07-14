@@ -1,0 +1,208 @@
+# eCommerce Product Analytics — evaluation cases
+#
+# These cases evaluate the agent's ability to analyze product
+# performance, category breakdowns, and inventory metrics.
+#
+# Grading approach:
+#   - Deterministic layer (dev mode): completion time, response length
+#   - AI-judged layer (validation mode): LLM judge assesses accuracy
+#     of product-level analytics and correct join logic
+
+background:
+  category: product-analytics
+  given:
+    domain: ecommerce-analytics
+
+cases:
+  # ── Product Revenue Rankings ────────────────────────────────────
+
+  - id: top_10_products_by_revenue
+    name: Top 10 products by revenue
+    tags: [products, revenue, top-n, core]
+    given:
+      query: "What are the top 10 products by revenue when merging the order items and products datasets?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [100, 10000]
+          - the answer should be: >
+              a ranked list of the 10 highest-revenue products with
+              product names and revenue amounts
+
+  - id: bottom_10_products_by_revenue
+    name: Bottom 10 products by revenue
+    tags: [products, revenue, bottom-n]
+    given:
+      query: "What are the bottom 10 products by revenue when merging the order items and products datasets?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [100, 10000]
+          - the answer should be: >
+              a ranked list of the 10 lowest-revenue products with
+              product names and revenue amounts
+
+  # ── Category & Brand Performance ────────────────────────────────
+
+  - id: revenue_units_per_category
+    name: Revenue and units sold per product category
+    tags: [products, categories, revenue]
+    given:
+      query: "What is the revenue and units sold per product category?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              revenue and unit count for each product category
+
+  - id: revenue_units_per_brand
+    name: Revenue and units sold per brand
+    tags: [products, brands, revenue]
+    given:
+      query: "What is the revenue and units sold per brand?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              revenue and unit count for each brand
+
+  - id: avg_price_per_category
+    name: Average product price per category
+    tags: [products, categories, pricing]
+    given:
+      query: "What is the average product price per category?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 5000]
+          - the answer should be: >
+              the average price for each product category
+
+  - id: top_5_per_category
+    name: Top 5 revenue products in each category
+    tags: [products, categories, top-n]
+    given:
+      query: "What are the top 5 revenue-generating products in each category?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [100, 10000]
+          - the answer should be: >
+              the top 5 products by revenue within each product category
+
+  # ── Inventory & Velocity ────────────────────────────────────────
+
+  - id: zero_sales_products
+    name: Products with zero sales
+    tags: [products, performance]
+    given:
+      query: "Which products have zero sales?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              a list of products that have never been ordered
+
+  - id: sales_velocity_vs_inventory
+    name: Sales velocity relative to inventory
+    tags: [products, inventory, velocity]
+    given:
+      query: "What is the sales velocity relative to inventory for each product (total units sold / current inventory_qty)?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              a ratio of total units sold divided by current inventory
+              quantity for each product
+
+  - id: inactive_products_ordered
+    name: Inactive products still being ordered
+    tags: [products, anomaly]
+    given:
+      query: "Are there inactive products that are still being ordered?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [30, 10000]
+          - the answer should be: >
+              a list of products marked as inactive that still appear
+              in order items
+
+  # ── Revenue by Product Attributes ──────────────────────────────
+
+  - id: revenue_by_margin_band
+    name: Revenue by margin band
+    tags: [products, margins, revenue]
+    given:
+      query: "How does revenue break down by margin band?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 5000]
+          - the answer should be: >
+              revenue totals grouped by margin band categories
+
+  - id: revenue_by_launch_season
+    name: Revenue by launch season
+    tags: [products, seasonal, revenue]
+    given:
+      query: "How does revenue break down by launch season?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 5000]
+          - the answer should be: >
+              revenue totals grouped by product launch season
+
+  - id: price_distribution_bins
+    name: Product price distribution in 10 bins
+    tags: [products, pricing, distribution]
+    given:
+      query: "What does the product price distribution look like when divided into 10 bins?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              a histogram-style breakdown of product prices divided into
+              10 equal-width bins with counts per bin

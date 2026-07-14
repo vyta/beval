@@ -1,0 +1,112 @@
+# eCommerce Data Quality — evaluation cases
+#
+# These cases evaluate the agent's ability to detect data quality
+# issues, anomalies, and cross-table inconsistencies.
+#
+# Grading approach:
+#   - Deterministic layer (dev mode): completion time, response length
+#   - AI-judged layer (validation mode): LLM judge assesses whether
+#     anomalies are correctly identified and explained
+
+background:
+  category: data-quality
+  given:
+    domain: ecommerce-analytics
+
+cases:
+  # ── Cross-table inconsistencies ────────────────────────────────
+
+  - id: payment_order_mismatch
+    name: Orders with mismatched payment and order totals
+    tags: [anomaly, payments, orders]
+    given:
+      query: "Which orders have a mismatch between payment amounts and order totals?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              a list of order IDs where the payment amount does not match
+              the order total
+
+  - id: delivered_with_return
+    name: Orders marked delivered but also returned
+    tags: [anomaly, orders, returns]
+    given:
+      query: "Which orders are marked as delivered but also have a return?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              a list of order IDs that have both delivered status and an
+              associated return record
+
+  - id: multiple_payments
+    name: Orders with multiple payment records
+    tags: [anomaly, payments]
+    given:
+      query: "Which orders have multiple payment records?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              a list of order IDs with more than one payment record
+
+  - id: carts_no_orders
+    name: Users with carts but no orders
+    tags: [anomaly, carts, users]
+    given:
+      query: "Which users have carts but have never placed an order?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              a list of user IDs who have cart records but no order records
+
+  - id: missing_carrier
+    name: Shipments missing a carrier
+    tags: [anomaly, shipping]
+    given:
+      query: "Which shipments are missing a carrier?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              a list of shipment IDs or order IDs where the carrier field
+              is null or empty
+
+  - id: return_date_anomalies
+    name: Anomalies in returns requested_at column
+    tags: [anomaly, returns, dates]
+    given:
+      query: "Are there anomalies in the returns requested_at column?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 10000]
+          - the answer should be: >
+              an analysis of any date anomalies such as future dates,
+              dates before order creation, or null values in the returns
+              requested_at column

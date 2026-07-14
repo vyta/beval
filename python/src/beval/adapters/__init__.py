@@ -83,7 +83,7 @@ def _resolve_env_vars(value: Any) -> Any:
 
 
 _REQUIRED_FIELDS = {"name", "protocol", "connection"}
-_KNOWN_PROTOCOLS = {"acp", "a2a", "custom"}
+_KNOWN_PROTOCOLS = {"acp", "a2a", "custom", "foundry"}
 
 
 def load_agent(
@@ -200,6 +200,10 @@ def create_adapter(
         from beval.adapters.a2a import A2AAdapter
 
         return A2AAdapter(agent_def)
+    elif protocol == "foundry":
+        from beval.adapters.foundry import FoundryAdapter
+
+        return FoundryAdapter(agent_def)
     elif protocol == "custom":
         from beval.adapters.custom import CustomAdapter
 

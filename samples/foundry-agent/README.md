@@ -1,24 +1,25 @@
 ---
 title: Foundry Agent Sample Evaluation
-description: Evaluates a Microsoft Foundry prompt agent using beval's custom adapter protocol with Entra ID authentication.
-ms.date: 2026-06-19
+description: Evaluates a Microsoft Foundry prompt agent using beval's built-in Foundry adapter with Entra ID authentication.
+ms.date: 2026-07-14
 ms.topic: tutorial
 ---
 
 ## Foundry Agent Sample Evaluation
 
-This sample evaluates a Microsoft Foundry prompt agent using beval's custom
-adapter protocol. The adapter connects directly to the Foundry Responses API
+This sample evaluates a Microsoft Foundry prompt agent using beval's built-in
+`foundry` adapter protocol. The adapter connects to the Foundry Responses API
 via the `azure-ai-projects` SDK with Entra ID authentication.
 
 ## Files
 
 ```text
-├── agent.yaml                      # Agent definition (custom adapter)
-├── beval_foundry_adapter.py        # Custom adapter implementation
-├── eval.config.yaml                # Evaluation configuration (judge, agents)
+├── agent.yaml                      # Agent definition
+├── eval.config.yaml                # Evaluation configuration
+├── run.sh                          # Run script with defaults
 ├── cases/
-│   └── foundry-eval.yaml           # 2 evaluation cases
+│   ├── foundry-eval.yaml           # 2 basic evaluation cases
+│   └── cortyx/                     # eCommerce analytics cases (100 cases)
 └── README.md
 ```
 
@@ -27,7 +28,7 @@ via the `azure-ai-projects` SDK with Entra ID authentication.
 * Python 3.10+
 * Azure CLI (`az login`) for Entra ID authentication
 * A Microsoft Foundry project with a deployed prompt agent (or model deployment)
-* **Foundry User** role assigned at the project level
+* **Foundry Project Manager** role assigned at the project scope
 * (Optional) [Ollama](https://ollama.com) for local LLM judging
 
 ## Environment Variables
@@ -35,10 +36,8 @@ via the `azure-ai-projects` SDK with Entra ID authentication.
 | Variable                   | Required | Description                                          |
 |----------------------------|----------|------------------------------------------------------|
 | `FOUNDRY_PROJECT_ENDPOINT` | Yes      | Foundry project endpoint URL                         |
-| `FOUNDRY_AGENT_NAME`       | No       | Agent name (omit for direct model calls)             |
-| `FOUNDRY_MODEL_NAME`       | No       | Model name (default: `gpt-4o`)                       |
-| `JUDGE_MODEL_NAME`         | No       | Ollama judge model (default: `gemma4:e2b`)           |
-| `OPENAI_API_KEY`           | No       | Required for LLM judge; set to `ollama` when local   |
+| `FOUNDRY_AGENT_NAME`       | No       | Agent name (default: `ecommerce-agent`)              |
+| `FOUNDRY_MODEL_NAME`       | No       | Fallback model when agent name is not set (default: `gpt-4o`) |
 
 ## Setup
 
@@ -48,75 +47,55 @@ via the `azure-ai-projects` SDK with Entra ID authentication.
    az login
    ```
 
-1. Install the required Python packages:
+1. Install beval with the Foundry extra:
 
    ```bash
-   pip install azure-ai-projects azure-identity
+   pip install "beval[foundry] @ git+https://github.com/microsoft/beval.git#subdirectory=python"
    ```
 
-1. Set the required environment variables. `FOUNDRY_PROJECT_ENDPOINT` is
-   required; the others have defaults or are optional.
-
-   **Bash / Linux / macOS:**
+1. Set the required environment variables:
 
    ```bash
    export FOUNDRY_PROJECT_ENDPOINT="https://<account>.services.ai.azure.com/api/projects/<project>"
    export FOUNDRY_AGENT_NAME="MyAgent"
    ```
 
-   **PowerShell / Windows:**
-
-   ```powershell
-   $env:FOUNDRY_PROJECT_ENDPOINT = "https://<account>.services.ai.azure.com/api/projects/<project>"
-   $env:FOUNDRY_AGENT_NAME = "MyAgent"
-   ```
-
 ## Run
 
-The custom adapter module (`beval_foundry_adapter.py`) must be importable when
-beval starts. Run from this directory with `PYTHONPATH=.` so Python can find
-the module.
-
-**Dev mode** runs only deterministic graders (fast, no LLM judge required):
+**Dev mode** runs only deterministic graders (completion time, response length — no LLM judge required):
 
 ```bash
 cd samples/foundry-agent
-PYTHONPATH=. beval run --cases cases --agent agent.yaml -m dev --verbose
+beval -c eval.config.yaml run --cases cases --verbose
+```
+
+Or use the run script with defaults:
+
+```bash
+./run.sh
 ```
 
 **Validation mode** includes AI-judged criteria and requires a judge
-configured in `eval.config.yaml` (see [LLM Judge](#llm-judge) below). Pass
-`-c` before the `run` subcommand:
+configured in `eval.config.yaml` (see [LLM Judge](#llm-judge) below):
 
 ```bash
-PYTHONPATH=. OPENAI_API_KEY=ollama beval -c eval.config.yaml run \
-  --cases cases --agent agent.yaml -m validation --verbose
+beval -c eval.config.yaml run --cases cases -m validation --verbose
 ```
 
-On PowerShell, set environment variables first:
-
-```powershell
-cd samples\foundry-agent
-$env:PYTHONPATH = "."
-$env:OPENAI_API_KEY = "ollama"
-beval -c eval.config.yaml run --cases cases --agent agent.yaml -m validation --verbose
-```
-
-**From the `python/` directory:**
+**From the `python/` directory** (development):
 
 ```bash
 cd python
-PYTHONPATH=../samples/foundry-agent uv run beval run \
+uv run beval -c ../samples/foundry-agent/eval.config.yaml run \
   --cases ../samples/foundry-agent/cases \
-  --agent ../samples/foundry-agent/agent.yaml \
   -m dev --verbose
 ```
 
 ## LLM Judge
 
-The `eval.config.yaml` file configures the LLM judge used for AI-judged
-graders in validation mode. Any OpenAI-compatible endpoint works, including
-Ollama for fully local evaluation.
+To enable AI-judged graders in validation mode, add a `judge` section to
+`eval.config.yaml`. Any OpenAI-compatible endpoint works, including Ollama
+for fully local evaluation.
 
 ### Ollama (local)
 
@@ -126,7 +105,7 @@ Ollama for fully local evaluation.
    ollama pull gemma4:e2b
    ```
 
-1. The judge is already configured in `eval.config.yaml`:
+1. Add the judge config to `eval.config.yaml`:
 
    ```yaml
    eval:
@@ -136,18 +115,12 @@ Ollama for fully local evaluation.
        base_url: http://localhost:11434/v1
    ```
 
-   Override the model at runtime by setting `JUDGE_MODEL_NAME`.
-
 1. Set `OPENAI_API_KEY` to any non-empty value (Ollama ignores it, but the
    `openai` Python package requires it):
 
    ```bash
    export OPENAI_API_KEY=ollama
    ```
-
-> [!NOTE]
-> Judge quality depends on model reasoning capability. Larger models like
-> `gemma4` or `llama3:70b` produce more reliable scores.
 
 ### OpenAI
 
@@ -160,31 +133,21 @@ eval:
 
 Set `OPENAI_API_KEY` to your actual API key.
 
-## Inline Agent Definition (Alternative)
+## Agent Definition
 
-You can define the agent inline in `eval.config.yaml` instead of using a
-separate `agent.yaml`:
+The agent is defined inline in `eval.config.yaml` using the built-in `foundry`
+protocol:
 
 ```yaml
 eval:
-  mode: validation
   agents:
     default: foundry-agent
     definitions:
       - name: foundry-agent
-        protocol: custom
+        protocol: foundry
         connection:
-          module: beval_foundry_adapter
-          class: FoundryAdapter
-          config:
-            endpoint: ${FOUNDRY_PROJECT_ENDPOINT}
-            agent_name: ${FOUNDRY_AGENT_NAME:-}
-            model: ${FOUNDRY_MODEL_NAME:-gpt-4o}
-        timeout: 60
-```
-
-Then run without `--agent`:
-
-```bash
-PYTHONPATH=. beval run --cases cases
+          endpoint: ${FOUNDRY_PROJECT_ENDPOINT}
+          agent_name: ${FOUNDRY_AGENT_NAME:-ecommerce-agent}
+          model: ${FOUNDRY_MODEL_NAME:-gpt-4o}
+        timeout: 120
 ```

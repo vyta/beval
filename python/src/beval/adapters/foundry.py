@@ -1,34 +1,56 @@
-"""beval custom adapter for Microsoft Foundry Agent Service."""
+"""Foundry Agent Service adapter. See SPEC §13.4.
+
+Uses the ``azure-ai-projects`` SDK with Entra ID authentication.
+Requires ``azure-ai-projects`` and ``azure-identity`` packages.
+"""
 
 from __future__ import annotations
 
 import time
 from typing import Any
 
-from azure.ai.projects import AIProjectClient
-from azure.core.exceptions import ClientAuthenticationError, HttpResponseError
-from azure.identity import DefaultAzureCredential
-
 from beval.adapters import AdapterInput, AdapterInterface
 from beval.types import Subject
 
 
 class FoundryAdapter(AdapterInterface):
-    """Connects beval to a Microsoft Foundry prompt agent."""
+    """Adapter for Microsoft Foundry prompt agents.
 
-    def __init__(self, config: dict[str, Any]) -> None:
+    Uses ``AIProjectClient`` from the ``azure-ai-projects`` SDK to invoke
+    agents via the OpenAI-compatible Responses API.
+
+    Configuration (``connection`` keys):
+      - ``endpoint``: Foundry project endpoint (required)
+      - ``agent_name``: Name of the Foundry agent to invoke
+      - ``model``: Fallback model when agent_name is not set (default: gpt-4o)
+    """
+
+    def __init__(self, agent_def: dict[str, Any]) -> None:
+        try:
+            from azure.ai.projects import AIProjectClient
+            from azure.identity import DefaultAzureCredential
+        except ImportError as exc:
+            raise ImportError(
+                "Foundry adapter requires azure-ai-projects and azure-identity. "
+                "Install with: pip install beval[foundry]"
+            ) from exc
+
+        connection = agent_def.get("connection", {})
+        config = connection.get("config", connection)
         endpoint = config.get("endpoint")
         if not endpoint:
             import sys
 
             print(
-                "Error: set FOUNDRY_PROJECT_ENDPOINT (adapter config 'endpoint' is required).",
+                "Error: set FOUNDRY_PROJECT_ENDPOINT "
+                "(adapter config 'endpoint' is required).",
                 file=sys.stderr,
             )
             raise SystemExit(2)
 
         self._agent_name = config.get("agent_name")
         self._model = config.get("model", "gpt-4o")
+        self._timeout = agent_def.get("timeout", 60)
         self._credential = DefaultAzureCredential()
         self._client = AIProjectClient(
             endpoint=endpoint,
@@ -38,6 +60,8 @@ class FoundryAdapter(AdapterInterface):
         self._conversation_id: str | None = None
 
     def invoke(self, adapter_input: AdapterInput) -> Subject:
+        from azure.core.exceptions import ClientAuthenticationError
+
         query = adapter_input.query
         if isinstance(query, list):
             query = " ".join(
@@ -72,9 +96,6 @@ class FoundryAdapter(AdapterInterface):
                 file=sys.stderr,
             )
             raise SystemExit(3) from exc
-            raise RuntimeError(
-                f"Foundry API error (status {exc.status_code}): {exc.message}"
-            ) from exc
         except TimeoutError as exc:
             raise RuntimeError(f"Foundry API timed out: {exc}") from exc
 

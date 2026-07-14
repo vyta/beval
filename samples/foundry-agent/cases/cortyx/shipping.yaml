@@ -1,0 +1,111 @@
+# eCommerce Shipping & Delivery — evaluation cases
+#
+# These cases evaluate the agent's ability to analyze shipping
+# performance, carrier metrics, and delivery time patterns.
+#
+# Grading approach:
+#   - Deterministic layer (dev mode): completion time, response length
+#   - AI-judged layer (validation mode): LLM judge assesses accuracy
+#     of shipping analysis and correct metric computation
+
+background:
+  category: shipping
+  given:
+    domain: ecommerce-analytics
+
+cases:
+  # ── Carrier Performance ─────────────────────────────────────────
+
+  - id: avg_delivery_time_by_carrier
+    name: Average delivery time by carrier
+    tags: [shipping, carriers, delivery-time, core]
+    given:
+      query: "What is the average delivery time by carrier?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 5000]
+          - the answer should be: >
+              the average delivery time for each shipping carrier
+
+  - id: delay_risk_by_carrier
+    name: Delay risk rate by carrier
+    tags: [shipping, carriers, risk]
+    given:
+      query: "What is the delay risk rate by carrier?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 5000]
+          - the answer should be: >
+              the percentage or rate of delayed shipments for each carrier
+
+  - id: avg_shipping_cost_by_carrier
+    name: Average shipping cost by carrier
+    tags: [shipping, carriers, cost]
+    given:
+      query: "What is the average shipping cost by carrier including when carrier is missing?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 5000]
+          - the answer should be: >
+              the average shipping cost for each carrier including a
+              category for missing carriers
+
+  # ── Regional Analysis ───────────────────────────────────────────
+
+  - id: avg_shipping_cost_by_region
+    name: Average shipping cost by region
+    tags: [shipping, region, cost]
+    given:
+      query: "What is the average shipping cost by region?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 5000]
+          - the answer should be: >
+              the average shipping cost for each shipping region
+
+  - id: shipping_cost_pct_of_order
+    name: Shipping cost as percentage of order total
+    tags: [shipping, cost, ratio]
+    given:
+      query: "What percentage of the order total does shipping cost represent?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [30, 5000]
+          - the answer should be: >
+              the average or overall percentage that shipping cost
+              represents relative to total order value
+
+  - id: delivery_time_by_region
+    name: Delivery time by shipping region
+    tags: [shipping, region, delivery-time]
+    given:
+      query: "How does delivery time vary by shipping region?"
+    stages:
+      - when: the agent processes the request
+        then:
+          - completion time should be under: 100
+      - when: the agent responds
+        then:
+          - response length should be: [50, 5000]
+          - the answer should be: >
+              average delivery time for each shipping region

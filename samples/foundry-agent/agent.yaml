@@ -1,26 +1,15 @@
 name: foundry-agent
 description: >
-  Microsoft Foundry prompt agent evaluated via beval custom adapter.
+  Microsoft Foundry prompt agent evaluated via beval's built-in Foundry adapter.
   Uses the azure-ai-projects SDK with Entra ID authentication.
-protocol: custom
+protocol: foundry
 
 connection:
-  module: beval_foundry_adapter
-  class: FoundryAdapter
-  config:
-    endpoint: ${FOUNDRY_PROJECT_ENDPOINT}
-    agent_name: ${FOUNDRY_AGENT_NAME:-}
-    model: ${FOUNDRY_MODEL_NAME:-gpt-4o}
+  endpoint: ${FOUNDRY_PROJECT_ENDPOINT}
+  agent_name: ${FOUNDRY_AGENT_NAME:-}
+  model: ${FOUNDRY_MODEL_NAME:-gpt-4o}
 
-timeout: 60
-
-# Note: retry config is defined for schema compliance but has no effect
-# for custom adapters — the beval CustomAdapter wrapper does not implement
-# retry logic.
-retry:
-  max_attempts: 2
-  backoff: 2.0
+timeout: 120
 
 metadata:
   platform: azure-foundry
-  sdk_version: "2.2.0"

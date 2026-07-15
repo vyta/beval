@@ -50,7 +50,7 @@ via the `azure-ai-projects` SDK with Entra ID authentication.
 1. Install beval with the Foundry extra:
 
    ```bash
-   pip install "beval[foundry] @ git+https://github.com/microsoft/beval.git#subdirectory=python"
+   pip install "beval[foundry] @ git+https://github.com/vyta/beval.git@eedorenko/update-foundry-adapter#subdirectory=python"
    ```
 
 1. Set the required environment variables:

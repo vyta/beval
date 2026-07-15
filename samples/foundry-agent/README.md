@@ -36,6 +36,8 @@ via the `azure-ai-projects` SDK with Entra ID authentication.
 | `FOUNDRY_PROJECT_ENDPOINT` | Yes      | Foundry project endpoint URL                         |
 | `FOUNDRY_AGENT_NAME`       | No       | Agent name (omit for direct model calls)             |
 | `FOUNDRY_MODEL_NAME`       | No       | Fallback model when agent name is not set (default: `gpt-4o`) |
+| `JUDGE_MODEL_NAME`         | No       | Ollama judge model (default: `gemma4:e2b`)           |
+| `OPENAI_API_KEY`           | No       | Required for validation mode; set to `ollama` for local Ollama |
 
 ## Setup
 
@@ -71,7 +73,7 @@ beval -c eval.config.yaml run --cases cases -m dev --verbose
 configured in `eval.config.yaml` (see [LLM Judge](#llm-judge) below):
 
 ```bash
-beval -c eval.config.yaml run --cases cases --verbose
+OPENAI_API_KEY=ollama beval -c eval.config.yaml run --cases cases --verbose
 ```
 
 **From the `python/` directory** (development):

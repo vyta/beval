@@ -83,23 +83,6 @@ wheels = [
 ]
 
 [[package]]
-name = "azure-ai-projects"
-version = "2.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "azure-core" },
-    { name = "azure-identity" },
-    { name = "azure-storage-blob" },
-    { name = "isodate" },
-    { name = "openai" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/7a/29/ab1a80ce483fcc36ec2ac0a3db8e043aa954700b34b77db43ed5f4f9c488/azure_ai_projects-2.3.0.tar.gz", hash = "sha256:6e3006b7b8aa51c6ff9db61ef4aac3717f8a712cd1a183d5a1d34e2eb33450bd", size = 27563233, upload-time = "2026-07-01T21:09:00.018Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/bd/7e64f2d6e43d19fc8cf464769804f947d997833eb4dce1c86c2ce76146d2/azure_ai_projects-2.3.0-py3-none-any.whl", hash = "sha256:1da20aeac9663740a97644efedbb9f59eb2a332d3e01bfde7aa03027936edf44", size = 349581, upload-time = "2026-07-01T21:09:04.32Z" },
-]
-
-[[package]]
 name = "azure-core"
 version = "1.38.2"
 source = { registry = "https://pypi.org/simple" }
@@ -129,21 +112,6 @@ wheels = [
 ]
 
 [[package]]
-name = "azure-storage-blob"
-version = "12.30.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "azure-core" },
-    { name = "cryptography" },
-    { name = "isodate" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/3b/48/84a820d898267f662b5c06f7cd76fdb8a9e272b44aa9376cef3ec0f6a294/azure_storage_blob-12.30.0.tar.gz", hash = "sha256:2cd74d4d5731e5eb6b8d5c5056ee115a5e88f8fdf22517b739836fda685018be", size = 618229, upload-time = "2026-06-08T11:45:35.575Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5e/0b/e106f0fd7fa785867d9ffcc47dc9e6237c0e58f51058473b777487a98edc/azure_storage_blob-12.30.0-py3-none-any.whl", hash = "sha256:d415ac50b67a8da6b3ae7e9f1014b1b55cd7aafa0b8d4ca9b380568dc7360423", size = 435610, upload-time = "2026-06-08T11:45:37.213Z" },
-]
-
-[[package]]
 name = "beval"
 version = "0.1.0"
 source = { editable = "." }
@@ -169,7 +137,6 @@ acp = [
 all = [
     { name = "a2a-sdk" },
     { name = "agent-client-protocol" },
-    { name = "azure-ai-projects" },
     { name = "azure-identity" },
     { name = "httpx" },
     { name = "jsonschema" },
@@ -180,7 +147,6 @@ all = [
 dev = [
     { name = "a2a-sdk" },
     { name = "agent-client-protocol" },
-    { name = "azure-ai-projects" },
     { name = "azure-identity" },
     { name = "httpx" },
     { name = "jsonschema" },
@@ -192,10 +158,6 @@ dev = [
     { name = "ruff" },
     { name = "types-jsonschema" },
     { name = "types-pyyaml" },
-]
-foundry = [
-    { name = "azure-ai-projects" },
-    { name = "azure-identity" },
 ]
 judge = [
     { name = "azure-identity" },
@@ -214,12 +176,10 @@ requires-dist = [
     { name = "a2a-sdk", marker = "extra == 'a2a'", specifier = ">=0.3.0" },
     { name = "a2a-sdk", extras = ["http-server"], marker = "extra == 'a2a-server'", specifier = ">=0.3.0" },
     { name = "agent-client-protocol", marker = "extra == 'acp'", specifier = ">=0.1.0" },
-    { name = "azure-ai-projects", marker = "extra == 'foundry'", specifier = ">=2.0.0" },
     { name = "azure-identity", marker = "extra == 'a2a-server'", specifier = ">=1.15.0" },
-    { name = "azure-identity", marker = "extra == 'foundry'", specifier = ">=1.15.0" },
     { name = "azure-identity", marker = "extra == 'judge'", specifier = ">=1.15.0" },
     { name = "beval", extras = ["all"], marker = "extra == 'dev'" },
-    { name = "beval", extras = ["validate", "tracing", "acp", "a2a", "foundry", "judge"], marker = "extra == 'all'" },
+    { name = "beval", extras = ["validate", "tracing", "acp", "a2a", "judge"], marker = "extra == 'all'" },
     { name = "fastapi", marker = "extra == 'a2a-server'", specifier = ">=0.115.0" },
     { name = "httpx", marker = "extra == 'a2a'", specifier = ">=0.27.0" },
     { name = "jsonschema", marker = "extra == 'validate'", specifier = ">=4.20.0" },
@@ -235,7 +195,7 @@ requires-dist = [
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "uvicorn", marker = "extra == 'a2a-server'", specifier = ">=0.30.0" },
 ]
-provides-extras = ["validate", "tracing", "foundry", "acp", "a2a", "judge", "a2a-server", "all", "dev"]
+provides-extras = ["validate", "tracing", "acp", "a2a", "judge", "a2a-server", "all", "dev"]
 
 [[package]]
 name = "certifi"
@@ -651,15 +611,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730", size = 20503, upload-time = "2025-10-18T21:55:43.219Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
-]
-
-[[package]]
-name = "isodate"
-version = "0.7.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/54/4d/e940025e2ce31a8ce1202635910747e5a87cc3a6a6bb2d00973375014749/isodate-0.7.2.tar.gz", hash = "sha256:4cd1aa0f43ca76f4a6c6c0292a85f40b35ec2e43e315b59f06e6d32171a953e6", size = 29705, upload-time = "2024-10-08T23:04:11.5Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/aa/0aca39a37d3c7eb941ba736ede56d689e7be91cab5d9ca846bde3999eba6/isodate-0.7.2-py3-none-any.whl", hash = "sha256:28009937d8031054830160fce6d409ed342816b543597cece116d966c6d99e15", size = 22320, upload-time = "2024-10-08T23:04:09.501Z" },
 ]
 
 [[package]]

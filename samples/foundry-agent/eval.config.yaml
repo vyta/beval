@@ -1,7 +1,5 @@
 eval:
-  mode: dev                                        # deterministic graders only, no LLM judge
-  thresholds:
-    case_pass: 0.0                                 # pass all cases; focus on score, not pass/fail
+  mode: validation
   agents:
     default: foundry-agent
     definitions:
@@ -9,6 +7,10 @@ eval:
         protocol: foundry
         connection:
           endpoint: ${FOUNDRY_PROJECT_ENDPOINT}
-          agent_name: ${FOUNDRY_AGENT_NAME:-ecommerce-agent}
+          agent_name: ${FOUNDRY_AGENT_NAME:-}
           model: ${FOUNDRY_MODEL_NAME:-gpt-4o}
-        timeout: 120
+        timeout: 60
+  judge:
+    protocol: openai
+    model: ${JUDGE_MODEL_NAME:-gemma4:e2b}
+    base_url: http://localhost:11434/v1

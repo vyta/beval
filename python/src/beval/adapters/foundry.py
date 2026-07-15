@@ -64,9 +64,7 @@ class FoundryAdapter(AdapterInterface):
 
         query = adapter_input.query
         if isinstance(query, list):
-            query = " ".join(
-                m.get("content", "") for m in query if isinstance(m, dict)
-            )
+            query = " ".join(m.get("content", "") for m in query if isinstance(m, dict))
 
         start = time.monotonic()
 

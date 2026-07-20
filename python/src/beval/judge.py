@@ -419,10 +419,10 @@ class LLMJudge(Judge):
                     path = path[: -len(suffix)]
                     break
             clean_url = f"{parsed.scheme}://{parsed.netloc}{path}/openai/v1"
-            kwargs: dict[str, Any] = {"base_url": clean_url}
+            foundry_kwargs: dict[str, Any] = {"base_url": clean_url}
             if api_key:
-                kwargs["api_key"] = api_key
-            return openai_cls(**kwargs)
+                foundry_kwargs["api_key"] = api_key
+            return openai_cls(**foundry_kwargs)
 
         if _is_azure_oai and base_url:
             # Classic Azure OpenAI with api_key: AzureOpenAI, strip path.

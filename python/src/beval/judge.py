@@ -367,13 +367,20 @@ class LLMJudge(Judge):
                 # Azure AI Foundry: use plain OpenAI with bearer token header.
                 # Preserve the full path but strip trailing endpoint segments
                 # (/responses, /chat/completions) so the SDK can append its own.
+                # Append /openai/v1 so the SDK constructs the correct URL
+                # (e.g. .../openai/v1/chat/completions).
                 parsed = urlparse(base_url)
                 path = parsed.path.rstrip("/")
-                for suffix in ("/responses", "/chat/completions", "/completions"):
+                for suffix in (
+                    "/openai/v1",
+                    "/responses",
+                    "/chat/completions",
+                    "/completions",
+                ):
                     if path.endswith(suffix):
                         path = path[: -len(suffix)]
                         break
-                clean_url = f"{parsed.scheme}://{parsed.netloc}{path}"
+                clean_url = f"{parsed.scheme}://{parsed.netloc}{path}/openai/v1"
                 scope = "https://ai.azure.com/.default"
                 token_provider = get_bearer_token_provider(
                     DefaultAzureCredential(), scope
@@ -399,14 +406,20 @@ class LLMJudge(Judge):
 
         if _is_foundry and base_url:
             # Azure AI Foundry with api_key: plain OpenAI client, full path.
+            # Append /openai/v1 so the SDK constructs the correct URL.
             parsed = urlparse(base_url)
             path = parsed.path.rstrip("/")
-            for suffix in ("/responses", "/chat/completions", "/completions"):
+            for suffix in (
+                "/openai/v1",
+                "/responses",
+                "/chat/completions",
+                "/completions",
+            ):
                 if path.endswith(suffix):
                     path = path[: -len(suffix)]
                     break
-            clean_url = f"{parsed.scheme}://{parsed.netloc}{path}"
-            kwargs = {"base_url": clean_url}
+            clean_url = f"{parsed.scheme}://{parsed.netloc}{path}/openai/v1"
+            kwargs: dict[str, Any] = {"base_url": clean_url}
             if api_key:
                 kwargs["api_key"] = api_key
             return openai_cls(**kwargs)

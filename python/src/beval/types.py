@@ -226,3 +226,13 @@ class RunSummary:
     errored: int
     total: int
     metrics: dict[str, float]
+    # Bar 4 aggregate metrics
+    effective_latency: float | None = None
+    effective_latency_stderr: float | None = None
+    p95_latency: float | None = None
+    fail_rate: float | None = None
+    fail_rate_stderr: float | None = None
+    keyword_recall: float | None = None
+    keyword_recall_stderr: float | None = None
+    accuracy_rate: float | None = None
+    accuracy_rate_stderr: float | None = None

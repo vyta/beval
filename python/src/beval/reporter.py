@@ -77,6 +77,10 @@ def _prepare(result: RunResult, *, scrub: bool = False) -> dict[str, Any]:
     if "config" in raw:
         raw["config"] = _strip_defaults(raw["config"])
 
+    # Summary: drop null optional fields (Bar 4 metrics)
+    if "summary" in raw and isinstance(raw["summary"], dict):
+        raw["summary"] = {k: v for k, v in raw["summary"].items() if v is not None}
+
     # Cases: drop null optional fields and false high_variance
     for case in raw.get("cases", []):
         for key in _CASE_OPTIONAL:

@@ -47,9 +47,9 @@ _CONFIG_DEFAULTS: dict[str, Any] = {
 }
 
 # Patterns identifying sensitive keys for scrubbing (§10.1).
-# Excludes keyword_recall and keyword_recall_stderr via negative lookbehind.
+# Excludes keyword_recall and keyword_recall_stderr.
 _SENSITIVE_KEY_RE = re.compile(
-    r"(?<!keyword_re)(secret|password|token|key|credential|auth|api.?key)",
+    r"^(?!keyword_recall(_stderr)?$).*(secret|password|token|key|credential|auth|api.?key)",
     re.IGNORECASE,
 )
 _REDACTED = "***REDACTED***"

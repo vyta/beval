@@ -12,6 +12,14 @@ from typing import Any
 from beval.graders import grader
 from beval.types import EvalContext, Grade, GraderLayer, Subject
 
+# Matches numbers with comma thousands separators (e.g. "1,000" or "32,548.45").
+_COMMA_NUMBER_RE = re.compile(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?")
+
+
+def _strip_thousands_commas(text: str) -> str:
+    """Remove thousands-separator commas from numbers in *text*."""
+    return _COMMA_NUMBER_RE.sub(lambda m: m.group().replace(",", ""), text)
+
 
 @grader(
     "completion time should be under",
@@ -49,7 +57,11 @@ def _response_contains_grader(
 ) -> Grade:
     """Grade based on keyword/phrase presence in output."""
     keyword = args[0].lower() if args else ""
-    found = keyword in subject.answer.lower()
+    answer = subject.answer.lower()
+    found = keyword in answer
+    if not found:
+        # Retry with thousands-separator commas stripped from both sides.
+        found = _strip_thousands_commas(keyword) in _strip_thousands_commas(answer)
     return Grade(
         criterion=criterion,
         score=1.0 if found else 0.0,
@@ -66,7 +78,11 @@ def _response_not_contains_grader(
 ) -> Grade:
     """Grade based on keyword/phrase absence in output."""
     keyword = args[0].lower() if args else ""
-    absent = keyword not in subject.answer.lower()
+    answer = subject.answer.lower()
+    absent = keyword not in answer
+    if absent:
+        # Also check with thousands-separator commas stripped.
+        absent = _strip_thousands_commas(keyword) not in _strip_thousands_commas(answer)
     return Grade(
         criterion=criterion,
         score=1.0 if absent else 0.0,

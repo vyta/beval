@@ -15,10 +15,25 @@ from beval.types import EvalContext, Grade, GraderLayer, Subject
 # Matches numbers with comma thousands separators (e.g. "1,000" or "32,548.45").
 _COMMA_NUMBER_RE = re.compile(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?")
 
+# Matches any decimal number (e.g. "104.90", "1.00", "3.0").
+_DECIMAL_RE = re.compile(r"\d+\.\d+")
+
 
 def _strip_thousands_commas(text: str) -> str:
     """Remove thousands-separator commas from numbers in *text*."""
     return _COMMA_NUMBER_RE.sub(lambda m: m.group().replace(",", ""), text)
+
+
+def _normalize_trailing_zeros(text: str) -> str:
+    """Strip trailing zeros from decimals: 104.90 → 104.9, 1.00 → 1."""
+    return _DECIMAL_RE.sub(
+        lambda m: m.group().rstrip("0").rstrip("."), text
+    )
+
+
+def _normalize_numbers(text: str) -> str:
+    """Normalize number formatting: strip commas and trailing zeros."""
+    return _normalize_trailing_zeros(_strip_thousands_commas(text))
 
 
 @grader(
@@ -60,8 +75,8 @@ def _response_contains_grader(
     answer = subject.answer.lower()
     found = keyword in answer
     if not found:
-        # Retry with thousands-separator commas stripped from both sides.
-        found = _strip_thousands_commas(keyword) in _strip_thousands_commas(answer)
+        # Retry with normalized number formatting (commas, trailing zeros).
+        found = _normalize_numbers(keyword) in _normalize_numbers(answer)
     return Grade(
         criterion=criterion,
         score=1.0 if found else 0.0,
@@ -81,8 +96,8 @@ def _response_not_contains_grader(
     answer = subject.answer.lower()
     absent = keyword not in answer
     if absent:
-        # Also check with thousands-separator commas stripped.
-        absent = _strip_thousands_commas(keyword) not in _strip_thousands_commas(answer)
+        # Also check with normalized number formatting (commas, trailing zeros).
+        absent = _normalize_numbers(keyword) not in _normalize_numbers(answer)
     return Grade(
         criterion=criterion,
         score=1.0 if absent else 0.0,

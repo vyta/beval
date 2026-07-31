@@ -40,11 +40,12 @@ tracing = [
     "opentelemetry-api>=1.20.0",
     "opentelemetry-sdk>=1.20.0",
 ]
+foundry = ["azure-ai-projects>=2.0.0", "azure-identity>=1.15.0"]
 acp = ["agent-client-protocol>=0.1.0"]
 a2a = ["a2a-sdk>=0.3.0", "httpx>=0.27.0"]
 judge = ["openai>=1.0.0", "azure-identity>=1.15.0"]
 a2a-server = ["a2a-sdk[http-server]>=0.3.0", "uvicorn>=0.30.0", "fastapi>=0.115.0", "openai>=1.0.0", "azure-identity>=1.15.0"]
-all = ["beval[validate,tracing,acp,a2a,judge]"]
+all = ["beval[validate,tracing,acp,a2a,foundry,judge]"]
 dev = [
     "beval[all]",
     "pytest>=8.0",
@@ -100,7 +101,7 @@ module = ["azure.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["beval.adapters.acp", "beval.adapters.a2a"]
+module = ["beval.adapters.acp", "beval.adapters.a2a", "beval.adapters.foundry"]
 disallow_untyped_defs = false
 check_untyped_defs = false
 warn_return_any = false

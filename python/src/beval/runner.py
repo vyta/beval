@@ -6,6 +6,7 @@ See SPEC.md §7 (Runner Contract).
 
 from __future__ import annotations
 
+import math
 import statistics
 import time
 from typing import Any
@@ -72,6 +73,37 @@ def _filter_cases(
         ex_set = set(exclude_tags)
         result = [c for c in result if not ex_set.intersection(c.tags)]
     return result
+
+
+def _process_latency(
+    times: list[float], max_latency: float = 100.0
+) -> tuple[float, float]:
+    """Compute effective latency via geometric mean of (time+1), capped.
+
+    Returns (effective_latency, stderr) per Bar 4 spec.
+    """
+    capped = [min(t, max_latency) for t in times]
+    xl = [math.log(1.0 + t) for t in capped]
+    avg = statistics.mean(xl)
+    se = avg
+    if len(xl) > 1:
+        se = statistics.stdev(xl) / math.sqrt(len(xl) - 1)
+    eff = math.exp(avg) - 1.0
+    stderr = (math.exp(avg + se) - math.exp(avg - se)) / 2.0
+    return eff, stderr
+
+
+def _compute_pass_rate(values: list[bool]) -> tuple[float, float]:
+    """Compute pass rate with binomial stderr.
+
+    Returns (rate, stderr).
+    """
+    n = len(values)
+    if n == 0:
+        return 0.0, 0.0
+    p = sum(1 for v in values if v) / n
+    se = math.sqrt(p * (1 - p) / n) if n > 1 else 0.0
+    return p, se
 
 
 def _aggregate_grades(
@@ -716,6 +748,68 @@ class Runner:
         for m in metrics:
             metrics[m] /= metric_counts[m]
 
+        # Bar 4: Effective latency — geometric mean of (time+1), capped at 100s
+        effective_latency: float | None = None
+        effective_latency_stderr: float | None = None
+        p95_latency: float | None = None
+        times = [
+            c.time_seconds
+            for c in cases
+            if c.time_seconds is not None and c.time_seconds >= 0
+        ]
+        if times:
+            effective_latency, effective_latency_stderr = _process_latency(times)
+            sorted_times = sorted(times)
+            p95_idx = max(0, int(math.ceil(0.95 * len(sorted_times))) - 1)
+            p95_latency = sorted_times[p95_idx]
+
+        # Bar 4: Fail rate — binomial proportion with stderr
+        n_total = len(cases)
+        fail_rate: float | None = None
+        fail_rate_stderr: float | None = None
+        if n_total > 0:
+            fail_rate = errored / n_total
+            fail_rate_stderr = (
+                math.sqrt(fail_rate * (1 - fail_rate) / n_total) if n_total > 1 else 0.0
+            )
+
+        # Bar 4: Keyword recall — from "response should contain" grades
+        recall_values: list[float] = []
+        for c in non_errored:
+            keyword_grades = [
+                g
+                for g in c.grades
+                if g.criterion.lower().startswith("response should contain")
+                and not g.skipped
+            ]
+            if keyword_grades:
+                case_recall = sum(g.score for g in keyword_grades) / len(keyword_grades)
+                recall_values.append(case_recall)
+        keyword_recall: float | None = None
+        keyword_recall_stderr: float | None = None
+        if recall_values:
+            keyword_recall = statistics.mean(recall_values)
+            n_recall = len(recall_values)
+            keyword_recall_stderr = (
+                math.sqrt(keyword_recall * (1 - keyword_recall) / n_recall)
+                if n_recall > 1
+                else 0.0
+            )
+
+        # Bar 4: Accuracy rate — from ai_judged "the answer should" grades
+        accuracy_values: list[bool] = []
+        for c in non_errored:
+            for g in c.grades:
+                if (
+                    g.criterion.lower().startswith("the answer should")
+                    and not g.skipped
+                ):
+                    accuracy_values.append(g.passed)
+        accuracy_rate: float | None = None
+        accuracy_rate_stderr: float | None = None
+        if accuracy_values:
+            accuracy_rate, accuracy_rate_stderr = _compute_pass_rate(accuracy_values)
+
         return RunSummary(
             overall_score=overall,
             passed=passed,
@@ -723,4 +817,13 @@ class Runner:
             errored=errored,
             total=len(cases),
             metrics=metrics,
+            effective_latency=effective_latency,
+            effective_latency_stderr=effective_latency_stderr,
+            p95_latency=p95_latency,
+            fail_rate=fail_rate,
+            fail_rate_stderr=fail_rate_stderr,
+            keyword_recall=keyword_recall,
+            keyword_recall_stderr=keyword_recall_stderr,
+            accuracy_rate=accuracy_rate,
+            accuracy_rate_stderr=accuracy_rate_stderr,
         )

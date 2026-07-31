@@ -47,8 +47,9 @@ _CONFIG_DEFAULTS: dict[str, Any] = {
 }
 
 # Patterns identifying sensitive keys for scrubbing (§10.1).
+# Excludes keyword_recall and keyword_recall_stderr.
 _SENSITIVE_KEY_RE = re.compile(
-    r"(secret|password|token|key|credential|auth|api.?key)",
+    r"^(?!keyword_recall(_stderr)?$).*(secret|password|token|key|credential|auth|api.?key)",
     re.IGNORECASE,
 )
 _REDACTED = "***REDACTED***"
@@ -76,6 +77,10 @@ def _prepare(result: RunResult, *, scrub: bool = False) -> dict[str, Any]:
     # Config: drop fields at defaults
     if "config" in raw:
         raw["config"] = _strip_defaults(raw["config"])
+
+    # Summary: drop null optional fields (Bar 4 metrics)
+    if "summary" in raw and isinstance(raw["summary"], dict):
+        raw["summary"] = {k: v for k, v in raw["summary"].items() if v is not None}
 
     # Cases: drop null optional fields and false high_variance
     for case in raw.get("cases", []):

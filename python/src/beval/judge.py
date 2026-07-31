@@ -364,29 +364,12 @@ class LLMJudge(Judge):
                 raise ImportError(msg) from exc
 
             if _is_foundry and base_url:
-                # Azure AI Foundry: use plain OpenAI with bearer token header.
-                # Preserve the full path but strip trailing endpoint segments
-                # (/responses, /chat/completions) so the SDK can append its own.
-                parsed = urlparse(base_url)
-                path = parsed.path.rstrip("/")
-                for suffix in ("/responses", "/chat/completions", "/completions"):
-                    if path.endswith(suffix):
-                        path = path[: -len(suffix)]
-                        break
-                clean_url = f"{parsed.scheme}://{parsed.netloc}{path}"
                 scope = "https://ai.azure.com/.default"
-                token_provider = get_bearer_token_provider(
-                    DefaultAzureCredential(), scope
-                )
-                return openai_cls(
-                    api_key="placeholder",  # required by OpenAI SDK but unused
-                    base_url=clean_url,
-                    default_headers={"Authorization": f"Bearer {token_provider()}"},
-                )
-
-            # Classic Azure OpenAI: use AzureOpenAI with azure_endpoint.
-            scope = "https://cognitiveservices.azure.com/.default"
-            token_provider = get_bearer_token_provider(DefaultAzureCredential(), scope)
+            else:
+                scope = "https://cognitiveservices.azure.com/.default"
+            token_provider = get_bearer_token_provider(
+                DefaultAzureCredential(), scope
+            )
             api_version = os.environ.get("OPENAI_API_VERSION", "2024-12-01-preview")
             kwargs: dict[str, Any] = {
                 "azure_ad_token_provider": token_provider,
@@ -399,17 +382,23 @@ class LLMJudge(Judge):
 
         if _is_foundry and base_url:
             # Azure AI Foundry with api_key: plain OpenAI client, full path.
+            # Append /openai/v1 so the SDK constructs the correct URL.
             parsed = urlparse(base_url)
             path = parsed.path.rstrip("/")
-            for suffix in ("/responses", "/chat/completions", "/completions"):
+            for suffix in (
+                "/openai/v1",
+                "/responses",
+                "/chat/completions",
+                "/completions",
+            ):
                 if path.endswith(suffix):
                     path = path[: -len(suffix)]
                     break
-            clean_url = f"{parsed.scheme}://{parsed.netloc}{path}"
-            kwargs = {"base_url": clean_url}
+            clean_url = f"{parsed.scheme}://{parsed.netloc}{path}/openai/v1"
+            foundry_kwargs: dict[str, Any] = {"base_url": clean_url}
             if api_key:
-                kwargs["api_key"] = api_key
-            return openai_cls(**kwargs)
+                foundry_kwargs["api_key"] = api_key
+            return openai_cls(**foundry_kwargs)
 
         if _is_azure_oai and base_url:
             # Classic Azure OpenAI with api_key: AzureOpenAI, strip path.
